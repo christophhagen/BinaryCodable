@@ -14,10 +14,10 @@ final class ValueEncoder: SingleValueEncodingContainer {
     }
     
     func encodeNil() throws {
-        container = nil
+        assign { nil }
     }
     
-    private func assign(_ encoded: () throws -> EncodingContainer) rethrows {
+    private func assign(_ encoded: () throws -> EncodingContainer?) rethrows {
         guard container == nil else {
             fatalError("Multiple values encoded in single value container")
         }
@@ -52,7 +52,7 @@ extension ValueEncoder: CustomStringConvertible {
     
     var description: String {
         guard let container = container else {
-            return "Value (empty)"
+            return "Value (nil)"
         }
         return "Value\n" + "\(container)".indented()
         

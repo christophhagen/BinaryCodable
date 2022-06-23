@@ -6,9 +6,13 @@ final class UnkeyedEncoder: UnkeyedEncodingContainer {
     
     var userInfo: [CodingUserInfoKey : Any]
     
-    var count: Int = 0
+    var count: Int {
+        content.count + nilIndices.count
+    }
     
-    var content = [EncodingContainer]()
+    private var content = [EncodingContainer]()
+    
+    private var nilIndices = Set<Int>()
     
     init(codingPath: [CodingKey] = [], userInfo: [CodingUserInfoKey : Any] = [:]) {
         self.codingPath = codingPath
@@ -22,15 +26,10 @@ final class UnkeyedEncoder: UnkeyedEncodingContainer {
         return value
     }
     
-    func encodeNil() throws {
-        #warning("How to wrap optionals?")
+    func encodeNil() {
+        nilIndices.insert(count)
     }
     
-    /*
-    func encode<T>(contentsOf sequence: T) throws where T : Sequence, T.Element : Encodable {
-        
-    }
-    */
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             try assign {
@@ -66,18 +65,28 @@ final class UnkeyedEncoder: UnkeyedEncodingContainer {
 
 extension UnkeyedEncoder: EncodingContainer {
     
+    private var nilIndicesData: Data {
+        let count = nilIndices.count
+        return count.variableLengthEncoding + nilIndices.sorted().map { $0.variableLengthEncoding }.joined()
+    }
+    
+    private var contentData: FlattenSequence<[Data]> {
+        content.map { $0.dataWithLengthInformation }.joined()
+    }
+    
     var data: Data {
-        content.reduce(Data()) { result, container in
-            if container.dataType == .variableLength {
-                let data = container.data
-                let count = data.count.variableLengthEncoding
-                return result + count + data
-            }
-            return result + container.data
-        }
+        nilIndicesData + contentData
     }
     
     var dataType: DataType {
         .variableLength
+    }
+}
+
+extension UnkeyedEncoder: CustomStringConvertible {
+    
+    var description: String {
+        "Unkeyed\n" + content.map { "\($0)".indented()
+        }.joined(separator: "\n").indented()
     }
 }
