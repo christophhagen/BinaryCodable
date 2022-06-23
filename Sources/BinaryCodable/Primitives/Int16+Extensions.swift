@@ -1,5 +1,16 @@
 import Foundation
 
+extension Int16: EncodablePrimitive {
+    
+    func data() throws -> Data {
+        hostIndependentBinaryData
+    }
+    
+    static var dataType: DataType {
+        .twoBytes
+    }
+}
+
 extension Int16: HostIndependentRepresentable {
 
     /**

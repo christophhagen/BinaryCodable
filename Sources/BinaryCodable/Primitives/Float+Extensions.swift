@@ -1,5 +1,16 @@
 import Foundation
 
+extension Float: EncodablePrimitive {
+
+    func data() -> Data {
+        hostIndependentBinaryData
+    }
+    
+    static var dataType: DataType {
+        .fourBytes
+    }
+}
+
 extension Float: HostIndependentRepresentable {
 
     /// The float converted to little-endian

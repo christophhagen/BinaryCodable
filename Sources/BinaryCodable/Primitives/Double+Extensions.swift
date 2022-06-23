@@ -1,5 +1,16 @@
 import Foundation
 
+extension Double: EncodablePrimitive {
+    
+    func data() -> Data {
+        hostIndependentBinaryData
+    }
+    
+    static var dataType: DataType {
+        .eightBytes
+    }
+}
+
 extension Double: HostIndependentRepresentable {
 
     /// The double converted to little-endian

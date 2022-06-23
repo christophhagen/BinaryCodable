@@ -1,5 +1,16 @@
 import Foundation
 
+extension UInt16: EncodablePrimitive {
+    
+    func data() throws -> Data {
+        hostIndependentBinaryData
+    }
+    
+    static var dataType: DataType {
+        .twoBytes
+    }
+}
+
 extension UInt16: HostIndependentRepresentable {
 
     /// The little-endian representation

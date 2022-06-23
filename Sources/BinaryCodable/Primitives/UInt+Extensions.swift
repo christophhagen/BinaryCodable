@@ -1,5 +1,16 @@
 import Foundation
 
+extension UInt: EncodablePrimitive {
+    
+    func data() throws -> Data {
+        variableLengthEncoding
+    }
+    
+    static var dataType: DataType {
+        .variableLengthInteger
+    }
+}
+
 extension UInt: VariableLengthCodable {
     
     var variableLengthEncoding: Data {
