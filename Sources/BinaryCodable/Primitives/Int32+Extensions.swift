@@ -11,3 +11,21 @@ extension Int32: VariableLengthCodable {
         return (value: Int32(bitPattern: decoded.value), consumedBytes: decoded.consumedBytes)
     }
 }
+
+extension Int32: HostIndependentRepresentable {
+
+    /**
+     Convert the value to a host-independent (little endian) format.
+     */
+    var hostIndependentRepresentation: UInt32 {
+        CFSwapInt32HostToLittle(.init(bitPattern: self))
+    }
+
+    /**
+     Create an `Int32` value from its host-independent (little endian) representation.
+     - Parameter value: The host-independent representation
+     */
+    init(fromHostIndependentRepresentation value: UInt32) {
+        self.init(bitPattern: CFSwapInt32LittleToHost(value))
+    }
+}

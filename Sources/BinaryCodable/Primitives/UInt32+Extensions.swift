@@ -14,3 +14,19 @@ extension UInt32: VariableLengthCodable {
         return (value: value, consumedBytes: consumedBytes)
     }
 }
+
+extension UInt32: HostIndependentRepresentable {
+
+    /// The little-endian representation
+    var hostIndependentRepresentation: UInt32 {
+        CFSwapInt32HostToLittle(self)
+    }
+
+    /**
+     Create an `UInt32` value from its host-independent (little endian) representation.
+     - Parameter value: The host-independent representation
+     */
+    init(fromHostIndependentRepresentation value: UInt32) {
+        self = CFSwapInt32LittleToHost(value)
+    }
+}
