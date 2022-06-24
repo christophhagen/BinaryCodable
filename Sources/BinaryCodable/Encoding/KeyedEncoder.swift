@@ -28,64 +28,6 @@ final class KeyedEncoder<Key>: KeyedEncodingContainerProtocol where Key: CodingK
         // Nothing to do, nil is ommited for keyed containers
     }
     
-    /*
-    func encode(_ value: Bool, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: String, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: Double, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: Float, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: Int, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: Int8, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: Int16, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: Int32, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: Int64, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: UInt, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: UInt8, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: UInt16, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: UInt32, forKey key: Key) throws {
-        
-    }
-    
-    func encode(_ value: UInt64, forKey key: Key) throws {
-        
-    }
-    */
-    
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             try assign(to: key) {
