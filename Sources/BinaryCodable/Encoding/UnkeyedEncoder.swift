@@ -37,6 +37,10 @@ final class UnkeyedEncoder: UnkeyedEncodingContainer {
             }
             return
         }
+        if let optional = value as? AnyOptional, optional.isNil {
+            encodeNil()
+            return
+        }
         try assign {
             try EncodingNode(codingPath: codingPath, userInfo: userInfo).encoding(value)
         }

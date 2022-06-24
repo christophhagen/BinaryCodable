@@ -195,4 +195,13 @@ final class ArrayEncodingTests: XCTestCase {
                             to: [2, 2, 4,
                                  1, 0, 1, 0])
     }
+    
+    func testArrayOfArraysEncoding() throws {
+        let values: [[Bool]] = [[false], [true, false]]
+        try BinaryEncoder().printTree(values)
+        try compareEncoding([Bool].self, values: values,
+                            to: [0,
+                                 2, 0, 0,
+                                 3, 0, 1, 0])
+    }
 }

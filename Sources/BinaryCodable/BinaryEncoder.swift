@@ -22,8 +22,16 @@ public final class BinaryEncoder {
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
         defer { root.reset() }
-        try value.encode(to: root)
-        return root.data
+        guard let optional = value as? AnyOptional else {
+            try value.encode(to: root)
+            return root.data
+        }
+        if optional.isNil {
+            return Data([0])
+        } else {
+            try value.encode(to: root)
+            return Data([1]) + root.data
+        }
     }
     
     func printTree<T>(_ value: T) throws where T: Encodable {
