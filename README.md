@@ -167,9 +167,15 @@ Swift `String` values are encoded using their `UTF-8` representations. If a stri
 
 ### Arrays
 
+Arrays (and other sequences) are encoded by converting each item to binary data, and concatenating the results. Elements with variable length (like `String`) are prepended with their length encoded as a [Varint](#integer-encoding). Each encoded array has at least one byte prepended to it, in order to support optional values.
+
 #### Arrays of Optionals
 
+It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]`. Due to constraints regarding Apple's implementation of `Encoder` and `Decoder`, it is not consistently possible to infer if optionals are present in unkeyed containers. `BinaryCodable` therefore encodes optionals using a different strategy: Each array binary representation is prepended with a "nil index set". It first consists of the number of `nil` elements in the sequence, encoded as a `Varint`. Then follow the indices in the array where `nil` values are present, each encoded as a `Varint`. The decoder can then first parse this `nil` set, and return the appropriate value for each position where a `nil` value is encoded. This approach is fairly efficient while only few `nil` values are encoded, or while the sequence doesn't contain a large number of elements. For arrays that don't contain optionals, only a single byte (`0`) is prepended to the binary representation, to signal that there are no `nil` indices in the sequence.
+
 ### Structs
+
+Structs are encoded using `Codable`'s `KeyedEncodingContainer`, which uses `String` or `Int` coding keys to distinguish the properties of the types.
 
 #### Integer keys
 
