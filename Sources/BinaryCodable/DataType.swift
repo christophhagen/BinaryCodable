@@ -27,13 +27,13 @@ enum DataType: Int {
      Used for: `Int16`, `UInt16`
      */
     case twoBytes = 2
-    
+
     /**
-     No value is encoded, so no bytes used.
-     
-     Used for: `nil`
+     The value is encoded using first a length (as a UInt64 var-int) followed by the bytes.
+
+     Used by: `String`, complex types
      */
-    case noValue = 3
+    case variableLength = 3
     
     /**
      The value is encoded using four bytes.
@@ -43,16 +43,16 @@ enum DataType: Int {
     case fourBytes = 4
     
     /**
-     The value is encoded using first a length (as a UInt64 var-int) followed by the bytes.
-     
-     Used by: `String`, complex types
-     */
-    case variableLength = 5
-    
-    /**
      The value is encoded using eight bytes.
-     
+
      Used by: `Double`, `FixedWidth<Int64>`, `FixedWidth<Int>`, `FixedWidth<UInt64>`, `FixedWidth<UInt>`
      */
-    case eightBytes = 6
+    case eightBytes = 5
+
+    /**
+     No value is encoded, so no bytes used.
+
+     Used for: `nil`
+     */
+    //case noValue = 6
 }

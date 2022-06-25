@@ -44,7 +44,7 @@ extension ValueEncoder: EncodingContainer {
     }
     
     var dataType: DataType {
-        container?.dataType ?? .noValue
+        container!.dataType
     }
 }
 

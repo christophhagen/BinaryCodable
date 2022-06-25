@@ -9,4 +9,6 @@ public enum BinaryEncodingError: Error {
     case variableLengthEncodedIntegerOutOfRange
     
     case stringEncodingFailed(String)
+
+    case integerCodingKeyOutOfRange(CodingKey)
 }

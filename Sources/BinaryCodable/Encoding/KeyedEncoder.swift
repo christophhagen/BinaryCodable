@@ -15,7 +15,7 @@ final class KeyedEncoder<Key>: KeyedEncodingContainerProtocol where Key: CodingK
     
     @discardableResult
     func assign<T>(to key: CodingKey, container: () throws -> T) rethrows -> T where T: EncodingContainer {
-        let wrapped = CodingKeyWrapper(codingKey: key)
+        let wrapped = CodingKeyWrapper(key)
         guard content[wrapped] == nil else {
             fatalError("Multiple values encoded for key \(key)")
         }
@@ -72,8 +72,9 @@ final class KeyedEncoder<Key>: KeyedEncodingContainerProtocol where Key: CodingK
 extension KeyedEncoder: EncodingContainer {
     
     var data: Data {
-        #warning("Implement")
-        return Data()
+        content.map { key, value -> Data in
+            key.encode(for: value.dataType) + value.dataWithLengthInformationIfRequired
+        }.reduce(Data(), +)
     }
     
     var dataType: DataType {

@@ -9,7 +9,7 @@ protocol EncodingContainer {
 
 extension EncodingContainer {
     
-    var dataWithLengthInformation: Data {
+    var dataWithLengthInformationIfRequired: Data {
         guard dataType == .variableLength else {
             return data
         }

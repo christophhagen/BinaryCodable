@@ -75,7 +75,7 @@ extension UnkeyedEncoder: EncodingContainer {
     }
     
     private var contentData: FlattenSequence<[Data]> {
-        content.map { $0.dataWithLengthInformation }.joined()
+        content.map { $0.dataWithLengthInformationIfRequired }.joined()
     }
     
     var data: Data {

@@ -3,7 +3,7 @@ import XCTest
 
 final class PrimitiveEncodingTests: XCTestCase {
     
-    private func compareEncoding<T>(_ type: T.Type, value: T, to expected: [UInt8]) throws where T: Codable, T: Equatable {
+    private func compareEncoding<T>(_ type: T.Type, value: T, to expected: [UInt8]) throws where T: Codable {
         let encoder = BinaryEncoder()
         let data = try encoder.encode(value)
         XCTAssertEqual(Array(data), expected)
