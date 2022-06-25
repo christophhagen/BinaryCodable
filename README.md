@@ -175,8 +175,46 @@ It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]
 
 ### Structs
 
-Structs are encoded using `Codable`'s `KeyedEncodingContainer`, which uses `String` or `Int` coding keys to distinguish the properties of the types.
+Structs are encoded using `Codable`'s `KeyedEncodingContainer`, which uses `String` or `Int` coding keys to distinguish the properties of the types. By default, Swift uses the property names as `String` keys, which are used to encode each property as a key-value pair on the wire. The first value is a `Varint`, which contains the length of the string key, plus additional information about the data associated with the key. The least significant bit of the `Varint` indicates whether the key is a string key (`0` = string, `1` = int), while Bits 1-3 are used to signal the size value. The following types are possible: 
+
+| Data type | Raw value | Swift types | Description |
+|    :--    |    :--    |     :--     |     :--     |
+`variableLengthInteger` | `0` | `Int`, `Int32`, `Int64`,  `UInt`, `UInt32`, `UInt64` | A Base128 `Varint` using 1-9 bytes of data
+`byte` | `1` | `Bool`, `UInt8`, `Int8` | A single byte storing a number or boolean
+`twoBytes` | `2` | `Int16`, `UInt16` | Two bytes storing an integer using little-endian format
+`variableLength` | `3` | `String`, `Struct`, ... | The length of the data encoded as a `Varint` followed by `length` bytes
+`fourBytes` | `4` | `Float`, `FixedWidth<Int32>`, `FixedWidth<UInt32>` | A 32-bit float or integer in little-endian encoding.
+`eightBytes` | `5` | `Double`, `FixedWidth<Int64>`, `FixedWidth<Int>`, `FixedWidth<UInt64>`, `FixedWidth<UInt>` | A 64-bit float or integer in little-endian encoding.
+
+With the four lower bits occupied by the data type and the string key indicator, the remaining bits are left to encode the length of the string key.
+
+For example, a property named `xyz`  of type `UInt8` with value `123` would be encoded to the following:
+
+| Byte 0 | Byte 1 | Byte 2 | Byte 3 | Byte 4 | 
+|  :--   |  :--   |  :--   |  :--   |  :--   |
+| `0` `011` `001` `1` | `01111000` | `01111001` | `01111010` | `01111011` |
+| Length `3`, Data type `byte`, `String` key | `x` | `y` | `z` | `123` |
 
 #### Integer keys
+
+The Swift `Codable` framework also provides the ability to specify integer keys for properties, which can significantly reduce the binary size. Integer keys can be assigned to properties by implementing custom `CodingKeys` for a type:
+```swift
+struct MyCodable: Codable {
+
+    let xyz: UInt8
+    
+    enum CodingKeys: Int, CodingKey {
+        case xyz = 2
+    }
+}
+```
+Integer coding keys are encoded as `Varint` instead of the `String` key length. This results in the following encoding for the same example as before:
+
+| Byte 0 | Byte 1 | 
+|  :--   |  :--   |
+| `0` `010` `001` `0` | `01111011` |
+| Integer key `2`, Data type `byte`, `Int` key | `123` |
+
+Evidently this is a significant improvement, especially for long property names. Note that while it is possible to specify any integer as the key (between 2^59 and -2^59), small, positive integers are the most efficient.
 
 #### Optional properties
