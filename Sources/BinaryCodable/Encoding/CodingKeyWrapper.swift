@@ -86,6 +86,16 @@ extension CodingKeyWrapper: Hashable {
     }
 }
 
+extension CodingKeyWrapper: Comparable {
+
+    static func < (lhs: CodingKeyWrapper, rhs: CodingKeyWrapper) -> Bool {
+        if let lhsInt = lhs.codingKey.intValue, let rhsInt = rhs.codingKey.intValue {
+            return lhsInt < rhsInt
+        }
+        return lhs.codingKey.stringValue < rhs.codingKey.stringValue
+    }
+}
+
 extension CodingKeyWrapper: CustomStringConvertible {
     
     var description: String {

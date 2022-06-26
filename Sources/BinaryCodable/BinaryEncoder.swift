@@ -4,8 +4,21 @@ import Foundation
  An encoder to convert `Codable` objects to binary data.
  */
 public final class BinaryEncoder {
+
+    public var sortKeysDuringEncoding: Bool {
+        set {
+            if newValue {
+                userInfo[EncodingOption.sortKeys] = true
+            } else {
+                userInfo[EncodingOption.sortKeys] = nil
+            }
+        }
+        get {
+            userInfo[EncodingOption.sortKeys] as? Bool ?? false
+        }
+    }
     
-    private let root = EncodingNode()
+    private var userInfo = [CodingUserInfoKey : Any]()
     
     /**
      Create a new binary encoder.
@@ -21,7 +34,7 @@ public final class BinaryEncoder {
      - Throws: Errors of type `BinaryEncodingError`
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
-        defer { root.reset() }
+        let root = EncodingNode(codingPath: [], userInfo: userInfo)
         guard let optional = value as? AnyOptional else {
             try value.encode(to: root)
             return root.data
@@ -35,7 +48,7 @@ public final class BinaryEncoder {
     }
     
     func printTree<T>(_ value: T) throws where T: Encodable {
-        defer { root.reset() }
+        let root = EncodingNode(codingPath: [], userInfo: userInfo)
         try value.encode(to: root)
         print(root)
     }

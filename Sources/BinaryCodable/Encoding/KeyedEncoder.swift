@@ -59,11 +59,25 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
 
 
 extension KeyedEncoder: EncodingContainer {
-    
-    var data: Data {
-        content.map { key, value -> Data in
+
+    /// Sort keys so that output is deterministic
+    private var sortedData: Data {
+        content
+            .sorted { $0.key < $1.key }
+            .map { key, value -> Data in
             key.encode(for: value.dataType) + value.dataWithLengthInformationIfRequired
         }.reduce(Data(), +)
+    }
+
+    private var unsortedData: Data {
+        content
+            .map { key, value -> Data in
+            key.encode(for: value.dataType) + value.dataWithLengthInformationIfRequired
+        }.reduce(Data(), +)
+    }
+    
+    var data: Data {
+        sortKeysDuringEncoding ? sortedData : unsortedData
     }
     
     var dataType: DataType {
