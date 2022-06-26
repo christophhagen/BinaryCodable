@@ -10,3 +10,13 @@ extension Int8: EncodablePrimitive {
         .byte
     }
 }
+
+extension Int8: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        guard data.count == 1 else {
+            throw BinaryDecodingError.invalidDataSize
+        }
+        self.init(bitPattern: data[0])
+    }
+}

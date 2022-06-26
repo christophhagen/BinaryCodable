@@ -11,6 +11,13 @@ extension Int64: EncodablePrimitive {
     }
 }
 
+extension Int64: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        self.init(bitPattern: try UInt64.init(decodeFrom: data))
+    }
+}
+
 extension Int64: VariableLengthCodable {
     
     var variableLengthEncoding: Data {

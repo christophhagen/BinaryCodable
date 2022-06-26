@@ -14,6 +14,16 @@ extension String: EncodablePrimitive {
     }
 }
 
+extension String: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        guard let value = String(data: data, encoding: .utf8) else {
+            throw BinaryDecodingError.invalidString
+        }
+        self = value
+    }
+}
+
 extension String {
     
     func indented(by indentation: String = "  ") -> String {

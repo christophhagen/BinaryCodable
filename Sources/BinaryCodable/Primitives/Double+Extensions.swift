@@ -11,6 +11,13 @@ extension Double: EncodablePrimitive {
     }
 }
 
+extension Double: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        try self.init(hostIndependentBinaryData: data)
+    }
+}
+
 extension Double: HostIndependentRepresentable {
 
     /// The double converted to little-endian

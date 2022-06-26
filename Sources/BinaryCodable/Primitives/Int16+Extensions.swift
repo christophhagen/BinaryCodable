@@ -11,6 +11,13 @@ extension Int16: EncodablePrimitive {
     }
 }
 
+extension Int16: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        try self.init(hostIndependentBinaryData: data)
+    }
+}
+
 extension Int16: HostIndependentRepresentable {
 
     /**

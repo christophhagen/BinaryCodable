@@ -11,6 +11,13 @@ extension UInt16: EncodablePrimitive {
     }
 }
 
+extension UInt16: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        try self.init(hostIndependentBinaryData: data)
+    }
+}
+
 extension UInt16: HostIndependentRepresentable {
 
     /// The little-endian representation

@@ -11,6 +11,13 @@ extension Int: EncodablePrimitive {
     }
 }
 
+extension Int: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        self = try Int.readVariableLengthEncoded(from: data)
+    }
+}
+
 extension Int: VariableLengthCodable {
     
     var variableLengthEncoding: Data {

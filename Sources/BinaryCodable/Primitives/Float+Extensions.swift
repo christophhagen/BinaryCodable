@@ -11,6 +11,13 @@ extension Float: EncodablePrimitive {
     }
 }
 
+extension Float: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        try self.init(hostIndependentBinaryData: data)
+    }
+}
+
 extension Float: HostIndependentRepresentable {
 
     /// The float converted to little-endian

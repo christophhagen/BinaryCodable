@@ -11,6 +11,13 @@ extension UInt64: EncodablePrimitive {
     }
 }
 
+extension UInt64: DecodablePrimitive {
+
+    init(decodeFrom data: Data) throws {
+        self = try UInt64.readVariableLengthEncoded(from: data)
+    }
+}
+
 extension UInt64: VariableLengthCodable {
     
     /**
