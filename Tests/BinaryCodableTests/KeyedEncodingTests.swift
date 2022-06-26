@@ -3,12 +3,6 @@ import XCTest
 
 final class KeyedEncodingTests: XCTestCase {
 
-    private func compare<T>(_ value: T, to expected: [UInt8]) throws where T: Codable {
-        let encoder = BinaryEncoder()
-        let data = try encoder.encode(value)
-        XCTAssertEqual(Array(data), expected)
-    }
-
     func testEncodingWithVarintType() throws {
         struct Test: Codable {
             let value: Int

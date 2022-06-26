@@ -3,12 +3,6 @@ import XCTest
 
 final class OptionalEncodingTests: XCTestCase {
     
-    private func compareEncoding<T>(_ type: T.Type, value: T, to expected: [UInt8]) throws where T: Codable, T: Equatable {
-        let encoder = BinaryEncoder()
-        let data = try encoder.encode(value)
-        XCTAssertEqual(Array(data), expected)
-    }
- 
     func testOptionalBoolEncoding() throws {
         func compare(_ value: Bool?, to expected: [UInt8]) throws {
             try compareEncoding(Bool?.self, value: value, to: expected)

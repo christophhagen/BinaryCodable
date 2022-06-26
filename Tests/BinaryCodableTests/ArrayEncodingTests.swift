@@ -2,16 +2,10 @@ import XCTest
 @testable import BinaryCodable
 
 final class ArrayEncodingTests: XCTestCase {
-    
-    private func compareEncoding<T>(_ type: T.Type, values: [T], to expected: [UInt8]) throws where T: Codable, T: Equatable {
-        let encoder = BinaryEncoder()
-        let data = try encoder.encode(values)
-        XCTAssertEqual(Array(data), expected)
-    }
-    
+ 
     func testBoolArrayEncoding() throws {
         func compare(_ values: [Bool], to expected: [UInt8]) throws {
-            try compareEncoding(Bool.self, values: values, to: expected)
+            try compareArray(Bool.self, values: values, to: expected)
         }
         try compare([true, false, false], to: [0, 1, 0, 0])
         try compare([false, true, true], to: [0, 0, 1, 1])
@@ -19,7 +13,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testInt8Encoding() throws {
         func compare(_ values: [Int8], to expected: [UInt8]) throws {
-            try compareEncoding(Int8.self, values: values, to: expected)
+            try compareArray(Int8.self, values: values, to: expected)
         }
         try compare([.zero, 123, .min, .max, -1],
                     to: [0,
@@ -32,7 +26,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testInt16Encoding() throws {
         func compare(_ values: [Int16], to expected: [UInt8]) throws {
-            try compareEncoding(Int16.self, values: values, to: expected)
+            try compareArray(Int16.self, values: values, to: expected)
         }
         try compare([.zero, 123, .min, .max, -1],
                     to: [0,
@@ -45,7 +39,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testInt32Encoding() throws {
         func compare(_ values: [Int32], to expected: [UInt8]) throws {
-            try compareEncoding(Int32.self, values: values, to: expected)
+            try compareArray(Int32.self, values: values, to: expected)
         }
         try compare([.zero, 123, .min, .max, -1],
                     to: [0,
@@ -58,7 +52,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testInt64Encoding() throws {
         func compare(_ values: [Int64], to expected: [UInt8]) throws {
-            try compareEncoding(Int64.self, values: values, to: expected)
+            try compareArray(Int64.self, values: values, to: expected)
         }
         try compare([0, 123, .max, .min, -1],
                     to: [0,
@@ -71,7 +65,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testIntEncoding() throws {
         func compare(_ values: [Int], to expected: [UInt8]) throws {
-            try compareEncoding(Int.self, values: values, to: expected)
+            try compareArray(Int.self, values: values, to: expected)
         }
         try compare([0, 123, .max, .min, -1],
                     to: [0,
@@ -84,7 +78,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testUInt8Encoding() throws {
         func compare(_ values: [UInt8], to expected: [UInt8]) throws {
-            try compareEncoding(UInt8.self, values: values, to: expected)
+            try compareArray(UInt8.self, values: values, to: expected)
         }
         try compare([.zero, 123, .min, .max],
                     to: [0, 0, 123, 0, 255])
@@ -92,7 +86,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testUInt16Encoding() throws {
         func compare(_ values: [UInt16], to expected: [UInt8]) throws {
-            try compareEncoding(UInt16.self, values: values, to: expected)
+            try compareArray(UInt16.self, values: values, to: expected)
         }
         try compare([.zero, 123, .min, .max, 12345],
                     to: [0,
@@ -105,7 +99,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testUInt32Encoding() throws {
         func compare(_ values: [UInt32], to expected: [UInt8]) throws {
-            try compareEncoding(UInt32.self, values: values, to: expected)
+            try compareArray(UInt32.self, values: values, to: expected)
         }
         try compare([.zero, 123, .min, 12345, 123456, 12345678, 1234567890, .max],
                     to: [0, 0,
@@ -120,7 +114,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testUInt64Encoding() throws {
         func compare(_ values: [UInt64], to expected: [UInt8]) throws {
-            try compareEncoding(UInt64.self, values: values, to: expected)
+            try compareArray(UInt64.self, values: values, to: expected)
         }
         try compare([0, 123, .min, 12345, 123456, 12345678, 1234567890, 12345678901234, .max],
                     to: [0,
@@ -137,7 +131,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testUIntEncoding() throws {
         func compare(_ values: [UInt], to expected: [UInt8]) throws {
-            try compareEncoding(UInt.self, values: values, to: expected)
+            try compareArray(UInt.self, values: values, to: expected)
         }
         try compare([0, 123, .min, 12345, 123456, 12345678, 1234567890, 12345678901234, .max],
                     to: [0,
@@ -158,14 +152,14 @@ final class ArrayEncodingTests: XCTestCase {
                 let data = Array(value.data(using: .utf8)!)
                 return data.count.variableLengthEncoding + data
             }.reduce([], +)
-            try compareEncoding(String.self, values: values, to: result)
+            try compareArray(String.self, values: values, to: result)
         }
         try compare(["Some", "A longer text with\n multiple lines", "More text", "eolqjwqu(Jan?!)§(!N"])
     }
     
     func testFloatEncoding() throws {
         func compare(_ values: [Float], to expected: [UInt8]) throws {
-            try compareEncoding(Float.self, values: values, to: expected)
+            try compareArray(Float.self, values: values, to: expected)
         }
         try compare([.greatestFiniteMagnitude, .nan, .zero, .pi, -.pi, .leastNonzeroMagnitude],
                     to: [0,
@@ -179,7 +173,7 @@ final class ArrayEncodingTests: XCTestCase {
     
     func testDoubleEncoding() throws {
         func compare(_ values: [Double], to expected: [UInt8]) throws {
-            try compareEncoding(Double.self, values: values, to: expected)
+            try compareArray(Double.self, values: values, to: expected)
         }
         try compare([.greatestFiniteMagnitude, .zero, .pi, .leastNonzeroMagnitude, -.pi],
                     to: [0,
@@ -191,7 +185,7 @@ final class ArrayEncodingTests: XCTestCase {
     }
     
     func testArrayOfOptionalsEncoding() throws {
-        try compareEncoding(Bool?.self, values: [true, false, nil, true, nil, false],
+        try compareArray(Bool?.self, values: [true, false, nil, true, nil, false],
                             to: [2, 2, 4,
                                  1, 0, 1, 0])
     }
@@ -199,7 +193,7 @@ final class ArrayEncodingTests: XCTestCase {
     func testArrayOfArraysEncoding() throws {
         let values: [[Bool]] = [[false], [true, false]]
         try BinaryEncoder().printTree(values)
-        try compareEncoding([Bool].self, values: values,
+        try compareArray([Bool].self, values: values,
                             to: [0,
                                  2, 0, 0,
                                  3, 0, 1, 0])
