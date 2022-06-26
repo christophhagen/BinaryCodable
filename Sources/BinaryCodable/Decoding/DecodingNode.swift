@@ -15,7 +15,7 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        throw BinaryDecodingError.notImplemented
+        try UnkeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {

@@ -6,8 +6,6 @@ public enum BinaryDecodingError: Error {
 
     case invalidData
 
-    case notImplemented
-
     case missingDataForKey(CodingKey)
 
     case unknownDataType(Int)

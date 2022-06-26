@@ -52,7 +52,7 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
         content.keys.contains { $0.isEqual(to: key) }
     }
 
-    private func getData(forKey key: Key) throws -> Data {
+    private func getData(forKey key: CodingKey) throws -> Data {
         guard let data = content.first(where: { $0.key.isEqual(to: key) })?.value else {
             throw BinaryDecodingError.missingDataForKey(key)
         }
@@ -73,18 +73,23 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        throw BinaryDecodingError.notImplemented
+        let data = try getData(forKey: key)
+        let container = try KeyedDecoder<NestedKey>(data: data, codingPath: codingPath, userInfo: userInfo)
+        return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
-        throw BinaryDecodingError.notImplemented
+        let data = try getData(forKey: key)
+        return try UnkeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 
     func superDecoder() throws -> Decoder {
-        throw BinaryDecodingError.notImplemented
+        let data = try getData(forKey: SuperEncoderKey())
+        return DecodingNode(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 
     func superDecoder(forKey key: Key) throws -> Decoder {
-        throw BinaryDecodingError.notImplemented
+        let data = try getData(forKey: key)
+        return DecodingNode(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 }
