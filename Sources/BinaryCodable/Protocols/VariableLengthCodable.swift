@@ -4,5 +4,5 @@ protocol VariableLengthCodable {
     
     var variableLengthEncoding: Data { get }
     
-    static func readVariableLengthEncoded(from data: Data) throws -> (value: Self, consumedBytes: Int)
+    static func readVariableLengthEncoded(from data: Data) throws -> Self
 }

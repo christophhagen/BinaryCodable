@@ -46,29 +46,29 @@ extension UInt64: VariableLengthCodable {
         return result
     }
     
-    static func readVariableLengthEncoded(from data: Data) throws -> (value: UInt64, consumedBytes: Int) {
+    static func readVariableLengthEncoded(from data: Data) throws -> UInt64 {
         var result: UInt64 = 0
         
         // There are always 7 usable bits per byte, for 8 bytes
         for byteIndex in 0..<8 {
             guard data.startIndex + byteIndex < data.endIndex else {
-                throw BinaryEncodingError.prematureEndOfData
+                throw BinaryDecodingError.prematureEndOfData
             }
             let nextByte = UInt64(data[data.startIndex + byteIndex])
             // Insert the last 7 bit of the byte at the end
             result += UInt64(nextByte & 0x7F) << (byteIndex*7)
             // Check if an additional byte is coming
             guard nextByte & 0x80 > 0 else {
-                return (value: result, consumedBytes: byteIndex + 1)
+                return result
             }
         }
         guard data.startIndex + 8 < data.endIndex else {
-            throw BinaryEncodingError.prematureEndOfData
+            throw BinaryDecodingError.prematureEndOfData
         }
         // The 9th byte has no next-byte bit, so all 8 bits are used
         let nextByte = UInt64(data[data.startIndex + 8])
         result += UInt64(nextByte) << 56
-        return (value: result, consumedBytes: 9)
+        return result
     }
 }
 

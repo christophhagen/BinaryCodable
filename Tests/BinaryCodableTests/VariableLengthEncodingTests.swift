@@ -6,8 +6,7 @@ final class VariableLengthEncodingTests: XCTestCase {
     private func rountTrip<T>(_ type: T.Type, value: T) throws where T: Codable, T: VariableLengthCodable, T: Equatable {
         let data = value.variableLengthEncoding
         let decoded = try type.readVariableLengthEncoded(from: data)
-        XCTAssertEqual(decoded.value, value)
-        XCTAssertEqual(decoded.consumedBytes, data.count)
+        XCTAssertEqual(decoded, value)
     }
     
     func testEncodeUInt64() {
@@ -39,8 +38,7 @@ final class VariableLengthEncodingTests: XCTestCase {
         func roundTrip(_ value: UInt64) throws {
             let data = value.variableLengthEncoding
             let decoded = try UInt64.readVariableLengthEncoded(from: data)
-            XCTAssertEqual(decoded.value, value)
-            XCTAssertEqual(decoded.consumedBytes, data.count)
+            XCTAssertEqual(decoded, value)
         }
         
         try roundTrip(0)
