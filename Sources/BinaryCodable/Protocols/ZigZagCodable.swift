@@ -4,5 +4,5 @@ protocol ZigZagCodable {
     
     var zigZagEncoded: Data { get }
     
-    static func readZigZagEncoded(from data: Data) throws -> (value: Self, consumedBytes: Int)
+    static func readZigZagEncoded(from data: Data) throws -> Self
 }
