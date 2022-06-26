@@ -2,9 +2,9 @@ import Foundation
 
 final class EncodingNode: Encoder {
     
-    var codingPath: [CodingKey]
+    let codingPath: [CodingKey]
     
-    var userInfo: [CodingUserInfoKey : Any]
+    let userInfo: [CodingUserInfoKey : Any]
     
     var container: EncodingContainer?
     
