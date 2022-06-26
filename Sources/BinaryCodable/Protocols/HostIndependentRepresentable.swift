@@ -45,6 +45,14 @@ extension HostIndependentRepresentable {
     static var binaryDataSize: Int {
         MemoryLayout<IndependentType>.size
     }
+
+    init(hostIndependentBinaryData data: Data) throws {
+        guard data.count == Self.binaryDataSize else {
+            throw BinaryDecodingError.invalidDataSize
+        }
+        let value = read(data: data, into: Self.empty)
+        self.init(fromHostIndependentRepresentation: value)
+    }
     
 }
 
