@@ -59,7 +59,6 @@ final class UnkeyedEncoder: UnkeyedEncodingContainer {
         }
     }
     
-    #warning("Signal super encoder")
     func superEncoder() -> Encoder {
         assign {
             EncodingNode(codingPath: codingPath, userInfo: userInfo)

@@ -53,14 +53,12 @@ final class KeyedEncoder<Key>: KeyedEncodingContainerProtocol where Key: CodingK
         }
     }
     
-    #warning("Signal super encoding")
     func superEncoder() -> Encoder {
         assign(to: SuperEncoderKey()) {
             EncodingNode(codingPath: codingPath, userInfo: userInfo)
         }
     }
     
-    #warning("Signal super encoding")
     func superEncoder(forKey key: Key) -> Encoder {
         assign(to: key) {
             EncodingNode(codingPath: codingPath + [key], userInfo: userInfo)
