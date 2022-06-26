@@ -23,3 +23,9 @@ func compare<T>(_ value: T, possibleResults: [[UInt8]]) throws where T: Codable 
     }
     XCTFail("\(data) is not one of the provided options")
 }
+
+func compareDecoding<T>(_ type: T.Type, value: T, from data: [UInt8]) throws where T: Codable, T: Equatable {
+    let decoder = BinaryDecoder()
+    let decoded = try decoder.decode(T.self, from: Data(data))
+    XCTAssertEqual(value, decoded)
+}

@@ -49,10 +49,18 @@ enum DataType: Int {
      */
     case eightBytes = 5
 
-    /**
-     No value is encoded, so no bytes used.
-
-     Used for: `nil`
-     */
-    //case noValue = 6
+    var byteCount: Int? {
+        switch self {
+        case .variableLengthInteger, .variableLength:
+            return nil
+        case .byte:
+            return 1
+        case .twoBytes:
+            return 2
+        case .fourBytes:
+            return 4
+        case .eightBytes:
+            return 8
+        }
+    }
 }
