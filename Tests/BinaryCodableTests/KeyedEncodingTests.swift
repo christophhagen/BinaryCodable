@@ -74,4 +74,28 @@ final class KeyedEncodingTests: XCTestCase {
         let expected: [UInt8] = [0b10010100, 0xD0, 0xC9, 0x28, 123, 0]
         try compare(Test(value: 123), to: expected)
     }
+
+    func testStringDictEncoding() throws {
+        // Dictionaries with string keys are treated as keyed containers
+        let value: [String : UInt8] = ["val": 123, "more": 124]
+        let part1: [UInt8] = [0b00110011, 118, 97, 108, 123]
+        let part2: [UInt8] = [0b01000011, 109, 111, 114, 101, 124]
+        try compare(value, possibleResults: [part1 + part2, part2 + part1])
+    }
+
+    func testIntDictEncoding() throws {
+        // Dictionaries with int keys are treated as keyed containers
+        let value: [Int : UInt8] = [123: 123, 124: 124]
+        let part1: [UInt8] = [0b10110010, 0x0F, 123]
+        let part2: [UInt8] = [0b11000010, 0x0F, 124]
+        try compare(value, possibleResults: [part1 + part2, part2 + part1])
+    }
+
+    func testUIntDictEncoding() throws {
+        // Other dictionaries (keys not int/string) are treated as unkeyed containers of key-value pairs
+        let value: [UInt : UInt8] = [123: 123, 124: 124]
+        let part1: [UInt8] = [123, 123]
+        let part2: [UInt8] = [124, 124]
+        try compare(value, possibleResults: [[0] + part1 + part2, [0] + part2 + part1])
+    }
 }
