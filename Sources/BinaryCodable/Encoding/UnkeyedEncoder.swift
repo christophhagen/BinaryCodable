@@ -1,10 +1,6 @@
 import Foundation
 
-final class UnkeyedEncoder: UnkeyedEncodingContainer {
-    
-    var codingPath: [CodingKey]
-    
-    var userInfo: [CodingUserInfoKey : Any]
+final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
     
     var count: Int {
         content.count + nilIndices.count
@@ -13,11 +9,6 @@ final class UnkeyedEncoder: UnkeyedEncodingContainer {
     private var content = [EncodingContainer]()
     
     private var nilIndices = Set<Int>()
-    
-    init(codingPath: [CodingKey] = [], userInfo: [CodingUserInfoKey : Any] = [:]) {
-        self.codingPath = codingPath
-        self.userInfo = userInfo
-    }
     
     @discardableResult
     private func assign<T>(_ encoded: () throws -> T) rethrows -> T where T: EncodingContainer {

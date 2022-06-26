@@ -1,17 +1,8 @@
 import Foundation
 
-final class ValueEncoder: SingleValueEncodingContainer {
-    
-    var codingPath: [CodingKey]
-    
-    var userInfo: [CodingUserInfoKey : Any]
+final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     
     private var container: EncodingContainer?
-    
-    init(codingPath: [CodingKey] = [], userInfo: [CodingUserInfoKey : Any] = [:]) {
-        self.codingPath = codingPath
-        self.userInfo = userInfo
-    }
     
     func encodeNil() throws {
         assign { nil }

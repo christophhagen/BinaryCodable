@@ -1,17 +1,8 @@
 import Foundation
 
-final class KeyedEncoder<Key>: KeyedEncodingContainerProtocol where Key: CodingKey {
-    
-    var codingPath: [CodingKey]
-    
-    var userInfo: [CodingUserInfoKey : Any]
+final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProtocol where Key: CodingKey {
     
     var content = [CodingKeyWrapper : EncodingContainer]()
-    
-    init(codingPath: [CodingKey] = [], userInfo: [CodingUserInfoKey : Any] = [:]) {
-        self.codingPath = codingPath
-        self.userInfo = userInfo
-    }
     
     @discardableResult
     func assign<T>(to key: CodingKey, container: () throws -> T) rethrows -> T where T: EncodingContainer {

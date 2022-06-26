@@ -1,17 +1,8 @@
 import Foundation
 
-final class EncodingNode: Encoder {
-    
-    let codingPath: [CodingKey]
-    
-    let userInfo: [CodingUserInfoKey : Any]
+final class EncodingNode: AbstractEncodingNode, Encoder {
     
     var container: EncodingContainer?
-    
-    init(codingPath: [CodingKey] = [], userInfo: [CodingUserInfoKey : Any] = [:]) {
-        self.codingPath = codingPath
-        self.userInfo = userInfo
-    }
     
     private func wrap<T>(container: () -> T) -> T where T: EncodingContainer {
         guard self.container == nil else {
