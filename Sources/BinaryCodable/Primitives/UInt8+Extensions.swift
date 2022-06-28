@@ -17,6 +17,6 @@ extension UInt8: DecodablePrimitive {
         guard data.count == 1 else {
             throw BinaryDecodingError.invalidDataSize
         }
-        self = data[0]
+        self = data[data.startIndex]
     }
 }

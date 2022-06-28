@@ -57,7 +57,7 @@ extension HostIndependentRepresentable {
 }
 
 func read<T>(data: Data, into value: T) -> T {
-    data.withUnsafeBytes {
+    Data(data).withUnsafeBytes {
         $0.baseAddress!.load(as: T.self)
     }
 }

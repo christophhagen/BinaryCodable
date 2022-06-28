@@ -17,6 +17,6 @@ extension Int8: DecodablePrimitive {
         guard data.count == 1 else {
             throw BinaryDecodingError.invalidDataSize
         }
-        self.init(bitPattern: data[0])
+        self.init(bitPattern: data[data.startIndex])
     }
 }
