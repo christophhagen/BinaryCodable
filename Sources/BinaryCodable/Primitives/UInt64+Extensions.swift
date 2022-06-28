@@ -96,6 +96,13 @@ extension UInt64: HostIndependentRepresentable {
     }
 }
 
+extension UInt64: FixedSizeCompatible {
+
+    static public var fixedSizeDataType: DataType {
+        .eightBytes
+    }
+}
+
 extension UInt64: ProtobufCodable {
 
     /**

@@ -1,8 +1,6 @@
 import Foundation
 
-protocol DecodablePrimitive {
+protocol DecodablePrimitive: DataTypeProvider {
 
     init(decodeFrom data: Data) throws
-
-    static var dataType: DataType { get }
 }

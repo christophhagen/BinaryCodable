@@ -49,6 +49,13 @@ extension UInt32: HostIndependentRepresentable {
     }
 }
 
+extension UInt32: FixedSizeCompatible {
+
+    static public var fixedSizeDataType: DataType {
+        .fourBytes
+    }
+}
+
 extension UInt32: ProtobufCodable {
 
     func protobufData() -> Data {

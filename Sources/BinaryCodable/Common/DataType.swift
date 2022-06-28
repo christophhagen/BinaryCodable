@@ -5,7 +5,7 @@ import Foundation
  
  The data type is mixed into the key for each value to indicate how many bytes the value occupies in the following bytes.
  */
-enum DataType: Int {
+public enum DataType: Int {
     
     /**
      An integer value encoded as a var-int. The length can be determined by reading the value.

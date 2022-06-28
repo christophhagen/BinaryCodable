@@ -72,6 +72,13 @@ extension Int32: ZigZagCodable {
     }
 }
 
+extension Int32: FixedSizeCompatible {
+
+    static public var fixedSizeDataType: DataType {
+        .fourBytes
+    }
+}
+
 extension Int32: ProtobufCodable {
 
     func protobufData() -> Data {

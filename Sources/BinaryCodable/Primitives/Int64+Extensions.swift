@@ -80,6 +80,13 @@ extension Int64: HostIndependentRepresentable {
     }
 }
 
+extension Int64: FixedSizeCompatible {
+
+    static public var fixedSizeDataType: DataType {
+        .eightBytes
+    }
+}
+
 extension Int64: ProtobufCodable {
 
     func protobufData() -> Data {
