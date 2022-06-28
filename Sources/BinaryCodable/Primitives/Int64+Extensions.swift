@@ -48,19 +48,17 @@ extension Int64: ZigZagCodable {
         return ((UInt64(-1 - self) << 1) + 1).variableLengthEncoding
     }
     
-    static func readZigZagEncoded(from data: Data) throws -> Int64 {
-        let unsigned = try UInt64.readVariableLengthEncoded(from: data)
+    init(fromZigZag data: Data) throws {
+        let unsigned = try UInt64(fromVarint: data)
         
-        let value: Int64
         // Check the last bit to get sign
         if unsigned & 1 > 0 {
             // Divide by 2 and subtract one to get absolute value of negative values.
-            value = -Int64(unsigned >> 1) - 1
+            self = -Int64(unsigned >> 1) - 1
         } else {
             // Divide by two to get absolute value of positive values
-            value = Int64(unsigned >> 1)
+            self = Int64(unsigned >> 1)
         }
-        return value
     }
 }
 

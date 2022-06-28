@@ -14,7 +14,7 @@ extension Int32: EncodablePrimitive {
 extension Int32: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        self = try Int32.readVariableLengthEncoded(from: data)
+        try self.init(fromZigZag: data)
     }
 }
 
@@ -47,3 +47,28 @@ extension Int32: HostIndependentRepresentable {
         self.init(bitPattern: CFSwapInt32LittleToHost(value))
     }
 }
+
+extension Int32: ZigZagCodable {
+
+    /**
+     Encode a 64 bit signed integer using variable-length encoding.
+
+     The sign of the value is extracted and appended as an additional bit.
+     Positive signed values are thus encoded as `UInt(value) * 2`, and negative values as `UInt(abs(value) * 2 + 1`
+
+     - Parameter value: The value to encode.
+     - Returns: The value encoded as binary data (1 to 9 byte)
+     */
+    var zigZagEncoded: Data {
+        Int64(self).zigZagEncoded
+    }
+
+    init(fromZigZag data: Data) throws {
+        let raw = try Int64(fromZigZag: data)
+        guard let value = Int32(exactly: raw) else {
+            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+        }
+        self = value
+    }
+}
+

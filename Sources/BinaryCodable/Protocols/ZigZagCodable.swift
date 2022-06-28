@@ -1,8 +1,15 @@
 import Foundation
 
-protocol ZigZagCodable {
-    
+typealias ZigZagCodable = ZigZagEncodable & ZigZagDecodable
+
+protocol ZigZagEncodable {
+
     var zigZagEncoded: Data { get }
-    
-    static func readZigZagEncoded(from data: Data) throws -> Self
+
 }
+
+protocol ZigZagDecodable {
+
+    init(fromZigZag data: Data) throws
+}
+
