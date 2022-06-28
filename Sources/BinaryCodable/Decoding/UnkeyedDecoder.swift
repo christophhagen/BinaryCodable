@@ -10,6 +10,9 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
         let decoder = DataDecoder(data: data)
         self.decoder = decoder
         let nilIndicesCount = try decoder.getVarint()
+        guard nilIndicesCount >= 0 else {
+            throw BinaryDecodingError.invalidDataSize
+        }
         self.nilIndices = try (0..<nilIndicesCount)
             .map { _ in try decoder.getVarint() }
             .reduce(into: []) { $0.insert($1) }

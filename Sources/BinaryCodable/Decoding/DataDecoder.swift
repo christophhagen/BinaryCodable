@@ -20,6 +20,9 @@ final class DataDecoder {
     }
 
     func getBytes(_ count: Int) throws -> Data {
+        guard count >= 0 else {
+            throw BinaryDecodingError.invalidDataSize
+        }
         let newIndex = index + count
         guard newIndex <= data.endIndex else {
             throw BinaryDecodingError.prematureEndOfData
