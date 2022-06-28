@@ -38,10 +38,15 @@ final class PrimitiveEncodingTests: XCTestCase {
             try compareEncoding(Int32.self, value: value, to: expected)
         }
         try compare(.zero, to: [0])
-        try compare(123, to: [123])
-        try compare(.min, to: [128, 128, 128, 128, 8]) // The last byte contains 4 bits of data
-        try compare(.max, to: [255, 255, 255, 255, 7]) // The last byte contains 4 bits of data
-        try compare(-1, to: [255, 255, 255, 255, 15]) // The last byte contains 4 bits of data
+        try compare(-1, to: [1])
+        try compare(1, to: [2])
+        try compare(-2, to: [3])
+        try compare(123, to: [246, 1])
+        /// Min is: `-2147483648`, encoded as `4294967295`
+        try compare(.min, to: [255, 255, 255, 255, 15]) // The last byte contains 4 bits of data
+        /// Max is: `2147483647`, encoded as `4294967294`
+        try compare(.max, to: [254, 255, 255, 255, 15]) // The last byte contains 4 bits of data
+
     }
     
     func testInt64Encoding() throws {
@@ -49,14 +54,10 @@ final class PrimitiveEncodingTests: XCTestCase {
             try compareEncoding(Int64.self, value: value, to: expected)
         }
         try compare(0, to: [0])
-        try compare(123, to: [123])
-        // For max, all next-byte bits are set, and all other bits are also set, except for the 63rd
-        try compare(.max, to: [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F])
-        // For min, only the 63rd bit is set, so the first 8 bytes have only the next-byte bit set,
-        // and the last byte (which has no next-byte bit, has the highest bit set
-        try compare(.min, to: [0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80])
-        // For -1, all data bits are set, and also all next-byte bits.
-        try compare(-1, to: [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
+        try compare(123, to: [246, 1])
+        try compare(.max, to: [0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
+        try compare(.min, to: [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
+        try compare(-1, to: [1])
     }
     
     func testIntEncoding() throws {

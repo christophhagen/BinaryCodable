@@ -43,11 +43,11 @@ final class ArrayEncodingTests: XCTestCase {
         }
         try compare([.zero, 123, .min, .max, -1],
                     to: [0,
-                         0,
-                         123,
-                         128, 128, 128, 128, 8,
-                         255, 255, 255, 255, 7,
-                         255, 255, 255, 255, 15])
+                         0, // 0
+                         246, 1, // 123
+                         255, 255, 255, 255, 15, // -2.147.483.648
+                         254, 255, 255, 255, 15, // 2.147.483.647
+                         1]) // -1
     }
     
     func testInt64Encoding() throws {
@@ -56,11 +56,11 @@ final class ArrayEncodingTests: XCTestCase {
         }
         try compare([0, 123, .max, .min, -1],
                     to: [0,
-                         0,
-                         123,
                          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
                          0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
                          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
+                         0, // 0
+                         246, 1, // 123
     }
     
     func testIntEncoding() throws {

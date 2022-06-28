@@ -3,7 +3,7 @@ import Foundation
 extension Int64: EncodablePrimitive {
     
     func data() -> Data {
-        variableLengthEncoding
+        zigZagEncoded
     }
     
     static var dataType: DataType {
@@ -14,7 +14,7 @@ extension Int64: EncodablePrimitive {
 extension Int64: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        self.init(bitPattern: try UInt64.init(decodeFrom: data))
+        try self.init(fromZigZag: data)
     }
 }
 

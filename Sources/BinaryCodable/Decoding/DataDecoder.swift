@@ -33,7 +33,7 @@ final class DataDecoder {
 
     func getVarint() throws -> Int {
         let data = try getDataOfVarint()
-        return try .init(decodeFrom: data)
+        return try .init(fromVarint: data)
     }
 
     func getDataOfVarint() throws -> Data {

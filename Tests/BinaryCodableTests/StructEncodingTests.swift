@@ -19,12 +19,12 @@ final class StructEncodingTests: XCTestCase {
         let value = [Test(val: 123), Test(val: 124)]
         let expected: [UInt8] = [
             0, // nil index set
-            5, // Length of first element
+            6, // Length of first element
             0b00111000, 118, 97, 108, // String key 'val', varint
-            123, // Value '123'
-            5, // Length of second element
+            246, 1, // Value '123'
+            6, // Length of second element
             0b00111000, 118, 97, 108, // String key 'val', varint
-            124, // Value '124'
+            248, 1, // Value '124'
         ]
         try compare(value, to: expected)
     }
@@ -36,12 +36,12 @@ final class StructEncodingTests: XCTestCase {
         let value: [Test?] = [Test(val: 123), nil, Test(val: 124)]
         let expected: [UInt8] = [
             1, 1, // nil index set
-            5, // Length of first element
+            6, // Length of first element
             0b00111000, 118, 97, 108, // String key 'val', varint
-            123, // Value '123'
-            5, // Length of third element
+            246, 1, // Value '123'
+            6, // Length of third element
             0b00111000, 118, 97, 108, // String key 'val', varint
-            124, // Value '124'
+            248, 1, // Value '124'
         ]
         try compare(value, to: expected)
     }

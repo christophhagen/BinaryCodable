@@ -7,7 +7,7 @@ final class KeyedEncodingTests: XCTestCase {
         struct Test: Codable, Equatable {
             let value: Int
         }
-        let expected: [UInt8] = [0b01011000, 118, 97, 108, 117, 101, 123]
+        let expected: [UInt8] = [0b01011000, 118, 97, 108, 117, 101, 246, 1]
         try compare(Test(value: 123), to: expected)
     }
 

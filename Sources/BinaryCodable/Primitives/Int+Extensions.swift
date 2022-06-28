@@ -3,7 +3,7 @@ import Foundation
 extension Int: EncodablePrimitive {
     
     func data() -> Data {
-        variableLengthEncoding
+        zigZagEncoded
     }
     
     static var dataType: DataType {

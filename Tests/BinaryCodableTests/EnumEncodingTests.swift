@@ -28,8 +28,8 @@ final class EnumEncodingTests: XCTestCase {
             case one = 1
             case two = 2
         }
-        try compare(Test.one, to: [1])
-        try compare(Test.two, to: [2])
+        try compare(Test.one, to: [2])
+        try compare(Test.two, to: [4])
     }
 
     func testStringEnumEncoding() throws {
