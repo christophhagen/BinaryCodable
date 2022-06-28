@@ -13,7 +13,7 @@ public final class BinaryDecoder {
     }
 
     public func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable {
-        let root = DecodingNode(data: data, codingPath: [], userInfo: [:])
+        let root = DecodingNode(data: data, top: true, codingPath: [], userInfo: [:])
         return try type.init(from: root)
     }
 }

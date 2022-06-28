@@ -1,7 +1,7 @@
 import Foundation
 
 private func decodeData(_ data: Data) throws -> [DecodingKey : Data] {
-    var decoder = DataDecoder(data: data)
+    let decoder = DataDecoder(data: data)
     var content = [DecodingKey: Data]()
     while decoder.hasMoreBytes {
         let raw = try decoder.getVarint()

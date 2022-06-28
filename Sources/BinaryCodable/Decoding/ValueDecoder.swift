@@ -2,22 +2,31 @@ import Foundation
 
 final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
 
-    let data: Data
+    let data: DataDecoder
 
-    init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
+    private let isAtTopLevel: Bool
+
+    init(data: DataDecoder, top: Bool = false, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
         self.data = data
+        self.isAtTopLevel = top
         super.init(codingPath: codingPath, userInfo: userInfo)
     }
 
     func decodeNil() -> Bool {
-        data.isEmpty
+        !data.hasMoreBytes
     }
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         if let Primitive = type as? DecodablePrimitive.Type {
+            let data: Data
+            if Primitive.dataType == .variableLength, isAtTopLevel {
+                data = self.data.getAllData()
+            } else {
+                data = try self.data.getData(for: Primitive.dataType)
+            }
             return try Primitive.init(decodeFrom: data) as! T
         }
-        let node = DecodingNode(data: data, codingPath: codingPath, userInfo: userInfo)
+        let node = DecodingNode(decoder: data, codingPath: codingPath, userInfo: userInfo)
         return try T.init(from: node)
     }
 }

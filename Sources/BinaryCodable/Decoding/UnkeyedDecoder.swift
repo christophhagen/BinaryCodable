@@ -2,14 +2,13 @@ import Foundation
 
 final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
-    var data: DataDecoder
+    private let decoder: DataDecoder
 
-    let nilIndices: Set<Int>
+    private let nilIndices: Set<Int>
 
     init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
-        var decoder =  DataDecoder(data: data)
-        self.data = decoder
-
+        let decoder = DataDecoder(data: data)
+        self.decoder = decoder
         let nilIndicesCount = try decoder.getVarint()
         self.nilIndices = try (0..<nilIndicesCount)
             .map { _ in try decoder.getVarint() }
@@ -23,10 +22,14 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     }
 
     var isAtEnd: Bool {
-        !nilIndices.contains(currentIndex) && !data.hasMoreBytes
+        !nextValueIsNil && !decoder.hasMoreBytes
     }
 
     var currentIndex: Int = 0
+
+    private var nextValueIsNil: Bool {
+        nilIndices.contains(currentIndex)
+    }
 
     func decodeNil() throws -> Bool {
         guard nilIndices.contains(currentIndex) else {
@@ -37,30 +40,39 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     }
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
+        defer { currentIndex += 1 }
         if let Primitive = type as? DecodablePrimitive.Type {
             let dataType = Primitive.dataType
-            let data = try data.getData(for: dataType)
+            let data = try decoder.getData(for: dataType)
             return try Primitive.init(decodeFrom: data) as! T
         }
-        // Decode length
-        let data = try data.getData(for: .variableLength)
-        let node = DecodingNode(data: data, codingPath: codingPath, userInfo: userInfo)
+        if let Opt = type as? AnyOptional.Type {
+            if nextValueIsNil {
+                return Opt.nilValue as! T
+            } else {
+                let node = DecodingNode(decoder: decoder, codingPath: codingPath, userInfo: userInfo)
+                return try T.init(from: node)
+            }
+        }
+        let node = DecodingNode(decoder: decoder, codingPath: codingPath, userInfo: userInfo)
         return try T.init(from: node)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        let data = try data.getData(for: .variableLength)
+        currentIndex += 1
+        let data = try decoder.getData(for: .variableLength)
         let container = try KeyedDecoder<NestedKey>(data: data, codingPath: codingPath, userInfo: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        let data = try data.getData(for: .variableLength)
+        currentIndex += 1
+        let data = try decoder.getData(for: .variableLength)
         return try UnkeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 
     func superDecoder() throws -> Decoder {
-        let data = try data.getData(for: .variableLength)
-        return DecodingNode(data: data, codingPath: codingPath, userInfo: userInfo)
+        currentIndex += 1
+        return DecodingNode(decoder: decoder, codingPath: codingPath, userInfo: userInfo)
     }
 }
