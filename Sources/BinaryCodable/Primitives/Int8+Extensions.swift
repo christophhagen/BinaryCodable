@@ -2,8 +2,8 @@ import Foundation
 
 extension Int8: EncodablePrimitive {
     
-    func data() throws -> Data {
-        try UInt8(bitPattern: self).data()
+    func data() -> Data {
+        Data([UInt8(bitPattern: self)])
     }
     
     static var dataType: DataType {

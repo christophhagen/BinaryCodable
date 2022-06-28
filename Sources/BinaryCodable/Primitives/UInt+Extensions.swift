@@ -2,7 +2,7 @@ import Foundation
 
 extension UInt: EncodablePrimitive {
     
-    func data() throws -> Data {
+    func data() -> Data {
         variableLengthEncoding
     }
     

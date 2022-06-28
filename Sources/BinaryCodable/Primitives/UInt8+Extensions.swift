@@ -2,7 +2,7 @@ import Foundation
 
 extension UInt8: EncodablePrimitive {
     
-    func data() throws -> Data {
+    func data() -> Data {
         Data([self])
     }
     

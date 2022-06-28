@@ -2,7 +2,7 @@ import Foundation
 
 extension UInt16: EncodablePrimitive {
     
-    func data() throws -> Data {
+    func data() -> Data {
         hostIndependentBinaryData
     }
     
