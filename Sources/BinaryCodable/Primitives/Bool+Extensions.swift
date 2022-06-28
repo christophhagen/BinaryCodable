@@ -17,13 +17,6 @@ extension Bool: DecodablePrimitive {
         guard data.count == 1 else {
             throw BinaryDecodingError.invalidDataSize
         }
-        switch data[data.startIndex] {
-        case 0:
-            self = false
-        case 1:
-            self = true
-        default:
-            throw BinaryDecodingError.invalidData
-        }
+        self = data[data.startIndex] > 0
     }
 }
