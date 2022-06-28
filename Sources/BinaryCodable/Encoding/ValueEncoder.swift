@@ -29,6 +29,8 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
 }
 
 extension ValueEncoder: EncodingContainer {
+
+    var isNil: Bool { container?.isNil ?? true }
     
     var data: Data {
         container?.data ?? Data()

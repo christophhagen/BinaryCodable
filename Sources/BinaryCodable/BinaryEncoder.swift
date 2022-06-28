@@ -35,15 +35,11 @@ public final class BinaryEncoder {
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
         let root = EncodingNode(codingPath: [], userInfo: userInfo)
-        guard let optional = value as? AnyOptional else {
-            try value.encode(to: root)
-            return root.data
-        }
-        if optional.isNil {
-            return Data([0])
+        try value.encode(to: root)
+        if root.isNil {
+            return Data()
         } else {
-            try value.encode(to: root)
-            return Data([1]) + root.data
+            return root.data
         }
     }
     

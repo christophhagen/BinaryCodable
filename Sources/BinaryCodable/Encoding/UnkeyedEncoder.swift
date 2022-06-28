@@ -28,12 +28,11 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
             }
             return
         }
-        if let optional = value as? AnyOptional, optional.isNil {
+        let node = try EncodingNode(codingPath: codingPath, userInfo: userInfo).encoding(value)
+        if node.isNil {
             encodeNil()
-            return
-        }
-        try assign {
-            try EncodingNode(codingPath: codingPath, userInfo: userInfo).encoding(value)
+        } else {
+            assign { node }
         }
     }
     

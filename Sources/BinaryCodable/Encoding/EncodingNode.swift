@@ -37,9 +37,11 @@ final class EncodingNode: AbstractEncodingNode, Encoder {
 }
 
 extension EncodingNode: EncodingContainer {
+
+    var isNil: Bool { container?.isNil ?? true }
     
     var data: Data {
-        container?.data ?? Data()
+        container!.data
     }
     
     var dataType: DataType {
