@@ -59,11 +59,6 @@ extension FixedSize: Hashable where WrappedValue: Hashable {
 extension FixedSize: CodablePrimitive where WrappedValue: HostIndependentRepresentable,
                                             WrappedValue: DataTypeProvider {
 
-    /// The wire type of the wrapped value.
-    static var dataType: DataType {
-        WrappedValue.fixedSizeDataType
-    }
-
     /**
      Encode the wrapped value to binary data compatible with the protobuf encoding.
      - Returns: The binary data in host-independent format.
