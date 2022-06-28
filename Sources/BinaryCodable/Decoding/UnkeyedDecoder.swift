@@ -6,7 +6,7 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
     private let nilIndices: Set<Int>
 
-    init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
+    init(data: Data, codingPath: [CodingKey], options: Set<CodingOption>) throws {
         let decoder = DataDecoder(data: data)
         self.decoder = decoder
         let nilIndicesCount = try decoder.getVarint()
@@ -14,7 +14,7 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
             .map { _ in try decoder.getVarint() }
             .reduce(into: []) { $0.insert($1) }
 
-        super.init(codingPath: codingPath, userInfo: userInfo)
+        super.init(codingPath: codingPath, options: options)
     }
 
     var count: Int? {
@@ -50,29 +50,29 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
             if nextValueIsNil {
                 return Opt.nilValue as! T
             } else {
-                let node = DecodingNode(decoder: decoder, codingPath: codingPath, userInfo: userInfo)
+                let node = DecodingNode(decoder: decoder, codingPath: codingPath, options: options)
                 return try T.init(from: node)
             }
         }
-        let node = DecodingNode(decoder: decoder, codingPath: codingPath, userInfo: userInfo)
+        let node = DecodingNode(decoder: decoder, codingPath: codingPath, options: options)
         return try T.init(from: node)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
         currentIndex += 1
         let data = try decoder.getData(for: .variableLength)
-        let container = try KeyedDecoder<NestedKey>(data: data, codingPath: codingPath, userInfo: userInfo)
+        let container = try KeyedDecoder<NestedKey>(data: data, codingPath: codingPath, options: options)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
         currentIndex += 1
         let data = try decoder.getData(for: .variableLength)
-        return try UnkeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo)
+        return try UnkeyedDecoder(data: data, codingPath: codingPath, options: options)
     }
 
     func superDecoder() throws -> Decoder {
         currentIndex += 1
-        return DecodingNode(decoder: decoder, codingPath: codingPath, userInfo: userInfo)
+        return DecodingNode(decoder: decoder, codingPath: codingPath, options: options)
     }
 }

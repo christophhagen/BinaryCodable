@@ -6,10 +6,10 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
 
     private let isAtTopLevel: Bool
 
-    init(data: DataDecoder, top: Bool = false, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
+    init(data: DataDecoder, top: Bool = false, codingPath: [CodingKey], options: Set<CodingOption>) {
         self.data = data
         self.isAtTopLevel = top
-        super.init(codingPath: codingPath, userInfo: userInfo)
+        super.init(codingPath: codingPath, options: options)
     }
 
     func decodeNil() -> Bool {
@@ -26,7 +26,7 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
             }
             return try Primitive.init(decodeFrom: data) as! T
         }
-        let node = DecodingNode(decoder: data, codingPath: codingPath, userInfo: userInfo)
+        let node = DecodingNode(decoder: data, codingPath: codingPath, options: options)
         return try T.init(from: node)
     }
 }

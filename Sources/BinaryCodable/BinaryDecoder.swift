@@ -22,6 +22,11 @@ import Foundation
  */
 public final class BinaryDecoder {
 
+    private var options: Set<CodingOption> {
+        var result = Set<CodingOption>()
+        return result
+    }
+
     /**
      Create a new binary encoder.
      - Note: A single decoder can be used to decode multiple messages.
@@ -38,7 +43,7 @@ public final class BinaryDecoder {
      - Throws: Errors of type `BinaryDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        let root = DecodingNode(data: data, top: true, codingPath: [], userInfo: [:])
+        let root = DecodingNode(data: data, top: true, codingPath: [], options: options)
         return try type.init(from: root)
     }
 

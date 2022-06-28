@@ -28,20 +28,16 @@ public final class BinaryEncoder {
 
      - Note: The default value for this option is `false`.
      */
-    public var sortKeysDuringEncoding: Bool {
-        set {
-            if newValue {
-                userInfo[EncodingOption.sortKeys] = true
-            } else {
-                userInfo[EncodingOption.sortKeys] = nil
-            }
+    public var sortKeysDuringEncoding: Bool = false
+
+    private var options: Set<CodingOption> {
+        var result = Set<CodingOption>()
+        if sortKeysDuringEncoding {
+            result.insert(.sortKeys)
         }
-        get {
-            userInfo[EncodingOption.sortKeys] as? Bool ?? false
         }
+        return result
     }
-    
-    private var userInfo = [CodingUserInfoKey : Any]()
     
     /**
      Create a new binary encoder.
@@ -58,7 +54,7 @@ public final class BinaryEncoder {
      - Throws: Errors of type `BinaryEncodingError`
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
-        let root = EncodingNode(codingPath: [], userInfo: userInfo)
+        let root = EncodingNode(codingPath: [], options: options)
         try value.encode(to: root)
         if root.isNil {
             return Data()
@@ -68,7 +64,7 @@ public final class BinaryEncoder {
     }
     
     func printTree<T>(_ value: T) throws where T: Encodable {
-        let root = EncodingNode(codingPath: [], userInfo: userInfo)
+        let root = EncodingNode(codingPath: [], options: options)
         try value.encode(to: root)
         print(root)
     }

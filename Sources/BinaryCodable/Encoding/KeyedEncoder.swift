@@ -27,32 +27,32 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
             return
         }
         try assign(to: key) {
-            try EncodingNode(codingPath: codingPath, userInfo: userInfo).encoding(value)
+            try EncodingNode(codingPath: codingPath, options: options).encoding(value)
         }
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         let container = assign(to: key) {
-            KeyedEncoder<NestedKey>(codingPath: codingPath + [key], userInfo: userInfo)
+            KeyedEncoder<NestedKey>(codingPath: codingPath + [key], options: options)
         }
         return KeyedEncodingContainer(container)
     }
     
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         assign(to: key) {
-            UnkeyedEncoder(codingPath: codingPath + [key], userInfo: userInfo)
+            UnkeyedEncoder(codingPath: codingPath + [key], options: options)
         }
     }
     
     func superEncoder() -> Encoder {
         assign(to: SuperEncoderKey()) {
-            EncodingNode(codingPath: codingPath, userInfo: userInfo)
+            EncodingNode(codingPath: codingPath, options: options)
         }
     }
     
     func superEncoder(forKey key: Key) -> Encoder {
         assign(to: key) {
-            EncodingNode(codingPath: codingPath + [key], userInfo: userInfo)
+            EncodingNode(codingPath: codingPath + [key], options: options)
         }
     }
 }

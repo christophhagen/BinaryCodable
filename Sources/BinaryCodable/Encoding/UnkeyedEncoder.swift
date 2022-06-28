@@ -28,7 +28,7 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
             }
             return
         }
-        let node = try EncodingNode(codingPath: codingPath, userInfo: userInfo).encoding(value)
+        let node = try EncodingNode(codingPath: codingPath, options: options).encoding(value)
         if node.isNil {
             encodeNil()
         } else {
@@ -38,20 +38,20 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         let container = assign {
-            KeyedEncoder<NestedKey>(codingPath: codingPath, userInfo: userInfo)
+            KeyedEncoder<NestedKey>(codingPath: codingPath, options: options)
         }
         return KeyedEncodingContainer(container)
     }
     
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
         assign {
-            UnkeyedEncoder(codingPath: codingPath, userInfo: userInfo)
+            UnkeyedEncoder(codingPath: codingPath, options: options)
         }
     }
     
     func superEncoder() -> Encoder {
         assign {
-            EncodingNode(codingPath: codingPath, userInfo: userInfo)
+            EncodingNode(codingPath: codingPath, options: options)
         }
     }
 }

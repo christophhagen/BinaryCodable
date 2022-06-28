@@ -1,6 +1,10 @@
 import Foundation
 
-enum EncodingOption {
+enum CodingOption: String {
 
-    static let sortKeys = CodingUserInfoKey(rawValue: "sort")!
+    case sortKeys = "sort"
+
+    var infoKey: CodingUserInfoKey {
+        .init(rawValue: rawValue)!
+    }
 }

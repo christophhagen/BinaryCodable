@@ -23,7 +23,7 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
             return
         }
         try assign {
-            try EncodingNode(codingPath: codingPath, userInfo: userInfo).encoding(value)
+            try EncodingNode(codingPath: codingPath, options: options).encoding(value)
         }
     }
 }

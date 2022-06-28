@@ -4,10 +4,14 @@ class AbstractNode {
 
     let codingPath: [CodingKey]
 
-    let userInfo: [CodingUserInfoKey : Any]
+    let options: Set<CodingOption>
 
-    init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
+    var userInfo: [CodingUserInfoKey : Any] {
+        options.reduce(into: [:]) { $0[$1.infoKey] = true }
+    }
+
+    init(codingPath: [CodingKey], options: Set<CodingOption>) {
         self.codingPath = codingPath
-        self.userInfo = userInfo
+        self.options = options
     }
 }

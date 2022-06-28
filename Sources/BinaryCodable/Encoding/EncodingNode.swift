@@ -14,16 +14,16 @@ final class EncodingNode: AbstractEncodingNode, Encoder {
     }
     
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        let container = wrap { KeyedEncoder<Key>(codingPath: codingPath, userInfo: userInfo) }
+        let container = wrap { KeyedEncoder<Key>(codingPath: codingPath, options: options) }
         return KeyedEncodingContainer(container)
     }
     
     func unkeyedContainer() -> UnkeyedEncodingContainer {
-        wrap { UnkeyedEncoder(codingPath: codingPath, userInfo: userInfo) }
+        wrap { UnkeyedEncoder(codingPath: codingPath, options: options) }
     }
     
     func singleValueContainer() -> SingleValueEncodingContainer {
-        wrap { ValueEncoder(codingPath: codingPath, userInfo: userInfo) }
+        wrap { ValueEncoder(codingPath: codingPath, options: options) }
     }
     
     func reset() {
