@@ -48,3 +48,18 @@ extension UInt32: HostIndependentRepresentable {
         self = CFSwapInt32LittleToHost(value)
     }
 }
+
+extension UInt32: ProtobufCodable {
+
+    func protobufData() -> Data {
+        UInt64(self).protobufData()
+    }
+
+    init(fromProtobuf data: Data) throws {
+        let intValue = try UInt64.init(fromProtobuf: data)
+        guard let value = UInt32(exactly: intValue) else {
+            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+        }
+        self = value
+    }
+}

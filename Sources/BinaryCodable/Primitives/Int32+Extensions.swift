@@ -72,3 +72,17 @@ extension Int32: ZigZagCodable {
     }
 }
 
+extension Int32: ProtobufCodable {
+
+    func protobufData() -> Data {
+        Int64(self).protobufData()
+    }
+
+    init(fromProtobuf data: Data) throws {
+        let intValue = try Int64(fromProtobuf: data)
+        guard let value = Int32(exactly: intValue) else {
+            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+        }
+        self = value
+    }
+}

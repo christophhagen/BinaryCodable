@@ -79,3 +79,15 @@ extension Int64: HostIndependentRepresentable {
         self.init(bitPattern: CFSwapInt64LittleToHost(value))
     }
 }
+
+extension Int64: ProtobufCodable {
+
+    func protobufData() -> Data {
+        UInt64(bitPattern: self).protobufData()
+    }
+
+    init(fromProtobuf data: Data) throws {
+        let value = try UInt64(decodeFrom: data)
+        self = Int64(bitPattern: value)
+    }
+}

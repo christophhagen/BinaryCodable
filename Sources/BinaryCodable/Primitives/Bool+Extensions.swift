@@ -20,3 +20,7 @@ extension Bool: DecodablePrimitive {
         self = data[data.startIndex] > 0
     }
 }
+
+extension Bool: ProtobufCodable {
+    
+}

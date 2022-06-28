@@ -20,3 +20,8 @@ extension UInt8: DecodablePrimitive {
         self = data[data.startIndex]
     }
 }
+
+extension UInt8: ProtobufCodable {
+
+    /// `UInt8` is not allowed as a single value, but required for `Data` types
+}

@@ -36,3 +36,14 @@ extension Float: HostIndependentRepresentable {
     /// Create an empty host-indepentent float32
     static var empty: CFSwappedFloat32 { .init() }
 }
+
+extension Float: ProtobufCodable {
+
+    var protobufData: Data {
+        hostIndependentBinaryData.swapped
+    }
+
+    init(fromProtobuf data: Data) throws {
+        try self.init(decodeFrom: data.swapped)
+    }
+}

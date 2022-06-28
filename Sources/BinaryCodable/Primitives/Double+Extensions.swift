@@ -37,3 +37,13 @@ extension Double: HostIndependentRepresentable {
     static var empty: CFSwappedFloat64 { .init() }
 }
 
+extension Double: ProtobufCodable {
+
+    var protobufData: Data {
+        hostIndependentBinaryData.swapped
+    }
+
+    init(fromProtobuf data: Data) throws {
+        try self.init(decodeFrom: data.swapped)
+    }
+}
