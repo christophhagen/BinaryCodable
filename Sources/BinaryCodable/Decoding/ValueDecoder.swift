@@ -6,14 +6,17 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
 
     private let isAtTopLevel: Bool
 
-    init(data: DataDecoder, top: Bool = false, codingPath: [CodingKey], options: Set<CodingOption>) {
+    private let isNil: Bool
+
+    init(data: DataDecoder, isNil: Bool, top: Bool = false, codingPath: [CodingKey], options: Set<CodingOption>) {
         self.data = data
+        self.isNil = isNil
         self.isAtTopLevel = top
         super.init(codingPath: codingPath, options: options)
     }
 
     func decodeNil() -> Bool {
-        !data.hasMoreBytes
+        isNil || !data.hasMoreBytes
     }
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {

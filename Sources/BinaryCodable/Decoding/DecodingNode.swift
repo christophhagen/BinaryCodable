@@ -29,14 +29,18 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
 
     private let isAtTopLevel: Bool
 
+    private let isNil: Bool
+
     init(data: Data, top: Bool = false, codingPath: [CodingKey], options: Set<CodingOption>) {
         self.storage = .data(data)
         self.isAtTopLevel = top
+        self.isNil = false
         super.init(codingPath: codingPath, options: options)
     }
 
-    init(decoder: DataDecoder, codingPath: [CodingKey], options: Set<CodingOption>) {
+    init(decoder: DataDecoder, isNil: Bool = false, codingPath: [CodingKey], options: Set<CodingOption>) {
         self.storage = .decoder(decoder)
+        self.isNil = isNil
         self.isAtTopLevel = false
         super.init(codingPath: codingPath, options: options)
     }
@@ -53,6 +57,7 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
     func singleValueContainer() throws -> SingleValueDecodingContainer {
         return ValueDecoder(
             data: storage.useAsDecoder(),
+            isNil: isNil,
             top: isAtTopLevel,
             codingPath: codingPath,
             options: options)

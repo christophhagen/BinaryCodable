@@ -49,15 +49,7 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
             let data = try decoder.getData(for: dataType)
             return try Primitive.init(decodeFrom: data) as! T
         }
-        if let Opt = type as? AnyOptional.Type {
-            if nextValueIsNil {
-                return Opt.nilValue as! T
-            } else {
-                let node = DecodingNode(decoder: decoder, codingPath: codingPath, options: options)
-                return try T.init(from: node)
-            }
-        }
-        let node = DecodingNode(decoder: decoder, codingPath: codingPath, options: options)
+        let node = DecodingNode(decoder: decoder, isNil: nextValueIsNil, codingPath: codingPath, options: options)
         return try T.init(from: node)
     }
 
