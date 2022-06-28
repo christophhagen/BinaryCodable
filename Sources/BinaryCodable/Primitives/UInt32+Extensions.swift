@@ -27,7 +27,7 @@ extension UInt32: VariableLengthCodable {
     static func readVariableLengthEncoded(from data: Data) throws -> UInt32 {
         let intValue = try UInt64.readVariableLengthEncoded(from: data)
         guard let value = UInt32(exactly: intValue) else {
-            throw BinaryEncodingError.variableLengthEncodedIntegerOutOfRange
+            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
         }
         return value
     }

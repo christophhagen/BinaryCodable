@@ -4,7 +4,6 @@ public enum BinaryDecodingError: Error {
 
     case invalidDataSize
 
-    case invalidData
 
     case missingDataForKey(CodingKey)
 
@@ -12,7 +11,6 @@ public enum BinaryDecodingError: Error {
 
     case prematureEndOfData
 
-    case integerOutOfRange
 
     case invalidString
 }
