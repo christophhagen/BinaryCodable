@@ -129,8 +129,10 @@ final class WrapperEncodingTests: XCTestCase {
         }
         try compare(Test(val: .zero), to: [0b00111000, 118, 97, 108, 0])
         try compare(Test(val: 123), to: [0b00111000, 118, 97, 108, 123])
-        try compare(Test(val: .max), to: [0b00111000, 118, 97, 108, 255, 255, 255, 255, 255, 255, 255, 255, 127])
-        try compare(Test(val: .min), to: [0b00111000, 118, 97, 108, 128, 128, 128, 128, 128, 128, 128, 128, 128])
+        try compare(Test(val: .max), to: [0b00111000, 118, 97, 108,
+                                          255, 255, 255, 255, 255, 255, 255, 255, 127])
+        try compare(Test(val: .min), to: [0b00111000, 118, 97, 108,
+                                          128, 128, 128, 128, 128, 128, 128, 128, 128])
     }
 
     func testPositiveIntInStruct() throws {
@@ -141,7 +143,9 @@ final class WrapperEncodingTests: XCTestCase {
         }
         try compare(Test(val: .zero), to: [0b00111000, 118, 97, 108, 0])
         try compare(Test(val: 123), to: [0b00111000, 118, 97, 108, 123])
-        try compare(Test(val: .max), to: [0b00111000, 118, 97, 108, 255, 255, 255, 255, 255, 255, 255, 255, 127])
-        try compare(Test(val: .min), to: [0b00111000, 118, 97, 108, 128, 128, 128, 128, 128, 128, 128, 128, 128])
+        try compare(Test(val: .max), to: [0b00111000, 118, 97, 108,
+                                          255, 255, 255, 255, 255, 255, 255, 255, 127])
+        try compare(Test(val: .min), to: [0b00111000, 118, 97, 108,
+                                          128, 128, 128, 128, 128, 128, 128, 128, 128])
     }
 }

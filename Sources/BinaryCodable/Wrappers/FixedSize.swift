@@ -22,7 +22,6 @@ public struct FixedSize<WrappedValue>: ExpressibleByIntegerLiteral
 where WrappedValue: FixedSizeCompatible,
       WrappedValue: ExpressibleByIntegerLiteral {
 
-
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
 
     /// The value wrapped in the fixed-size container

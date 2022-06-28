@@ -26,8 +26,8 @@ The `PositiveInteger` property wrapper is supported for `Int`, `Int32`, and `Int
  */
 @propertyWrapper
 public struct PositiveInteger<WrappedValue>: ExpressibleByIntegerLiteral
-where WrappedValue: PositiveIntegerCompatible, WrappedValue: SignedInteger {
-
+where WrappedValue: PositiveIntegerCompatible,
+      WrappedValue: SignedInteger {
 
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
 

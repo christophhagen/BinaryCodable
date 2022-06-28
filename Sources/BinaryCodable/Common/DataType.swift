@@ -49,21 +49,6 @@ public enum DataType: Int {
      */
     case eightBytes = 1
 
-    var byteCount: Int? {
-        switch self {
-        case .variableLengthInteger, .variableLength:
-            return nil
-        case .byte:
-            return 1
-        case .twoBytes:
-            return 2
-        case .fourBytes:
-            return 4
-        case .eightBytes:
-            return 8
-        }
-    }
-
     init(decodeFrom value: Int) throws {
         let rawDataType = value & 0x7
         guard let dataType = DataType(rawValue: rawDataType) else {

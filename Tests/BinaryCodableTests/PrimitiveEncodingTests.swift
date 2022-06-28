@@ -1,5 +1,5 @@
 import XCTest
-@testable import BinaryCodable
+import BinaryCodable
 
 final class PrimitiveEncodingTests: XCTestCase {
     

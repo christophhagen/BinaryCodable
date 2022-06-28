@@ -1,5 +1,5 @@
 import XCTest
-@testable import BinaryCodable
+import BinaryCodable
 
 final class OptionalEncodingTests: XCTestCase {
     
@@ -10,14 +10,10 @@ final class OptionalEncodingTests: XCTestCase {
         try compare(true, to: [1])
         try compare(false, to: [0])
         try compare(nil, to: [])
-        let encoder = BinaryEncoder()
-        let value: Bool? = nil
-        try encoder.printTree(value)
     }
     
     func testArrayOfOptionalsEncoding() throws {
         let value: [Bool?] = [false, nil, true]
-        try BinaryEncoder().printTree(value)
         try compareEncoding([Bool?].self, value: value, to: [1, 1, 0, 1])
     }
 
