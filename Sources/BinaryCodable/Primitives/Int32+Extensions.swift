@@ -79,6 +79,10 @@ extension Int32: FixedSizeCompatible {
     }
 }
 
+extension Int32: PositiveIntegerCompatible {
+
+}
+
 extension Int32: ProtobufCodable {
 
     func protobufData() -> Data {

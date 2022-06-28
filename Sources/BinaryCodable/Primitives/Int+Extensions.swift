@@ -33,6 +33,10 @@ extension Int: VariableLengthCodable {
     }
 }
 
+extension Int: PositiveIntegerCompatible {
+
+}
+
 extension Int: ZigZagCodable {
 
     /**
