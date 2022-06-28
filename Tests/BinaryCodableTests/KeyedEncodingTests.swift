@@ -39,7 +39,7 @@ final class KeyedEncodingTests: XCTestCase {
         struct Test: Codable, Equatable {
             let value: Float
         }
-        let expected: [UInt8] = [0b01011101, 118, 97, 108, 117, 101, 0x40, 0x49, 0x0F, 0xDA]
+        let expected: [UInt8] = [0b01011101, 118, 97, 108, 117, 101, 0xDA, 0x0F, 0x49, 0x40]
         try compare(Test(value: .pi), to: expected)
     }
 
@@ -47,7 +47,8 @@ final class KeyedEncodingTests: XCTestCase {
         struct Test: Codable, Equatable {
             let value: Double
         }
-        let expected: [UInt8] = [0b01011001, 118, 97, 108, 117, 101, 0xC0, 0x09, 0x21, 0xFB, 0x54, 0x44, 0x2D, 0x18]
+        let expected: [UInt8] = [0b01011001, 118, 97, 108, 117, 101,
+                                 0x18, 0x2D, 0x44, 0x54, 0xFB, 0x21, 0x09, 0xC0]
         try compare(Test(value: -.pi), to: expected)
     }
 
