@@ -48,7 +48,7 @@ struct Message: Codable {
 }
 ```
 
-Simply import the module when you need to encode or decode a message:
+Simply import the module where you need to encode or decode a message:
 
 ```swift
 import BinaryCodable
@@ -59,7 +59,7 @@ import BinaryCodable
 Construct an encoder when converting instances to binary data, and feed the message(s) into it:
 
 ```swift
-let message = Message(...)
+let message: Message = ...
 
 let encoder = BinaryEncoder()
 let data = try encoder.encode(message)
@@ -73,13 +73,13 @@ Decoding instances from binary data works much the same way:
 
 ```swift
 let decoder = BinaryDecoder()
-let message = decoder.decode(Message.self, from: data)
+let message = try decoder.decode(Message.self, from: data)
 ```
 
 Alternatively, the type can be inferred:
 
 ```swift
-let message: Message = decoder.decode(from: data)
+let message: Message = try decoder.decode(from: data)
 ```
 
 ## Coding Keys
@@ -88,7 +88,7 @@ The `Codable` protocol uses [CodingKey](https://developer.apple.com/documentatio
 
 Similar to JSON encoding, `BinaryCodable` can embed the property names in the encoded data.
 
-Unlike JSON (which is human-readable), the binary representation produced by `BinaryCodable` is intended for cases when efficient encoding is important. `Codable` allows the use of integer keys for each property by adding an enum conforming to the `CodingKey` protocol to the `Codable` type:
+Unlike JSON (which is human-readable), the binary representation produced by `BinaryCodable` is intended for cases when efficient encoding is important. `Codable` allows the use of integer keys for each property, which significantly increases encoding efficiency. You can specify integer keys by adding an `Int` enum conforming to the `CodingKey` protocol to the `Codable` type:
 
 ```swift
 struct Message: Codable {
@@ -177,7 +177,11 @@ It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]
 
 ### Structs
 
-Structs are encoded using `Codable`'s `KeyedEncodingContainer`, which uses `String` or `Int` coding keys to distinguish the properties of the types. By default, Swift uses the property names as `String` keys, which are used to encode each property as a key-value pair on the wire. The first value is a `Varint`, which contains the length of the string key, plus additional information about the data associated with the key. The bits 0-2 are used to signal the size value, and bit 3 of the `Varint` indicates whether the key is a string key (`0` = string, `1` = int). The following data types are possible: 
+Structs are encoded using `Codable`'s `KeyedEncodingContainer`, which uses `String` or `Int` coding keys to distinguish the properties of the types. 
+By default, Swift uses the property names as `String` keys, which are used to encode each property as a key-value pair on the wire. 
+The first value is a `Varint`, which contains the length of the string key, plus additional information about the data associated with the key. 
+The bits 0-2 are used to signal the size value, and bit 3 of the `Varint` indicates whether the key is a string key (`1` = string, `0` = int). 
+The following data types are possible: 
 
 | Data type | Raw value | Swift types | Description |
 |    :--    |    :--    |     :--     |     :--     |
