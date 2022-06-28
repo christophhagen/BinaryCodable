@@ -175,7 +175,7 @@ It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]
 
 ### Structs
 
-Structs are encoded using `Codable`'s `KeyedEncodingContainer`, which uses `String` or `Int` coding keys to distinguish the properties of the types. By default, Swift uses the property names as `String` keys, which are used to encode each property as a key-value pair on the wire. The first value is a `Varint`, which contains the length of the string key, plus additional information about the data associated with the key. The least significant bit of the `Varint` indicates whether the key is a string key (`0` = string, `1` = int), while Bits 1-3 are used to signal the size value. The following types are possible: 
+Structs are encoded using `Codable`'s `KeyedEncodingContainer`, which uses `String` or `Int` coding keys to distinguish the properties of the types. By default, Swift uses the property names as `String` keys, which are used to encode each property as a key-value pair on the wire. The first value is a `Varint`, which contains the length of the string key, plus additional information about the data associated with the key. The bits 0-2 are used to signal the size value, and bit 3 of the `Varint` indicates whether the key is a string key (`0` = string, `1` = int). The following data types are possible: 
 
 | Data type | Raw value | Swift types | Description |
 |    :--    |    :--    |     :--     |     :--     |
@@ -192,8 +192,8 @@ For example, a property named `xyz`  of type `UInt8` with value `123` would be e
 
 | Byte 0 | Byte 1 | Byte 2 | Byte 3 | Byte 4 | 
 |  :--   |  :--   |  :--   |  :--   |  :--   |
-| `0` `011` `001` `1` | `01111000` | `01111001` | `01111010` | `01111011` |
-| Length `3`, Data type `byte`, `String` key | `x` | `y` | `z` | `123` |
+| `0` `011` `1` `001` | `01111000` | `01111001` | `01111010` | `01111011` |
+| Length `3`, `String` key, Data type `byte` | `x` | `y` | `z` | `123` |
 
 #### Integer keys
 
@@ -212,8 +212,8 @@ Integer coding keys are encoded as `Varint` instead of the `String` key length. 
 
 | Byte 0 | Byte 1 | 
 |  :--   |  :--   |
-| `0` `010` `001` `0` | `01111011` |
-| Integer key `2`, Data type `byte`, `Int` key | `123` |
+| `0` `010` `0` `001` | `01111011` |
+| Integer key `2`, `Int` key, Data type `byte` | `123` |
 
 Evidently this is a significant improvement, especially for long property names. Note that while it is possible to specify any integer as the key (between 2^59 and -2^59), small, positive integers are the most efficient.
 

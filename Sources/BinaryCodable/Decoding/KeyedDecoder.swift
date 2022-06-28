@@ -1,24 +1,23 @@
 import Foundation
 
+private func isStringKey(_ value: Int) -> Bool {
+    value & 0x08 > 0
+}
+
 private func decodeData(_ data: Data) throws -> [DecodingKey : Data] {
     let decoder = DataDecoder(data: data)
     var content = [DecodingKey: Data]()
     while decoder.hasMoreBytes {
         let raw = try decoder.getVarint()
-        let rawDataType = (raw >> 1) & 7
-        guard let dataType = DataType(rawValue: rawDataType) else {
-            throw BinaryDecodingError.unknownDataType(rawDataType)
-        }
+        let dataType = try DataType(decodeFrom: raw)
 
         let value = raw >> 4
         let key: DecodingKey
-        if raw & 1 == 1 {
-            // String key
+        if isStringKey(raw) {
             let stringKeyData = try decoder.getBytes(value)
             let stringKey = try String(decodeFrom: stringKeyData)
             key = DecodingKey.stringKey(stringKey)
         } else {
-            // Int key
             key = DecodingKey.intKey(value)
         }
 

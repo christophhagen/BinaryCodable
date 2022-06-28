@@ -63,4 +63,12 @@ enum DataType: Int {
             return 8
         }
     }
+
+    init(decodeFrom value: Int) throws {
+        let rawDataType = value & 0x7
+        guard let dataType = DataType(rawValue: rawDataType) else {
+            throw BinaryDecodingError.unknownDataType(rawDataType)
+        }
+        self = dataType
+    }
 }

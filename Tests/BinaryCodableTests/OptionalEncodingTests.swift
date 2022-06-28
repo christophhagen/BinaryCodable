@@ -32,9 +32,9 @@ final class OptionalEncodingTests: XCTestCase {
                 case opt = 4
             }
         }
-        try compare(Test(value: 123, opt: nil), to: [0b01010100, 123, 0])
-        let part1: [UInt8] = [0b01000100, 123, 0]
-        let part2: [UInt8] = [0b01010100, 123, 0]
+        try compare(Test(value: 123, opt: nil), to: [0b01010010, 123, 0])
+        let part1: [UInt8] = [0b01000010, 123, 0]
+        let part2: [UInt8] = [0b01010010, 123, 0]
         try compare(Test(value: 123, opt: 123), possibleResults: [part1 + part2, part2 + part1])
     }
 }

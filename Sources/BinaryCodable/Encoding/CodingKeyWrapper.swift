@@ -60,10 +60,10 @@ struct CodingKeyWrapper {
      - Returns: The encoded data of the integer, the data type and the key type indicator.
      */
     private func encode(int: Int, for dataType: DataType, isStringKey: Bool) -> Data {
-        // LSB is the string key indicator
-        // Bit 1-3 are the data type
+        // Bit 0-2 are the data type
+        // Bit 3 is the string key indicator
         // Remaining bits are the integer
-        let mixed = (int << 4) | (dataType.rawValue << 1) | (isStringKey ? 1 : 0)
+        let mixed = (int << 4) | dataType.rawValue | (isStringKey ? 0x08 : 0x00)
         return mixed.variableLengthEncoding
     }
 }
