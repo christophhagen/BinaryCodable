@@ -154,7 +154,6 @@ final class PrimitiveEncodingTests: XCTestCase {
             try compareEncoding(Float.self, value: value, to: expected)
         }
         try compare(.greatestFiniteMagnitude, to: [0x7F, 0x7F, 0xFF, 0xFF])
-        try compare(.nan, to: [0x7f, 0xC0, 0x00, 0x00])
         try compare(.zero, to: [0x00, 0x00, 0x00, 0x00])
         try compare(.pi, to: [0x40, 0x49, 0x0F, 0xDA])
         try compare(-.pi, to: [0xC0, 0x49, 0x0F, 0xDA])

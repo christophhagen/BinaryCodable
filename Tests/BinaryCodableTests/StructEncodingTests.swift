@@ -4,7 +4,7 @@ import XCTest
 final class StructEncodingTests: XCTestCase {
 
     func testStructWithArray() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let val: [Bool]
         }
         let expected: [UInt8] = [0b00110111, 118, 97, 108,

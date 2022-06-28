@@ -4,7 +4,7 @@ import XCTest
 final class KeyedEncodingTests: XCTestCase {
 
     func testEncodingWithVarintType() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: Int
         }
         let expected: [UInt8] = [0b01010001, 118, 97, 108, 117, 101, 123]
@@ -12,7 +12,7 @@ final class KeyedEncodingTests: XCTestCase {
     }
 
     func testEncodingWithByteType() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: Bool
         }
         let expected: [UInt8] = [0b01010011, 118, 97, 108, 117, 101, 1]
@@ -20,7 +20,7 @@ final class KeyedEncodingTests: XCTestCase {
     }
 
     func testEncodingWithTwoByteType() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: Int16
         }
         let expected: [UInt8] = [0b01010101, 118, 97, 108, 117, 101, 0xD2, 0x04]
@@ -28,7 +28,7 @@ final class KeyedEncodingTests: XCTestCase {
     }
 
     func testEncodingWithVariableLengthType() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: String
         }
         let expected: [UInt8] = [0b01010111, 118, 97, 108, 117, 101, 5, 118, 97, 108, 117, 101]
@@ -36,7 +36,7 @@ final class KeyedEncodingTests: XCTestCase {
     }
 
     func testEncodingWithFourByteType() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: Float
         }
         let expected: [UInt8] = [0b01011001, 118, 97, 108, 117, 101, 0x40, 0x49, 0x0F, 0xDA]
@@ -44,7 +44,7 @@ final class KeyedEncodingTests: XCTestCase {
     }
 
     func testEncodingWithEightByteType() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: Double
         }
         let expected: [UInt8] = [0b01011011, 118, 97, 108, 117, 101, 0xC0, 0x09, 0x21, 0xFB, 0x54, 0x44, 0x2D, 0x18]
@@ -52,7 +52,7 @@ final class KeyedEncodingTests: XCTestCase {
     }
 
     func testStructEncodingIntegerKey() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: UInt16
 
             enum CodingKeys: Int, CodingKey {
@@ -64,7 +64,7 @@ final class KeyedEncodingTests: XCTestCase {
     }
 
     func testStructEncodingLargeIntegerKey() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: UInt16
 
             enum CodingKeys: Int, CodingKey {

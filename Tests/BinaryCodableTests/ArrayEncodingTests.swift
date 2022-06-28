@@ -161,10 +161,9 @@ final class ArrayEncodingTests: XCTestCase {
         func compare(_ values: [Float], to expected: [UInt8]) throws {
             try compareArray(Float.self, values: values, to: expected)
         }
-        try compare([.greatestFiniteMagnitude, .nan, .zero, .pi, -.pi, .leastNonzeroMagnitude],
+        try compare([.greatestFiniteMagnitude, .zero, .pi, -.pi, .leastNonzeroMagnitude],
                     to: [0,
                          0x7F, 0x7F, 0xFF, 0xFF,
-                         0x7f, 0xC0, 0x00, 0x00,
                          0x00, 0x00, 0x00, 0x00,
                          0x40, 0x49, 0x0F, 0xDA,
                          0xC0, 0x49, 0x0F, 0xDA,

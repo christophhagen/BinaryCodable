@@ -7,9 +7,9 @@ final class OptionalEncodingTests: XCTestCase {
         func compare(_ value: Bool?, to expected: [UInt8]) throws {
             try compareEncoding(Bool?.self, value: value, to: expected)
         }
-        try compare(true, to: [1, 1])
-        try compare(false, to: [1, 0])
-        try compare(nil, to: [0])
+        try compare(true, to: [1])
+        try compare(false, to: [0])
+        try compare(nil, to: [])
         let encoder = BinaryEncoder()
         let value: Bool? = nil
         try encoder.printTree(value)
@@ -22,7 +22,7 @@ final class OptionalEncodingTests: XCTestCase {
     }
 
     func testOptionalInStructEncoding() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             let value: UInt16
 
             let opt: Int16?
