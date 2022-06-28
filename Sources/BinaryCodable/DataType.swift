@@ -19,35 +19,35 @@ enum DataType: Int {
      
      Used for: `Bool`, `UInt8`, `Int8`
      */
-    case byte = 1
+    case byte = 6
     
     /**
      The value is encoded as two bytes.
      
      Used for: `Int16`, `UInt16`
      */
-    case twoBytes = 2
+    case twoBytes = 7
 
     /**
      The value is encoded using first a length (as a UInt64 var-int) followed by the bytes.
 
      Used by: `String`, complex types
      */
-    case variableLength = 3
+    case variableLength = 2
     
     /**
      The value is encoded using four bytes.
      
      Used for: `Float`, `FixedWidth<Int32>`, `FixedWidth<UInt32>`
      */
-    case fourBytes = 4
+    case fourBytes = 5
     
     /**
      The value is encoded using eight bytes.
 
      Used by: `Double`, `FixedWidth<Int64>`, `FixedWidth<Int>`, `FixedWidth<UInt64>`, `FixedWidth<UInt>`
      */
-    case eightBytes = 5
+    case eightBytes = 1
 
     var byteCount: Int? {
         switch self {
@@ -70,5 +70,15 @@ enum DataType: Int {
             throw BinaryDecodingError.unknownDataType(rawDataType)
         }
         self = dataType
+    }
+
+    /// Indicate that the datatype is also available in the protobuf specification
+    var isProtobufCompatible: Bool {
+        switch self {
+        case .variableLengthInteger, .variableLength, .fourBytes, .eightBytes:
+            return true
+        case .byte, .twoBytes:
+            return false
+        }
     }
 }
