@@ -18,18 +18,20 @@ Simply include in your `Package.swift`:
 ```swift
 dependencies: [
     .package(
-        name: "ProtobufCodable", 
-        url: "https://github.com/christophhagen/ProtobufCodable", 
-        from: "0.4.0")
+        name: "BinaryCodable", 
+        url: "https://github.com/christophhagen/BinaryCodable", 
+        from: "0.1.0")
 ],
 targets: [
-    .target(name: "MyTarget", dependencies: ["ProtobufCodable"])
+    .target(name: "MyTarget", dependencies: [
+        .product(name: "BinaryCodable", package: "BinaryCodable")
+    ])
 ]
 ```
 
 ### Xcode project
 
-Select your `Project`, navigate to the `Package Dependencies` tab, and add `https://github.com/christophhagen/ProtobufCodable` using the `+` button.
+Select your `Project`, navigate to the `Package Dependencies` tab, and add `https://github.com/christophhagen/BinaryCodable` using the `+` button.
 
 ## Usage
 
