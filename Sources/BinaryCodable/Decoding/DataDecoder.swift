@@ -1,6 +1,6 @@
 import Foundation
 
-struct DataDecoder {
+final class DataDecoder {
 
     let data: Data
 
@@ -15,11 +15,11 @@ struct DataDecoder {
         index < data.endIndex
     }
 
-    mutating func getByte() throws -> UInt8 {
-        try getBytes(1)[0]
+    func getAllData() -> Data {
+        data
     }
 
-    mutating func getBytes(_ count: Int) throws -> Data {
+    func getBytes(_ count: Int) throws -> Data {
         let newIndex = index + count
         guard newIndex <= data.endIndex else {
             throw BinaryDecodingError.prematureEndOfData
@@ -28,33 +28,31 @@ struct DataDecoder {
         return data[index..<newIndex]
     }
 
-    mutating func getVarint() throws -> Int {
+    func getVarint() throws -> Int {
         let data = try getDataOfVarint()
         return try .init(decodeFrom: data)
     }
 
-    mutating func getDataOfVarint() throws -> Data {
-        let count = try readByteCountOfVarint()
-        defer { index += count }
-        return data[index..<index+count]
-    }
-
-    mutating func readByteCountOfVarint() throws -> Int {
-        for offset in 0...8 {
-            guard index + offset <= data.endIndex else {
+    func getDataOfVarint() throws -> Data {
+        let start = index
+        for _ in 0...7 {
+            guard index < data.endIndex else {
                 throw BinaryDecodingError.prematureEndOfData
             }
-            if data[index + offset] & 0x80 == 0 {
-                return offset + 1
+            let byte = data[index]
+            index += 1
+            if byte & 0x80 == 0 {
+                return data[start..<index]
             }
         }
-        guard index + 9 <= data.endIndex else {
+        guard index < data.endIndex else {
             throw BinaryDecodingError.prematureEndOfData
         }
-        return 9
+        index += 1
+        return data[start..<index]
     }
 
-    mutating func getData(for dataType: DataType) throws -> Data {
+    func getData(for dataType: DataType) throws -> Data {
         switch dataType {
         case .variableLengthInteger:
             return try getDataOfVarint()
