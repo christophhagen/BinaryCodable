@@ -24,9 +24,9 @@ extension Int64: VariableLengthCodable {
         UInt64(bitPattern: self).variableLengthEncoding
     }
     
-    static func readVariableLengthEncoded(from data: Data) throws -> Int64 {
-        let value = try UInt64.readVariableLengthEncoded(from: data)
-        return Int64(bitPattern: value)
+    init(fromVarint data: Data) throws {
+        let value = try UInt64(fromVarint: data)
+        self = Int64(bitPattern: value)
     }
 }
 

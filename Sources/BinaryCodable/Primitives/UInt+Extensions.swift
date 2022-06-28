@@ -14,7 +14,7 @@ extension UInt: EncodablePrimitive {
 extension UInt: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        self = try UInt.readVariableLengthEncoded(from: data)
+        try self.init(fromVarint: data)
     }
 }
 
@@ -24,11 +24,11 @@ extension UInt: VariableLengthCodable {
         UInt64(self).variableLengthEncoding
     }
     
-    static func readVariableLengthEncoded(from data: Data) throws -> UInt {
-        let intValue = try UInt64.readVariableLengthEncoded(from: data)
+    init(fromVarint data: Data) throws {
+        let intValue = try UInt64(fromVarint: data)
         guard let value = UInt(exactly: intValue) else {
             throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
         }
-        return value
+        self = value
     }
 }

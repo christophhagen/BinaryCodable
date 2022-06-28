@@ -24,11 +24,14 @@ extension Int: VariableLengthCodable {
         Int64(self).variableLengthEncoding
     }
     
-    static func readVariableLengthEncoded(from data: Data) throws -> Int {
-        let intValue = try Int64.readVariableLengthEncoded(from: data)
+    init(fromVarint data: Data) throws {
+        let intValue = try Int64(fromVarint: data)
         guard let value = Int(exactly: intValue) else {
             throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
         }
         return value
+        self = value
+    }
+}
     }
 }

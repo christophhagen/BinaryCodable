@@ -14,7 +14,7 @@ extension UInt64: EncodablePrimitive {
 extension UInt64: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        self = try UInt64.readVariableLengthEncoded(from: data)
+        try self.init(fromVarint: data)
     }
 }
 
@@ -53,7 +53,7 @@ extension UInt64: VariableLengthCodable {
         return result
     }
     
-    static func readVariableLengthEncoded(from data: Data) throws -> UInt64 {
+    init(fromVarint data: Data) throws {
         var result: UInt64 = 0
         
         // There are always 7 usable bits per byte, for 8 bytes
@@ -66,7 +66,8 @@ extension UInt64: VariableLengthCodable {
             result += UInt64(nextByte & 0x7F) << (byteIndex*7)
             // Check if an additional byte is coming
             guard nextByte & 0x80 > 0 else {
-                return result
+                self = result
+                return
             }
         }
         guard data.startIndex + 8 < data.endIndex else {
@@ -75,7 +76,7 @@ extension UInt64: VariableLengthCodable {
         // The 9th byte has no next-byte bit, so all 8 bits are used
         let nextByte = UInt64(data[data.startIndex + 8])
         result += UInt64(nextByte) << 56
-        return result
+        self = result
     }
 }
 

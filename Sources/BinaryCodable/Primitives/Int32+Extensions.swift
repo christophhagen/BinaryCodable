@@ -24,9 +24,9 @@ extension Int32: VariableLengthCodable {
         UInt32(bitPattern: self).variableLengthEncoding
     }
     
-    static func readVariableLengthEncoded(from data: Data) throws -> Int32 {
-        let value = try UInt32.readVariableLengthEncoded(from: data)
-        return Int32(bitPattern: value)
+    init(fromVarint data: Data) throws {
+        let value = try UInt32(fromVarint: data)
+        self = Int32(bitPattern: value)
     }
 }
 
