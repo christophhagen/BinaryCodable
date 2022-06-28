@@ -1,38 +1,19 @@
 import Foundation
 
-private func isStringKey(_ value: Int) -> Bool {
-    value & 0x08 > 0
-}
-
-private func decodeData(_ data: Data) throws -> [DecodingKey : Data] {
-    let decoder = DataDecoder(data: data)
-    var content = [DecodingKey: Data]()
-    while decoder.hasMoreBytes {
-        let raw = try decoder.getVarint()
-        let dataType = try DataType(decodeFrom: raw)
-
-        let value = raw >> 4
-        let key: DecodingKey
-        if isStringKey(raw) {
-            let stringKeyData = try decoder.getBytes(value)
-            let stringKey = try String(decodeFrom: stringKeyData)
-            key = DecodingKey.stringKey(stringKey)
-        } else {
-            key = DecodingKey.intKey(value)
-        }
-
-        let data = try decoder.getData(for: dataType)
-        content[key] = data
-    }
-    return content
-}
-
 final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtocol where Key: CodingKey {
 
     let content: [DecodingKey: Data]
 
     init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
-        self.content = try decodeData(data)
+        let decoder = DataDecoder(data: data)
+        var content = [DecodingKey: Data]()
+        while decoder.hasMoreBytes {
+            let (key, dataType) = try DecodingKey.decode(from: decoder)
+
+            let data = try decoder.getData(for: dataType)
+            content[key] = data
+        }
+        self.content = content
         super.init(codingPath: codingPath, userInfo: userInfo)
     }
 

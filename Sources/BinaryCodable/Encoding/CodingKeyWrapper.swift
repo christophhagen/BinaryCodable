@@ -11,7 +11,7 @@ private let intKeyLowerBound = Int(bitPattern: 0x87FFFFFFFFFFFFFF)
  */
 struct CodingKeyWrapper {
     
-    let codingKey: CodingKey
+    private let codingKey: CodingKey
 
     /**
      Create a wrapper around a coding key.
