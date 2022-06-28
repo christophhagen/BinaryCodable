@@ -3,7 +3,7 @@ import Foundation
 extension Double: EncodablePrimitive {
     
     func data() -> Data {
-        hostIndependentBinaryData.swapped
+        hostIndependentBinaryData
     }
     
     static var dataType: DataType {
@@ -14,7 +14,7 @@ extension Double: EncodablePrimitive {
 extension Double: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        try self.init(hostIndependentBinaryData: data.swapped)
+        try self.init(hostIndependentBinaryData: data)
     }
 }
 
