@@ -197,4 +197,11 @@ final class ArrayEncodingTests: XCTestCase {
                                  2, 0, 0,
                                  3, 0, 1, 0])
     }
+
+    func testDataEncoding() throws {
+        let data = Data([1, 2, 3, 0, 255, 123])
+        let expected: [UInt8] = [0, 1, 2, 3, 0, 255, 123]
+        try compare(data, to: expected)
+        try compare(Data(), to: [0])
+    }
 }
