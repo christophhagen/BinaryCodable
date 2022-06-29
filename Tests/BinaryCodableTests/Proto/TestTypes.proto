@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message SimpleStruct {
+
+  sint64 integer64 = 2;
+
+  string text = 4;
+
+  bytes data = 6;
+
+  repeated uint32 intArray = 8;
+}

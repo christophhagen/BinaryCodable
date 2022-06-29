@@ -10,6 +10,7 @@ let package = Package(
             targets: ["BinaryCodable"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.19.0"),
     ],
     targets: [
         .target(
@@ -17,6 +18,6 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "BinaryCodableTests",
-            dependencies: ["BinaryCodable"]),
+            dependencies: ["BinaryCodable", .product(name: "SwiftProtobuf", package: "swift-protobuf")]),
     ]
 )
