@@ -41,4 +41,11 @@ public enum BinaryDecodingError: Error {
      An integer encoded in the binary data as a varint does not fit into the specified integer type, producing an overflow.
      */
     case variableLengthEncodedIntegerOutOfRange
+
+    /**
+     Attempted to encode a data type not compatible with Google's Protocol Buffers.
+
+     This error can only appear when the `forceProtobufCompatibility = true` for the encoder.
+     */
+    case notProtobufCompatible
 }

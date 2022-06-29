@@ -22,8 +22,20 @@ import Foundation
  */
 public final class BinaryDecoder {
 
+    /**
+     Force the encoder to encode using a protobuf-compatible format.
+
+     Enabling this option provoides limited compatibility with Google's Protocol Buffers.
+
+     Encoding unsupported data types causes `BinaryEncodingError.notProtobufCompatible` errors.
+     */
+    public var forceProtobufCompatibility: Bool = false
+
     private var options: Set<CodingOption> {
         var result = Set<CodingOption>()
+        if forceProtobufCompatibility {
+            result.insert(.protobufCompatibility)
+        }
         return result
     }
 

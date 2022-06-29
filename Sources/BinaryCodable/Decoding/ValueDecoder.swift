@@ -27,6 +27,12 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
             } else {
                 data = try self.data.getData(for: Primitive.dataType)
             }
+            if forceProtobufCompatibility {
+                if let ProtoType = Primitive as? ProtobufDecodable.Type {
+                    return try ProtoType.init(fromProtobuf: data) as! T
+                }
+                throw BinaryDecodingError.notProtobufCompatible
+            }
             return try Primitive.init(decodeFrom: data) as! T
         }
         let node = DecodingNode(decoder: data, codingPath: codingPath, options: options)

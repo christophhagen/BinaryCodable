@@ -46,6 +46,12 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
         let data = try getData(forKey: key)
         if let Primitive = type as? DecodablePrimitive.Type {
+            if forceProtobufCompatibility {
+                if let ProtoType = type as? ProtobufDecodable.Type {
+                    return try ProtoType.init(fromProtobuf: data) as! T
+                }
+                throw BinaryDecodingError.notProtobufCompatible
+            }
             return try Primitive.init(decodeFrom: data) as! T
         }
         let node = DecodingNode(data: data, codingPath: codingPath, options: options)
