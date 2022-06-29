@@ -25,11 +25,7 @@ final class EncodingNode: AbstractEncodingNode, Encoder {
     func singleValueContainer() -> SingleValueEncodingContainer {
         wrap { ValueEncoder(codingPath: codingPath, options: options) }
     }
-    
-    func reset() {
-        container = nil
-    }
-    
+
     func encoding<T>(_ value: T) throws -> EncodingNode where T: Encodable {
         try value.encode(to: self)
         return self
