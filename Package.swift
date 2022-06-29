@@ -18,6 +18,7 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "BinaryCodableTests",
-            dependencies: ["BinaryCodable", .product(name: "SwiftProtobuf", package: "swift-protobuf")]),
+            dependencies: ["BinaryCodable", .product(name: "SwiftProtobuf", package: "swift-protobuf")],
+            exclude: ["Proto/TestTypes.proto"]),
     ]
 )
