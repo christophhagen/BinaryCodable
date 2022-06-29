@@ -150,7 +150,7 @@ The `BinaryEncoder` provides the `sortKeysDuringEncoding` option, which forces f
 
 Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. It should therefore only be used if the binary data must be consistent across multiple invocations.
 
-**Note** The `sortKeysDuringEncoding` option does not guarantee deterministic binary data, and should be used with care. 
+**Note:** The `sortKeysDuringEncoding` option does not guarantee deterministic binary data, and should be used with care. 
 
 ### Protobuf compatibility
 
@@ -165,7 +165,7 @@ Both `BinaryEncoder` and `BinaryDecoder` offer the property `forceProtobufCompat
 `uint32` | `UInt32` | Uses variable-length encoding
 `uint64` | `UInt64` | Uses variable-length encoding
 `sint32` | `Int32` | Uses ZigZag encoding
-`sint64` | `Int64` |  Uses ZigZag encoding
+`sint64` | `Int64` | Uses ZigZag encoding
 `fixed32` | `FixedSize<UInt32>` | See [`FixedSize` wrapper](#fixed-size-integers)
 `fixed64` | `FixedSize<UInt64>` | See [`FixedSize` wrapper](#fixed-size-integers)
 `sfixed32` | `FixedSize<Int32>` | See [`FixedSize` wrapper](#fixed-size-integers)
@@ -182,7 +182,7 @@ Unsupported features of Protobuf *may* cause the encoding to fail with a `Binary
 
 ## Binary data structure
 
-**Note** The binary format is optimized for size, but does not go all-out to create the smallest binary sizes possible. If this is your goal, then simply using `Codable` with it's key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you're really looking into this kind of efficiency, then you probably know this already.
+**Note:** The binary format is optimized for size, but does not go all-out to create the smallest binary sizes possible. If this is your goal, then simply using `Codable` with it's key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you're really looking into this kind of efficiency, then you probably know this already.
 
 The encoding format used by `BinaryCodable` is similar to Google's [Protocol Buffers](https://developers.google.com/protocol-buffers) in some aspects, but provides much more flexibility regarding the different types which can be encoded, including the ability to encode `Optional`, `Set`, multidimensional arrays, and more.
 
@@ -191,7 +191,7 @@ The encoding format used by `BinaryCodable` is similar to Google's [Protocol Buf
 Integers are encoded with different strategies depending on their size. Smaller types, like `UInt8`, `Int8`, `UInt16`, and `Int16` are encoded using their binary representations in little-endian format. 
 
 Larger integers, like `UInt32`, `Int32`, `UInt64`, `Int64`, `Int`, and `UInt` are (by default) encoded using variable length zig-zag encoding, similar to [Protobuf signed integers](https://developers.google.com/protocol-buffers/docs/encoding#signed-ints). This means that smaller values are encoded as shorter binary representations, which is useful if integer values are mostly small.
-**Note** The `Varint` implementation is not equivalent to `Protobuf`, since `BinaryCodable` uses the last byte of a large integer directly, and thus encodes `Int.max` with 9 Byte instead of 10. This encoding is adapted when [enforcing protobuf compatibility](#protobuf-compatibility).
+**Note:** The `Varint` implementation is not equivalent to `Protobuf`, since `BinaryCodable` uses the last byte of a large integer directly, and thus encodes `Int.max` with 9 Byte instead of 10. This encoding is adapted when [enforcing protobuf compatibility](#protobuf-compatibility).
 
 Integers using the [`PositiveInteger` property wrapper](#positive-signed-integers) are encoded using standard varint encoding, similar (with the caveat noted above) to [Protobuf Base128 Varints](https://developers.google.com/protocol-buffers/docs/encoding#varints).
 
@@ -266,3 +266,10 @@ Integer coding keys are encoded as `Varint` instead of the `String` key length. 
 Evidently this is a significant improvement, especially for long property names. Note that while it is possible to specify any integer as the key (between 2^59 and -2^59), small, positive integers are the most efficient.
 
 #### Optional properties
+
+Any properties of structs or other keyed containers is omitted from the binary data, i.e. nothing is encoded. The absence of a key then indicates to the decoder that the value is `nil` 
+
+### Tests
+
+The library comes with an extensive test suite, which checks that encoding works correctly for many cases. These tests can be executed using ```swift test``` from the package root, or when opening the package using Xcode.
+
