@@ -95,13 +95,3 @@ extension CodingKeyWrapper: Comparable {
         return lhs.codingKey.stringValue < rhs.codingKey.stringValue
     }
 }
-
-extension CodingKeyWrapper: CustomStringConvertible {
-    
-    var description: String {
-        if let int = codingKey.intValue {
-            return codingKey.stringValue + " (\(int))"
-        }
-        return codingKey.stringValue
-    }
-}

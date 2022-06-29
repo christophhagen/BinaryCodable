@@ -5,8 +5,6 @@ struct EncodedPrimitive: EncodingContainer {
     let dataType: DataType
 
     let data: Data
-    
-    let description: String
 
     init(primitive: EncodablePrimitive, protobuf: Bool) throws {
         self.dataType = primitive.dataType
@@ -21,8 +19,5 @@ struct EncodedPrimitive: EncodingContainer {
         } else {
             self.data = try primitive.data()
         }
-        self.description = "\(type(of: primitive)) (\(primitive))"
     }
 }
-
-extension EncodedPrimitive: CustomStringConvertible { }

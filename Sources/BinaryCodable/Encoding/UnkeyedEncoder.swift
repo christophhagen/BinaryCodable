@@ -82,11 +82,3 @@ extension UnkeyedEncoder: EncodingContainer {
         .variableLength
     }
 }
-
-extension UnkeyedEncoder: CustomStringConvertible {
-    
-    var description: String {
-        "Unkeyed\n" + content.map { "\($0)".indented()
-        }.joined(separator: "\n").indented()
-    }
-}

@@ -40,14 +40,3 @@ extension ValueEncoder: EncodingContainer {
         container!.dataType
     }
 }
-
-extension ValueEncoder: CustomStringConvertible {
-    
-    var description: String {
-        guard let container = container else {
-            return "Value (nil)"
-        }
-        return "Value\n" + "\(container)".indented()
-        
-    }
-}

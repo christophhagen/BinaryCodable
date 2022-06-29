@@ -43,14 +43,6 @@ extension EncodingNode: EncodingContainer {
     var dataType: DataType {
         container!.dataType
     }
-}
 
-extension EncodingNode: CustomStringConvertible {
-    
-    var description: String {
-        guard let container = container else {
-            return "Node (empty)"
-        }
-        return "Node\n" + "\(container)".indented()
     }
 }

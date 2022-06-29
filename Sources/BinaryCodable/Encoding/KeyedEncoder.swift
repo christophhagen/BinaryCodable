@@ -90,12 +90,3 @@ extension KeyedEncoder: EncodingContainer {
         .variableLength
     }
 }
-
-extension KeyedEncoder: CustomStringConvertible {
-    
-    var description: String {
-        "Keyed\n" + content.map { key, value in
-            key.description + "\n" + "\(value)".indented()
-        }.joined(separator: "\n").indented()
-    }
-}
