@@ -139,3 +139,15 @@ public extension PositiveInteger where WrappedValue: FixedWidthInteger {
     }
 }
 
+extension PositiveInteger: ProtobufCodable where WrappedValue: VariableLengthCodable, WrappedValue: PositiveIntegerCompatible {
+
+    func protobufData() throws -> Data {
+        wrappedValue.variableLengthEncoding
+    }
+
+    init(fromProtobuf data: Data) throws {
+        let value = try WrappedValue(fromVarint: data)
+        self.init(wrappedValue: value)
+    }
+
+}

@@ -6,6 +6,10 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     
     @discardableResult
     func assign<T>(to key: CodingKey, container: () throws -> T) rethrows -> T where T: EncodingContainer {
+        if forceProtobufCompatibility && key.intValue == nil {
+            // Protobuf requires integer keys
+            fatalError("Protobuf compatibility requires integer keys")
+        }
         let wrapped = CodingKeyWrapper(key)
         guard content[wrapped] == nil else {
             fatalError("Multiple values encoded for key \(key)")
@@ -22,7 +26,7 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             try assign(to: key) {
-                try EncodedPrimitive(primitive: primitive)
+                try EncodedPrimitive(primitive: primitive, protobuf: forceProtobufCompatibility)
             }
             return
         }
@@ -45,13 +49,15 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     }
     
     func superEncoder() -> Encoder {
-        assign(to: SuperEncoderKey()) {
+        failIfProto("Protobuf compatibility does not support encoding super")
+        return assign(to: SuperEncoderKey()) {
             EncodingNode(codingPath: codingPath, options: options)
         }
     }
     
     func superEncoder(forKey key: Key) -> Encoder {
-        assign(to: key) {
+        failIfProto("Protobuf compatibility does not support encoding super")
+        return assign(to: key) {
             EncodingNode(codingPath: codingPath + [key], options: options)
         }
     }

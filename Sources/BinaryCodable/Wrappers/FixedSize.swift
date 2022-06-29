@@ -138,3 +138,15 @@ public extension FixedSize where WrappedValue: FixedWidthInteger {
     }
 }
 
+extension FixedSize: ProtobufCodable where WrappedValue: HostIndependentRepresentable, WrappedValue: FixedSizeCompatible {
+
+    func protobufData() throws -> Data {
+        wrappedValue.hostIndependentBinaryData
+    }
+
+    init(fromProtobuf data: Data) throws {
+        let value = try WrappedValue(hostIndependentBinaryData: data)
+        self.init(wrappedValue: value)
+    }
+
+}

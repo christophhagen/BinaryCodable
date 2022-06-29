@@ -94,11 +94,22 @@ extension Int64: PositiveIntegerCompatible {
 extension Int64: ProtobufCodable {
 
     func protobufData() -> Data {
-        UInt64(bitPattern: self).protobufData()
+        guard self < 0 else {
+            return (UInt64(self.magnitude) << 1).protobufData()
+        }
+        return ((UInt64(-1 - self) << 1) + 1).protobufData()
     }
 
     init(fromProtobuf data: Data) throws {
-        let value = try UInt64(decodeFrom: data)
-        self = Int64(bitPattern: value)
+        let unsigned = try UInt64(fromProtobuf: data)
+
+        // Check the last bit to get sign
+        if unsigned & 1 > 0 {
+            // Divide by 2 and subtract one to get absolute value of negative values.
+            self = -Int64(unsigned >> 1) - 1
+        } else {
+            // Divide by two to get absolute value of positive values
+            self = Int64(unsigned >> 1)
+        }
     }
 }

@@ -17,20 +17,23 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
         return value
     }
     
-    func encodeNil() {
+    func encodeNil() throws {
+        guard !forceProtobufCompatibility else {
+            throw BinaryEncodingError.notProtobufCompatible
+        }
         nilIndices.insert(count)
     }
     
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             try assign {
-                try EncodedPrimitive(primitive: primitive)
+                try EncodedPrimitive(primitive: primitive, protobuf: forceProtobufCompatibility)
             }
             return
         }
         let node = try EncodingNode(codingPath: codingPath, options: options).encoding(value)
         if node.isNil {
-            encodeNil()
+            try encodeNil()
         } else {
             assign { node }
         }
@@ -68,7 +71,11 @@ extension UnkeyedEncoder: EncodingContainer {
     }
     
     var data: Data {
-        nilIndicesData + contentData
+        guard !forceProtobufCompatibility else {
+            // Don't prepend index set for protobuf
+            return Data(contentData)
+        }
+        return nilIndicesData + contentData
     }
     
     var dataType: DataType {

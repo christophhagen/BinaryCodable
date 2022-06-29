@@ -11,4 +11,11 @@ public enum BinaryEncodingError: Error {
      The string can either be a string key (e.g. a property or enum case name), or a `String` value.
      */
     case stringEncodingFailed(String)
+
+    /**
+     Attempted to encode a data type not compatible with Google's Protocol Buffers.
+
+     This error can only appear when the `forceProtobufCompatibility = true` for the encoder.
+     */
+    case notProtobufCompatible
 }
