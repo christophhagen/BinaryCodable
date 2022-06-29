@@ -73,11 +73,4 @@ public final class BinaryEncoder {
             return root.data
         }
     }
-    
-    func printTree<T>(_ value: T) throws where T: Encodable {
-        let root = EncodingNode(codingPath: [], options: options)
-        try value.encode(to: root)
-        print(root)
-    }
-    
 }
