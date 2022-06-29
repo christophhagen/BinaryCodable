@@ -35,3 +35,15 @@ message WrappedContainer {
     // Equivalent to Swift `PositiveInteger<Int64>`
     int64 signed64 = 12;
 }
+
+message Outer {
+
+    SimpleStruct inner = 2;
+
+    SimpleStruct more = 4;
+}
+
+message Outer2 {
+
+    repeated SimpleStruct values = 2;
+}
