@@ -2,11 +2,36 @@ syntax = "proto3";
 
 message SimpleStruct {
 
+  // Equivalent to Swift `Int64`
   sint64 integer64 = 2;
 
+  // Equivalent to Swift `String`
   string text = 4;
 
+  // Equivalent to Swift `Data`
   bytes data = 6;
 
+  // Equivalent to Swift `[UInt32]`
   repeated uint32 intArray = 8;
+}
+
+message WrappedContainer {
+
+    // Equivalent to Swift `FixedSize<Int32>`
+    sfixed32 fourByteInt = 2;
+
+    // Equivalent to Swift `FixedSize<UInt32>`
+    fixed32 fourByteUInt = 4;
+
+    // Equivalent to Swift `FixedSize<Int64>`
+    sfixed64 eightByteInt = 6;
+
+    // Equivalent to Swift `FixedSize<UInt64>`
+    fixed64 eightByteUInt = 8;
+
+    // Equivalent to Swift `PositiveInteger<Int32>`
+    int32 signed32 = 10;
+
+    // Equivalent to Swift `PositiveInteger<Int64>`
+    int64 signed64 = 12;
 }
