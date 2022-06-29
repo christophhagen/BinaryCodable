@@ -7,6 +7,8 @@ protocol EncodingContainer {
     var dataType: DataType { get }
 
     var isNil: Bool { get }
+
+    func encodeWithKey(_ key: CodingKeyWrapper) -> Data
 }
 
 extension EncodingContainer {
@@ -15,8 +17,17 @@ extension EncodingContainer {
         guard dataType == .variableLength else {
             return data
         }
+        return dataWithLengthInformation
+    }
+
+    var dataWithLengthInformation: Data {
         let data = self.data
         return data.count.variableLengthEncoding + data
+    }
+
+
+    func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
+        key.encode(for: dataType) + dataWithLengthInformationIfRequired
     }
 }
 

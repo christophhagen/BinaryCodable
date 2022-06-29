@@ -2,6 +2,36 @@ import XCTest
 import BinaryCodable
 import SwiftProtobuf
 
+private struct Simple: Codable, Equatable {
+
+    var integer64: Int64
+
+    var text: String
+
+    var data: Data
+
+    var intArray: [UInt32]
+
+    enum CodingKeys: Int, CodingKey {
+        case integer64 = 1
+        case text = 2
+        case data = 3
+        case intArray = 4
+    }
+}
+
+extension Simple {
+
+    var proto: SimpleStruct {
+        .with {
+            $0.integer64 = integer64
+            $0.text = text
+            $0.data = data
+            $0.intArray = intArray
+        }
+    }
+}
+
 final class ProtobufCompatibilityTests: XCTestCase {
 
     func testProtoToCodable<T>(_ value: SwiftProtobuf.Message, expected: T) throws where T: Decodable, T: Equatable {
@@ -9,8 +39,13 @@ final class ProtobufCompatibilityTests: XCTestCase {
 
         let decoder = BinaryDecoder()
         decoder.forceProtobufCompatibility = true
-        let decoded = try decoder.decode(T.self, from: data)
-        XCTAssertEqual(decoded, expected)
+        do {
+            let decoded = try decoder.decode(T.self, from: data)
+            XCTAssertEqual(decoded, expected)
+        } catch {
+            print(Array(data))
+            throw error
+        }
     }
 
     func testCodableToProto<T, P>(_ value: T, expected: P) throws where T: Encodable, P: SwiftProtobuf.Message, P: Equatable {
@@ -19,48 +54,25 @@ final class ProtobufCompatibilityTests: XCTestCase {
 
         let data = try encoder.encode(value)
 
-        let decoded = try P.init(serializedData: data)
-        XCTAssertEqual(decoded, expected)
+        do {
+            let decoded = try P.init(serializedData: data)
+            XCTAssertEqual(decoded, expected)
+        } catch {
+            print(Array(data))
+            throw error
+        }
     }
 
+    private let simple = Simple(
+        integer64: 123,
+        text: "Some",
+        data: Data(repeating: 42, count: 2),
+        intArray: [0, .max, 2])
+
     func testCompatibilityStruct() throws {
-        struct Test: Codable, Equatable {
 
-            var integer64: Int64
-
-            var text: String
-
-            var data: Data
-
-            var intArray: [UInt32]
-
-            enum CodingKeys: Int, CodingKey {
-                case integer64 = 1
-                case text = 2
-                case data = 3
-                case intArray = 4
-            }
-        }
-        let integer64: Int64 = 123
-        let text = "Some"
-        let dataValue = Data(repeating: 42, count: 2)
-        let intArray: [UInt32] = [0, .max, 2]
-
-        let codableValue = Test(
-            integer64: integer64,
-            text: text,
-            data: dataValue,
-            intArray: intArray)
-
-        let protoValue = SimpleStruct.with {
-            $0.integer64 = integer64
-            $0.text = text
-            $0.data = dataValue
-            $0.intArray = intArray
-        }
-
-        try testProtoToCodable(protoValue, expected: codableValue)
-        try testCodableToProto(codableValue, expected: protoValue)
+        try testProtoToCodable(simple.proto, expected: simple)
+        try testCodableToProto(simple, expected: simple.proto)
     }
 
     func testCompatibilityWrappers() throws {
@@ -119,5 +131,59 @@ final class ProtobufCompatibilityTests: XCTestCase {
 
         try testProtoToCodable(protoValue, expected: codableValue)
         try testCodableToProto(codableValue, expected: protoValue)
+    }
+
+    func testNestedStructs() throws {
+        struct Wrapped: Codable, Equatable {
+
+            let inner: Simple
+
+            let more: Simple
+
+            enum CodingKeys: Int, CodingKey {
+                case inner = 1
+                case more = 2
+            }
+        }
+
+        let more = Simple(
+            integer64: 123,
+            text: "More",
+            data: .init(repeating: 56, count: 5),
+            intArray: [0, 255, .max])
+
+        let value = Wrapped(
+            inner: simple,
+            more: more)
+
+        let proto = Outer.with {
+            $0.inner = simple.proto
+            $0.more = more.proto
+        }
+
+        try testProtoToCodable(proto, expected: value)
+        try testCodableToProto(value, expected: proto)
+    }
+
+    func testStructArrays() throws {
+        struct Wrapped: Codable, Equatable {
+
+            let values: [Simple]
+
+            enum CodingKeys: Int, CodingKey {
+                case values = 1
+            }
+        }
+
+        let more = Simple(integer64: 123, text: "More", data: .init(repeating: 56, count: 5), intArray: [0, 255, .max])
+
+        let value = Wrapped(values: [simple, more])
+
+        let proto = Outer2.with {
+            $0.values = [simple.proto, more.proto]
+        }
+
+        try testCodableToProto(value, expected: proto)
+        //try testProtoToCodable(proto, expected: value)
     }
 }

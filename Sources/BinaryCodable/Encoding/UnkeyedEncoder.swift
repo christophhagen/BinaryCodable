@@ -26,6 +26,12 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
     
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
+            // Ensure that only same-type values are encoded
+            if forceProtobufCompatibility {
+                if let first = content.first, first.dataType != primitive.dataType {
+                    throw BinaryEncodingError.notProtobufCompatible
+                }
+            }
             try assign {
                 try EncodedPrimitive(primitive: primitive, protobuf: forceProtobufCompatibility)
             }
@@ -60,22 +66,42 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
 }
 
 extension UnkeyedEncoder: EncodingContainer {
+
+    private var rawIndicesData: Data {
+        nilIndices.sorted().map { $0.variableLengthEncoding }.joinedData
+    }
     
     private var nilIndicesData: Data {
         let count = nilIndices.count
-        return count.variableLengthEncoding + nilIndices.sorted().map { $0.variableLengthEncoding }.joined()
+        return count.variableLengthEncoding + rawIndicesData
     }
     
-    private var contentData: FlattenSequence<[Data]> {
-        content.map { $0.dataWithLengthInformationIfRequired }.joined()
+    private var contentData: Data {
+        content.map { $0.dataWithLengthInformationIfRequired }.joinedData
+    }
+
+    private var packedProtoData: Data {
+        let data = contentData
+        return data.count.variableLengthEncoding + data
+    }
+
+    func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
+        guard forceProtobufCompatibility else {
+            return key.encode(for: dataType) + dataWithLengthInformationIfRequired
+        }
+        // Don't prepend index set for protobuf, separate complex types
+        if let first = content.first, first.dataType == .variableLength {
+            // Unpacked
+            return content
+                .map { $0.encodeWithKey(key) }
+                .joinedData
+        }
+        // Packed
+        return key.encode(for: dataType) + packedProtoData
     }
     
     var data: Data {
-        guard !forceProtobufCompatibility else {
-            // Don't prepend index set for protobuf
-            return Data(contentData)
-        }
-        return nilIndicesData + contentData
+        nilIndicesData + contentData
     }
     
     var dataType: DataType {

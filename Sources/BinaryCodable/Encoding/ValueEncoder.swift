@@ -33,7 +33,7 @@ extension ValueEncoder: EncodingContainer {
     var isNil: Bool { container?.isNil ?? true }
     
     var data: Data {
-        container?.data ?? Data()
+        container?.data ?? .empty
     }
     
     var dataType: DataType {

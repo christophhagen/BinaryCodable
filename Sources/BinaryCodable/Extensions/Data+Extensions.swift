@@ -16,5 +16,11 @@ extension Data {
     var swapped: Data {
         Data(reversed())
     }
+}
 
+extension Sequence where Element: Sequence, Element.Element == UInt8 {
+
+    var joinedData: Data {
+        Data(joined())
+    }
 }

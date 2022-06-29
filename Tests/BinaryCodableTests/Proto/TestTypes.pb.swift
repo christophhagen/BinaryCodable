@@ -70,9 +70,54 @@ struct WrappedContainer {
   init() {}
 }
 
+struct Outer {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var inner: SimpleStruct {
+    get {return _inner ?? SimpleStruct()}
+    set {_inner = newValue}
+  }
+  /// Returns true if `inner` has been explicitly set.
+  var hasInner: Bool {return self._inner != nil}
+  /// Clears the value of `inner`. Subsequent reads from it will return its default value.
+  mutating func clearInner() {self._inner = nil}
+
+  var more: SimpleStruct {
+    get {return _more ?? SimpleStruct()}
+    set {_more = newValue}
+  }
+  /// Returns true if `more` has been explicitly set.
+  var hasMore: Bool {return self._more != nil}
+  /// Clears the value of `more`. Subsequent reads from it will return its default value.
+  mutating func clearMore() {self._more = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _inner: SimpleStruct? = nil
+  fileprivate var _more: SimpleStruct? = nil
+}
+
+struct Outer2 {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var values: [SimpleStruct] = []
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 #if swift(>=5.5) && canImport(_Concurrency)
 extension SimpleStruct: @unchecked Sendable {}
 extension WrappedContainer: @unchecked Sendable {}
+extension Outer: @unchecked Sendable {}
+extension Outer2: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -184,6 +229,80 @@ extension WrappedContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if lhs.eightByteUint != rhs.eightByteUint {return false}
     if lhs.signed32 != rhs.signed32 {return false}
     if lhs.signed64 != rhs.signed64 {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Outer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "Outer"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    2: .same(proto: "inner"),
+    4: .same(proto: "more"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._inner) }()
+      case 4: try { try decoder.decodeSingularMessageField(value: &self._more) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._inner {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    } }()
+    try { if let v = self._more {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Outer, rhs: Outer) -> Bool {
+    if lhs._inner != rhs._inner {return false}
+    if lhs._more != rhs._more {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Outer2: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "Outer2"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    2: .same(proto: "values"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 2: try { try decoder.decodeRepeatedMessageField(value: &self.values) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.values.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.values, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Outer2, rhs: Outer2) -> Bool {
+    if lhs.values != rhs.values {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
