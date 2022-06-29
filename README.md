@@ -273,3 +273,6 @@ Any properties of structs or other keyed containers is omitted from the binary d
 
 The library comes with an extensive test suite, which checks that encoding works correctly for many cases. These tests can be executed using ```swift test``` from the package root, or when opening the package using Xcode.
 
+### License
+
+MIT. See [License.md](License.md)
