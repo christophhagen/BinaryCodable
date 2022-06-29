@@ -48,4 +48,11 @@ public enum BinaryDecodingError: Error {
      This error can only appear when the `forceProtobufCompatibility = true` for the encoder.
      */
     case notProtobufCompatible
+
+    /**
+     The binary data contains multiple values for a key.
+
+     This data format is only supported for unpacked arrays when specifying `forceProtobufCompatibility = true`
+     */
+    case multipleValuesForKey
 }

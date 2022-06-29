@@ -6,14 +6,33 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
 
     init(data: Data, codingPath: [CodingKey], options: Set<CodingOption>) throws {
         let decoder = DataDecoder(data: data)
-        var content = [DecodingKey: Data]()
+        var content = [DecodingKey: [Data]]()
         while decoder.hasMoreBytes {
             let (key, dataType) = try DecodingKey.decode(from: decoder)
 
             let data = try decoder.getData(for: dataType)
-            content[key] = data
+
+            guard content[key] != nil else {
+                content[key] = [data]
+                continue
+            }
+            if options.contains(.protobufCompatibility) {
+                content[key]!.append(data)
+            } else {
+                throw BinaryDecodingError.multipleValuesForKey
+            }
         }
-        self.content = content
+        self.content = content.mapValues { parts in
+            guard parts.count > 1 else {
+                return parts[0]
+            }
+            /// We only get here when `forceProtobufCompatibility = true`
+            /// So we need to prepend the length of each element
+            /// so that `KeyedEncoder` can decode it correctly
+            return parts.map {
+                $0.count.variableLengthEncoding + $0
+            }.joinedData
+        }
         super.init(codingPath: codingPath, options: options)
     }
 

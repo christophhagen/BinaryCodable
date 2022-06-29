@@ -43,7 +43,6 @@ final class ProtobufCompatibilityTests: XCTestCase {
             let decoded = try decoder.decode(T.self, from: data)
             XCTAssertEqual(decoded, expected)
         } catch {
-            print(Array(data))
             throw error
         }
     }
@@ -184,6 +183,6 @@ final class ProtobufCompatibilityTests: XCTestCase {
         }
 
         try testCodableToProto(value, expected: proto)
-        //try testProtoToCodable(proto, expected: value)
+        try testProtoToCodable(proto, expected: value)
     }
 }
