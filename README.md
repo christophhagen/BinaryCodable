@@ -10,7 +10,7 @@ One very popular alternative for binary data are Google's [Protocol Buffers](htt
 
 So if you're looking for a decently efficient binary encoder in a pure Swift project, then `BinaryCodable` may be right for you. Simply make your `struct`s (or classes!) conform to `Codable`, and `BinaryCodable` does the rest!
 
-The [message format](#binary-data-structure) is similar to that of `Protocol Buffers` (with some additions to support more types). It is possible to create [limited compatibility](#protobuf-compatibility) between the two formats to exchange data with systems that don't support Swift.
+The [message format](#binary-format) is similar to that of `Protocol Buffers` (with some additions to support more types). It is possible to create [limited compatibility](#protobuf-compatibility) between the two formats to exchange data with systems that don't support Swift.
 
 ## Installation
 
@@ -86,7 +86,7 @@ let message: Message = try decoder.decode(from: data)
 
 ### Coding Keys
 
-The `Codable` protocol uses [CodingKey](https://developer.apple.com/documentation/swift/codingkey) definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.
+The `Codable` protocol uses [`CodingKey`](https://developer.apple.com/documentation/swift/codingkey) definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.
 
 Similar to JSON encoding, `BinaryCodable` can embed the property names in the encoded data.
 
@@ -132,7 +132,7 @@ While varints are efficient for small numbers, their encoding introduces a stora
  
 #### Positive signed integers
 
-Integers are [encoded as `ZigZag-Varint` values](#integer-encoding), which is efficient while numbers are small (negative and positive). For numbers which are mostly or exclusively positive (like item counts), it can be more efficient to store them as a simple `Varint`. `BinaryCodable` offers `SignedValue` wrappers that can be applied to `Int`, `Int32` and `Int64` properties to increase the efficiency for positive values. This is expecially useful for [Protobuf support](protobuf-compatibility).
+Integers are [encoded as `ZigZag-Varint` values](BinaryFormat.md#integer-encoding), which is efficient while numbers are small (negative and positive). For numbers which are mostly or exclusively positive (like item counts), it can be more efficient to store them as a simple `Varint`. `BinaryCodable` offers `SignedValue` wrappers that can be applied to `Int`, `Int32` and `Int64` properties to increase the efficiency for positive values. This is expecially useful for [Protobuf support](protobuf-compatibility).
 
 Whenever your integers are expected to be positive, then you should apply the wrapper:
 ```swift
