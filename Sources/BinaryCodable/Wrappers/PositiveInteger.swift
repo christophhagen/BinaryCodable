@@ -1,10 +1,5 @@
 import Foundation
 
-/// A signed integer which can be forced to use zig-zag encoding.
-public protocol PositiveIntegerCompatible {
-
-}
-
 /**
  A wrapper for integer values which forces them to be encoded using variable-length encoding.
 
