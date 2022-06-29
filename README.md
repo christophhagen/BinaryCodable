@@ -1,6 +1,6 @@
 # BinaryCodable
 
-This package provides convenient encoding and decoding to/from binary data for Swift's `Codable` types.
+This package provides convenient encoding and decoding to/from binary data for all Swift `Codable` types. It also provides limited cross-compatibility to [Google Protocol Buffers](https://developers.google.com/protocol-buffers).
 
 ## Use cases
 
@@ -9,6 +9,8 @@ There are only few encoders and decoders available for Swift's Codable format, a
 One very popular alternative for binary data are Google's [Protocol Buffers](https://developers.google.com/protocol-buffers), which offer broad support across different platforms and programming languages. But they don't support Swift's `Codable` protocol, and thus require manual message definitions, the Protobuf compiler, and a lot of copying between data structures during encoding and decoding.
 
 So if you're looking for a decently efficient binary encoder in a pure Swift project, then `BinaryCodable` may be right for you. Simply make your `struct`s (or classes!) conform to `Codable`, and `BinaryCodable` does the rest!
+
+The [message format](#binary-data-structure) is similar to that of `Protocol Buffers` (with some additions to support more types). It is possible to create [limited compatibility](#protobuf-compatibility) between the two formats to exchange data with systems that don't support Swift.
 
 ## Installation
 
@@ -54,7 +56,7 @@ Simply import the module where you need to encode or decode a message:
 import BinaryCodable
 ```
 
-## Encoding
+### Encoding
 
 Construct an encoder when converting instances to binary data, and feed the message(s) into it:
 
@@ -67,7 +69,7 @@ let data = try encoder.encode(message)
 
 It's also possible to encode single values, arrays, optionals, sets, enums, dictionaries, and more, so long as they conform to `Codable`.
 
-## Decoding
+### Decoding
 
 Decoding instances from binary data works much the same way:
 
@@ -82,7 +84,7 @@ Alternatively, the type can be inferred:
 let message: Message = try decoder.decode(from: data)
 ```
 
-## Coding Keys
+### Coding Keys
 
 The `Codable` protocol uses [CodingKey](https://developer.apple.com/documentation/swift/codingkey) definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.
 
@@ -110,6 +112,74 @@ The enum must have a raw value of either `Int` or `String`, and the cases must m
 
 Using integer keys can significantly decrease the binary size, especially for long property names. Additionally, integer keys can be useful when intending to store the binary data persistently. Changes to property names can be performed in the code without breaking the decoding of older data (although this can also be achieved with custom `String` keys).
 
+### Property wrappers
+
+#### Fixed size integers
+
+While varints are efficient for small numbers, their encoding introduces a storage and computation penalty when the integers are often large, e.g. for random numbers. `BinaryCodable` provides the `FixedSize` wrapper, which forces integers to be encoded using their little-endian binary representations. This means that e.g. an `Int32` is always encoded as 4 byte (instead of 1-5 bytes using Varint encoding). This makes 32-bit `FixedSize` types more efficient than `Varint` if values are often larger than `2^28` (`2^56` for 64-bit types).
+
+ Use the property wrapper within a `Codable` definition to enforce fixed-width encoding for a property:
+ ```swift
+ struct MyStruct: Codable {
+
+     /// Always encoded as 4 bytes
+     @FixedSize 
+     var largeInteger: Int32
+ }
+ ```
+ 
+ The `FixedSize` wrapper is available to all `Varint` types: `Int`, `UInt`, `Int32`, `UInt32`, `Int64`, and `UInt64`.
+ 
+#### Positive signed integers
+
+Integers are [encoded as `ZigZag-Varint` values](#integer-encoding), which is efficient while numbers are small (negative and positive). For numbers which are mostly or exclusively positive (like item counts), it can be more efficient to store them as a simple `Varint`. `BinaryCodable` offers `SignedValue` wrappers that can be applied to `Int`, `Int32` and `Int64` properties to increase the efficiency for positive values. This is expecially useful for [Protobuf support](protobuf-compatibility).
+
+Whenever your integers are expected to be positive, then you should apply the wrapper:
+```swift
+struct MyStruct: Codable {
+
+    /// More efficiently encodes positive numbers
+    @PositiveInteger 
+    var count: Int
+}
+```
+
+### Options
+
+The `BinaryEncoder` provides the `sortKeysDuringEncoding` option, which forces fields in "keyed" containers, such as `struct` properties and dictionaries, to be sorted in the binary data. This sorting is done by using either the [integer keys](#coding-keys) (if defined), or the property names. Dictionaries with `Int` or `String` keys are also sorted. 
+
+Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. It should therefore only be used if the binary data must be consistent across multiple invocations.
+
+**Note** The `sortKeysDuringEncoding` option does not guarantee deterministic binary data, and should be used with care. 
+
+### Protobuf compatibility
+
+Both `BinaryEncoder` and `BinaryDecoder` offer the property `forceProtobufCompatibility`, which changes the binary data encoding/decoding to be compatible with Google's Protocol Buffer format. This compatibility is limited to basic protobuf functionality, and should be used with care. The following features are currently supported:
+
+| Protobuf primitive | Swift equivalent | Comment |
+| :-- | :-- | :-- |
+`double` | `Double` | Always 8 byte
+`float` | `Float` | Always 4 byte
+`int32` | `PositiveInteger<Int32>` | See [`PositiveInteger` wrapper](#positive-signed-integers)
+`int64` | `PositiveInteger<Int64>` | See [`PositiveInteger` wrapper](#positive-signed-integers)
+`uint32` | `UInt32` | Uses variable-length encoding
+`uint64` | `UInt64` | Uses variable-length encoding
+`sint32` | `Int32` | Uses ZigZag encoding
+`sint64` | `Int64` |  Uses ZigZag encoding
+`fixed32` | `FixedSize<UInt32>` | See [`FixedSize` wrapper](#fixed-size-integers)
+`fixed64` | `FixedSize<UInt64>` | See [`FixedSize` wrapper](#fixed-size-integers)
+`sfixed32` | `FixedSize<Int32>` | See [`FixedSize` wrapper](#fixed-size-integers)
+`sfixed64` | `FixedSize<Int64>` | See [`FixedSize` wrapper](#fixed-size-integers)
+`bool` | `Bool` | Always 1 byte
+`string` | `String` | Encoded using UTF-8
+`bytes` | `Data` | Encoded as-is
+`message` | `struct` | Nested messages should also be supported.
+`repeated`| `Array` | Scalar values must always be `packed` (the proto3 default)
+
+**Important notice** Protobuf compatibility requires [integer coding keys](#coding-keys), or the encoding/decoding will fail.
+
+Unsupported features of Protobuf *may* cause the encoding to fail with a `BinaryEncodingError` of type `notProtobufCompatible`. Interoperability should be thoroughly checked through testing.
+
 ## Binary data structure
 
 **Note** The binary format is optimized for size, but does not go all-out to create the smallest binary sizes possible. If this is your goal, then simply using `Codable` with it's key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you're really looking into this kind of efficiency, then you probably know this already.
@@ -120,40 +190,12 @@ The encoding format used by `BinaryCodable` is similar to Google's [Protocol Buf
 
 Integers are encoded with different strategies depending on their size. Smaller types, like `UInt8`, `Int8`, `UInt16`, and `Int16` are encoded using their binary representations in little-endian format. 
 
-Larger integers, like `UInt32`, `Int32`, `UInt64`, `Int64`, `Int`, and `UInt` are (by default) encoded using variable length encoding, similar to [Protobuf Base128 Varints](https://developers.google.com/protocol-buffers/docs/encoding#varints). This means that smaller values are encoded as shorter binary representations, which is useful if integer values are mostly small.
-**Note** The `Varint` implementation is not equivalent the same, since `BinaryCodable` uses the last byte of a large integer directly, and thus encodes `Int.max` with 9 Byte instead of 10.
+Larger integers, like `UInt32`, `Int32`, `UInt64`, `Int64`, `Int`, and `UInt` are (by default) encoded using variable length zig-zag encoding, similar to [Protobuf signed integers](https://developers.google.com/protocol-buffers/docs/encoding#signed-ints). This means that smaller values are encoded as shorter binary representations, which is useful if integer values are mostly small.
+**Note** The `Varint` implementation is not equivalent to `Protobuf`, since `BinaryCodable` uses the last byte of a large integer directly, and thus encodes `Int.max` with 9 Byte instead of 10. This encoding is adapted when [enforcing protobuf compatibility](#protobuf-compatibility).
 
-#### Signed integers
+Integers using the [`PositiveInteger` property wrapper](#positive-signed-integers) are encoded using standard varint encoding, similar (with the caveat noted above) to [Protobuf Base128 Varints](https://developers.google.com/protocol-buffers/docs/encoding#varints).
 
-Varint encoding is efficient for small numbers, but doesn't work efficiently with negative values. `BinaryCodable` offers `SignedValue` wrappers that can be applied to `Int`, `Int32` and `Int64` properties to increase the efficiency for negative values as well, similar to Protobufs `sint32` and `sint64` scalar types.
-
-Whenever your integers are expected to have small magnitudes with negative numbers, then you should apply the wrapper:
- ```swift
- struct MyStruct: Codable {
- 
-     /// Efficiently encodes small negative numbers
-     @SignedValue 
-     var signedInteger: Int32
- }
- ```
- 
- This declaration enforces ZigZag-Encoding of the integers, as explained [here](https://developers.google.com/protocol-buffers/docs/encoding#signed-ints).
- 
-#### Fixed-width integers
-
-While varints are efficient for small numbers, their encoding introduces a storage and computation penalty when the integers are often large, e.g. for random numbers. `BinaryCodable` provides the `FixedWidth` wrapper, which forces integers to be encoded using their little-endian binary representations. This means that e.g. an `Int32` is always encoded as 4 byte (instead of 1-5 bytes using Varint encoding).
-
- Use the property wrapped within a `Codable` definition to enforce fixed-width encoding for a property:
- ```swift
- struct MyStruct: Codable {
-
-     /// Always encoded as 4 bytes
-     @FixedWidth 
-     var largeInteger: Int32
- }
- ```
- 
- The `FixedWidth` wrapper is available to all `Varint` types: `Int`, `UInt`, `Int32`, `UInt32`, `Int64`, and `UInt64`.
+The property wrapper [`FixedSize`](#fixed-size-integers) forces the values to be encoded using their little-endian representations.
 
 ### Floating-point types
 
@@ -189,8 +231,8 @@ The following data types are possible:
 `byte` | `1` | `Bool`, `UInt8`, `Int8` | A single byte storing a number or boolean
 `twoBytes` | `2` | `Int16`, `UInt16` | Two bytes storing an integer using little-endian format
 `variableLength` | `3` | `String`, `Struct`, ... | The length of the data encoded as a `Varint` followed by `length` bytes
-`fourBytes` | `4` | `Float`, `FixedWidth<Int32>`, `FixedWidth<UInt32>` | A 32-bit float or integer in little-endian encoding.
-`eightBytes` | `5` | `Double`, `FixedWidth<Int64>`, `FixedWidth<Int>`, `FixedWidth<UInt64>`, `FixedWidth<UInt>` | A 64-bit float or integer in little-endian encoding.
+`fourBytes` | `4` | `Float`, `FixedSize<Int32>`, `FixedSize<UInt32>` | A 32-bit float or integer in little-endian encoding.
+`eightBytes` | `5` | `Double`, `FixedSize<Int64>`, `FixedSize<Int>`, `FixedSize<UInt64>`, `FixedSize<UInt>` | A 64-bit float or integer in little-endian encoding.
 
 With the four lower bits occupied by the data type and the string key indicator, the remaining bits are left to encode the length of the string key.
 
