@@ -8,7 +8,7 @@ protocol EncodingContainer {
 
     var isNil: Bool { get }
 
-    func encodeWithKey(_ key: CodingKeyWrapper) -> Data
+    func encodeWithKey(_ key: CodingKeyWrapper, proto: Bool) -> Data
 }
 
 extension EncodingContainer {
@@ -26,8 +26,8 @@ extension EncodingContainer {
     }
 
 
-    func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
-        key.encode(for: dataType) + dataWithLengthInformationIfRequired
+    func encodeWithKey(_ key: CodingKeyWrapper, proto: Bool) -> Data {
+        key.encode(for: dataType, proto: proto) + dataWithLengthInformationIfRequired
     }
 }
 

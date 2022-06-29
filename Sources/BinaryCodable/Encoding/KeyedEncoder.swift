@@ -75,7 +75,7 @@ extension KeyedEncoder: EncodingContainer {
 
     var combinedData: Data {
         sortedKeysIfNeeded.map { key, value -> Data in
-            value.encodeWithKey(key)
+            value.encodeWithKey(key, proto: forceProtobufCompatibility)
         }.reduce(Data(), +)
     }
     

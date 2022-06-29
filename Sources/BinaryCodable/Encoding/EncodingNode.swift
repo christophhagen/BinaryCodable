@@ -44,7 +44,7 @@ extension EncodingNode: EncodingContainer {
         container!.dataType
     }
 
-    func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
-        container!.encodeWithKey(key)
+    func encodeWithKey(_ key: CodingKeyWrapper, proto: Bool) -> Data {
+        container!.encodeWithKey(key, proto: proto)
     }
 }

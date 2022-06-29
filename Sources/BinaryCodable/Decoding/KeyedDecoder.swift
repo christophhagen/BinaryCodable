@@ -5,10 +5,11 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     let content: [DecodingKey: Data]
 
     init(data: Data, codingPath: [CodingKey], options: Set<CodingOption>) throws {
+        let proto = options.contains(.protobufCompatibility)
         let decoder = DataDecoder(data: data)
         var content = [DecodingKey: [Data]]()
         while decoder.hasMoreBytes {
-            let (key, dataType) = try DecodingKey.decode(from: decoder)
+            let (key, dataType) = try DecodingKey.decode(from: decoder, proto: proto)
 
             let data = try decoder.getData(for: dataType)
 
@@ -16,7 +17,7 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
                 content[key] = [data]
                 continue
             }
-            if options.contains(.protobufCompatibility) {
+            if proto {
                 content[key]!.append(data)
             } else {
                 throw BinaryDecodingError.multipleValuesForKey

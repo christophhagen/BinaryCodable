@@ -66,6 +66,20 @@ struct CodingKeyWrapper {
         let mixed = (int << 4) | dataType.rawValue | (isStringKey ? 0x08 : 0x00)
         return mixed.variableLengthEncoding
     }
+
+    func encode(for dataType: DataType, proto: Bool) -> Data {
+        if proto {
+            return encodeProto(for: dataType)
+        }
+        return encode(for: dataType)
+    }
+
+    func encodeProto(for dataType: DataType) -> Data {
+        // Bit 0-2 are the data type
+        // Remaining bits are the integer
+        let mixed = (codingKey.intValue! << 3) | dataType.rawValue
+        return mixed.variableLengthEncoding
+    }
 }
 
 extension CodingKeyWrapper: Equatable {

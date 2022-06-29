@@ -125,10 +125,10 @@ extension Outer2: @unchecked Sendable {}
 extension SimpleStruct: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = "SimpleStruct"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .same(proto: "integer64"),
-    4: .same(proto: "text"),
-    6: .same(proto: "data"),
-    8: .same(proto: "intArray"),
+    1: .same(proto: "integer64"),
+    2: .same(proto: "text"),
+    3: .same(proto: "data"),
+    4: .same(proto: "intArray"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -137,10 +137,10 @@ extension SimpleStruct: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 2: try { try decoder.decodeSingularSInt64Field(value: &self.integer64) }()
-      case 4: try { try decoder.decodeSingularStringField(value: &self.text) }()
-      case 6: try { try decoder.decodeSingularBytesField(value: &self.data) }()
-      case 8: try { try decoder.decodeRepeatedUInt32Field(value: &self.intArray) }()
+      case 1: try { try decoder.decodeSingularSInt64Field(value: &self.integer64) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.text) }()
+      case 3: try { try decoder.decodeSingularBytesField(value: &self.data) }()
+      case 4: try { try decoder.decodeRepeatedUInt32Field(value: &self.intArray) }()
       default: break
       }
     }
@@ -148,16 +148,16 @@ extension SimpleStruct: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if self.integer64 != 0 {
-      try visitor.visitSingularSInt64Field(value: self.integer64, fieldNumber: 2)
+      try visitor.visitSingularSInt64Field(value: self.integer64, fieldNumber: 1)
     }
     if !self.text.isEmpty {
-      try visitor.visitSingularStringField(value: self.text, fieldNumber: 4)
+      try visitor.visitSingularStringField(value: self.text, fieldNumber: 2)
     }
     if !self.data.isEmpty {
-      try visitor.visitSingularBytesField(value: self.data, fieldNumber: 6)
+      try visitor.visitSingularBytesField(value: self.data, fieldNumber: 3)
     }
     if !self.intArray.isEmpty {
-      try visitor.visitPackedUInt32Field(value: self.intArray, fieldNumber: 8)
+      try visitor.visitPackedUInt32Field(value: self.intArray, fieldNumber: 4)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -175,12 +175,12 @@ extension SimpleStruct: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
 extension WrappedContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = "WrappedContainer"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .same(proto: "fourByteInt"),
-    4: .same(proto: "fourByteUInt"),
-    6: .same(proto: "eightByteInt"),
-    8: .same(proto: "eightByteUInt"),
-    10: .same(proto: "signed32"),
-    12: .same(proto: "signed64"),
+    1: .same(proto: "fourByteInt"),
+    2: .same(proto: "fourByteUInt"),
+    3: .same(proto: "eightByteInt"),
+    4: .same(proto: "eightByteUInt"),
+    5: .same(proto: "signed32"),
+    6: .same(proto: "signed64"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -189,12 +189,12 @@ extension WrappedContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 2: try { try decoder.decodeSingularSFixed32Field(value: &self.fourByteInt) }()
-      case 4: try { try decoder.decodeSingularFixed32Field(value: &self.fourByteUint) }()
-      case 6: try { try decoder.decodeSingularSFixed64Field(value: &self.eightByteInt) }()
-      case 8: try { try decoder.decodeSingularFixed64Field(value: &self.eightByteUint) }()
-      case 10: try { try decoder.decodeSingularInt32Field(value: &self.signed32) }()
-      case 12: try { try decoder.decodeSingularInt64Field(value: &self.signed64) }()
+      case 1: try { try decoder.decodeSingularSFixed32Field(value: &self.fourByteInt) }()
+      case 2: try { try decoder.decodeSingularFixed32Field(value: &self.fourByteUint) }()
+      case 3: try { try decoder.decodeSingularSFixed64Field(value: &self.eightByteInt) }()
+      case 4: try { try decoder.decodeSingularFixed64Field(value: &self.eightByteUint) }()
+      case 5: try { try decoder.decodeSingularInt32Field(value: &self.signed32) }()
+      case 6: try { try decoder.decodeSingularInt64Field(value: &self.signed64) }()
       default: break
       }
     }
@@ -202,22 +202,22 @@ extension WrappedContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if self.fourByteInt != 0 {
-      try visitor.visitSingularSFixed32Field(value: self.fourByteInt, fieldNumber: 2)
+      try visitor.visitSingularSFixed32Field(value: self.fourByteInt, fieldNumber: 1)
     }
     if self.fourByteUint != 0 {
-      try visitor.visitSingularFixed32Field(value: self.fourByteUint, fieldNumber: 4)
+      try visitor.visitSingularFixed32Field(value: self.fourByteUint, fieldNumber: 2)
     }
     if self.eightByteInt != 0 {
-      try visitor.visitSingularSFixed64Field(value: self.eightByteInt, fieldNumber: 6)
+      try visitor.visitSingularSFixed64Field(value: self.eightByteInt, fieldNumber: 3)
     }
     if self.eightByteUint != 0 {
-      try visitor.visitSingularFixed64Field(value: self.eightByteUint, fieldNumber: 8)
+      try visitor.visitSingularFixed64Field(value: self.eightByteUint, fieldNumber: 4)
     }
     if self.signed32 != 0 {
-      try visitor.visitSingularInt32Field(value: self.signed32, fieldNumber: 10)
+      try visitor.visitSingularInt32Field(value: self.signed32, fieldNumber: 5)
     }
     if self.signed64 != 0 {
-      try visitor.visitSingularInt64Field(value: self.signed64, fieldNumber: 12)
+      try visitor.visitSingularInt64Field(value: self.signed64, fieldNumber: 6)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -237,8 +237,8 @@ extension WrappedContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
 extension Outer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = "Outer"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .same(proto: "inner"),
-    4: .same(proto: "more"),
+    1: .same(proto: "inner"),
+    2: .same(proto: "more"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -247,8 +247,8 @@ extension Outer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._inner) }()
-      case 4: try { try decoder.decodeSingularMessageField(value: &self._more) }()
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._inner) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._more) }()
       default: break
       }
     }
@@ -260,10 +260,10 @@ extension Outer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
     // https://github.com/apple/swift-protobuf/issues/1182
     try { if let v = self._inner {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
     } }()
     try { if let v = self._more {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
     } }()
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -279,7 +279,7 @@ extension Outer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase
 extension Outer2: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = "Outer2"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .same(proto: "values"),
+    1: .same(proto: "values"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -288,7 +288,7 @@ extension Outer2: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBas
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 2: try { try decoder.decodeRepeatedMessageField(value: &self.values) }()
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.values) }()
       default: break
       }
     }
@@ -296,7 +296,7 @@ extension Outer2: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBas
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.values.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.values, fieldNumber: 2)
+      try visitor.visitRepeatedMessageField(value: self.values, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }

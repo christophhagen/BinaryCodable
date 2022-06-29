@@ -85,19 +85,19 @@ extension UnkeyedEncoder: EncodingContainer {
         return data.count.variableLengthEncoding + data
     }
 
-    func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
-        guard forceProtobufCompatibility else {
+    func encodeWithKey(_ key: CodingKeyWrapper, proto: Bool) -> Data {
+        guard proto else {
             return key.encode(for: dataType) + dataWithLengthInformationIfRequired
         }
         // Don't prepend index set for protobuf, separate complex types
         if let first = content.first, first.dataType == .variableLength {
             // Unpacked
             return content
-                .map { $0.encodeWithKey(key) }
+                .map { $0.encodeWithKey(key, proto: proto) }
                 .joinedData
         }
         // Packed
-        return key.encode(for: dataType) + packedProtoData
+        return key.encodeProto(for: dataType) + packedProtoData
     }
     
     var data: Data {

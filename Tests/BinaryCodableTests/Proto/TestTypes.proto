@@ -3,47 +3,47 @@ syntax = "proto3";
 message SimpleStruct {
 
   // Equivalent to Swift `Int64`
-  sint64 integer64 = 2;
+  sint64 integer64 = 1;
 
   // Equivalent to Swift `String`
-  string text = 4;
+  string text = 2;
 
   // Equivalent to Swift `Data`
-  bytes data = 6;
+  bytes data = 3;
 
   // Equivalent to Swift `[UInt32]`
-  repeated uint32 intArray = 8;
+  repeated uint32 intArray = 4;
 }
 
 message WrappedContainer {
 
     // Equivalent to Swift `FixedSize<Int32>`
-    sfixed32 fourByteInt = 2;
+    sfixed32 fourByteInt = 1;
 
     // Equivalent to Swift `FixedSize<UInt32>`
-    fixed32 fourByteUInt = 4;
+    fixed32 fourByteUInt = 2;
 
     // Equivalent to Swift `FixedSize<Int64>`
-    sfixed64 eightByteInt = 6;
+    sfixed64 eightByteInt = 3;
 
     // Equivalent to Swift `FixedSize<UInt64>`
-    fixed64 eightByteUInt = 8;
+    fixed64 eightByteUInt = 4;
 
     // Equivalent to Swift `PositiveInteger<Int32>`
-    int32 signed32 = 10;
+    int32 signed32 = 5;
 
     // Equivalent to Swift `PositiveInteger<Int64>`
-    int64 signed64 = 12;
+    int64 signed64 = 6;
 }
 
 message Outer {
 
-    SimpleStruct inner = 2;
+    SimpleStruct inner = 1;
 
-    SimpleStruct more = 4;
+    SimpleStruct more = 2;
 }
 
 message Outer2 {
 
-    repeated SimpleStruct values = 2;
+    repeated SimpleStruct values = 1;
 }

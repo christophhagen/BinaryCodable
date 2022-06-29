@@ -18,7 +18,10 @@ enum DecodingKey {
         value & 0x08 > 0
     }
 
-    private static func decodeKey(_ raw: Int, from decoder: DataDecoder) throws -> DecodingKey {
+    private static func decodeKey(_ raw: Int, from decoder: DataDecoder, proto: Bool) throws -> DecodingKey {
+        guard !proto else {
+            return DecodingKey.intKey(raw >> 3)
+        }
         let value = raw >> 4
         guard isStringKey(raw) else {
             return DecodingKey.intKey(value)
@@ -28,10 +31,10 @@ enum DecodingKey {
         return DecodingKey.stringKey(stringKey)
     }
 
-    static func decode(from decoder: DataDecoder) throws -> (key: DecodingKey, dataType: DataType) {
+    static func decode(from decoder: DataDecoder, proto: Bool) throws -> (key: DecodingKey, dataType: DataType) {
         let raw = try decoder.getVarint()
         let dataType = try DataType(decodeFrom: raw)
-        let key = try decodeKey(raw, from: decoder)
+        let key = try decodeKey(raw, from: decoder, proto: proto)
         return (key, dataType)
     }
 }
