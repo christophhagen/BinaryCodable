@@ -85,10 +85,17 @@ extension Int64: FixedSizeCompatible {
     static public var fixedSizeDataType: DataType {
         .eightBytes
     }
+
+    public var fixedProtoType: String {
+        "sfixed64"
+    }
 }
 
 extension Int64: PositiveIntegerCompatible {
 
+    public var positiveProtoType: String {
+        "int64"
+    }
 }
 
 extension Int64: ProtobufCodable {
@@ -112,4 +119,6 @@ extension Int64: ProtobufCodable {
             self = Int64(unsigned >> 1)
         }
     }
+
+    var protoType: String { "sint64" }
 }

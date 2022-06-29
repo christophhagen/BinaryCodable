@@ -5,6 +5,9 @@ public protocol FixedSizeCompatible {
 
     /// The wire type of the type, which has a constant length
     static var fixedSizeDataType: DataType { get }
+
+    /// The protobuf type equivalent to the fixed size type
+    var fixedProtoType: String { get }
 }
 
 extension FixedSizeCompatible {

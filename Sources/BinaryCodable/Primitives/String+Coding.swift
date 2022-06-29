@@ -26,4 +26,5 @@ extension String: DecodablePrimitive {
 
 extension String: ProtobufCodable {
     
+    var protoType: String { "string" }
 }

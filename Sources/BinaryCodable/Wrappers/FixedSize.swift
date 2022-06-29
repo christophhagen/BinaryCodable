@@ -149,4 +149,7 @@ extension FixedSize: ProtobufCodable where WrappedValue: HostIndependentRepresen
         self.init(wrappedValue: value)
     }
 
+    var protoType: String {
+        wrappedValue.fixedProtoType
+    }
 }

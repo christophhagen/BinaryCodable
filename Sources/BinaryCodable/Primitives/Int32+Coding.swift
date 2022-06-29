@@ -77,10 +77,17 @@ extension Int32: FixedSizeCompatible {
     static public var fixedSizeDataType: DataType {
         .fourBytes
     }
+
+    public var fixedProtoType: String {
+        "sfixed32"
+    }
 }
 
 extension Int32: PositiveIntegerCompatible {
 
+    public var positiveProtoType: String {
+        "int32"
+    }
 }
 
 extension Int32: ProtobufCodable {
@@ -96,4 +103,6 @@ extension Int32: ProtobufCodable {
         }
         self = value
     }
+
+    var protoType: String { "sint32" }
 }

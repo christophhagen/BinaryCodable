@@ -35,6 +35,9 @@ extension Int: VariableLengthCodable {
 
 extension Int: PositiveIntegerCompatible {
 
+    public var positiveProtoType: String {
+        "int64"
+    }
 }
 
 extension Int: ZigZagCodable {

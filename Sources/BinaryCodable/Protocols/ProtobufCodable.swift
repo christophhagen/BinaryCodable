@@ -5,6 +5,8 @@ typealias ProtobufCodable = ProtobufEncodable & ProtobufDecodable
 protocol ProtobufEncodable {
 
     func protobufData() throws -> Data
+
+    var protoType: String { get }
 }
 
 protocol ProtobufDecodable {

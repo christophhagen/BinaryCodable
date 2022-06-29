@@ -54,6 +54,10 @@ extension UInt32: FixedSizeCompatible {
     static public var fixedSizeDataType: DataType {
         .fourBytes
     }
+
+    public var fixedProtoType: String {
+        "fixed32"
+    }
 }
 
 extension UInt32: ProtobufCodable {
@@ -69,4 +73,6 @@ extension UInt32: ProtobufCodable {
         }
         self = value
     }
+
+    var protoType: String { "uint32" }
 }

@@ -18,3 +18,7 @@ extension Data: DecodablePrimitive {
     }
 }
 
+extension Data: ProtobufCodable {
+
+    var protoType: String { "bytes" }
+}

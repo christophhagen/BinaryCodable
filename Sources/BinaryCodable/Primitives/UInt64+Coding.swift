@@ -101,6 +101,10 @@ extension UInt64: FixedSizeCompatible {
     static public var fixedSizeDataType: DataType {
         .eightBytes
     }
+
+    public var fixedProtoType: String {
+        "fixed64"
+    }
 }
 
 extension UInt64: ProtobufCodable {
@@ -171,4 +175,6 @@ extension UInt64: ProtobufCodable {
         }
         self = result
     }
+
+    var protoType: String { "uint64" }
 }

@@ -150,4 +150,7 @@ extension PositiveInteger: ProtobufCodable where WrappedValue: VariableLengthCod
         self.init(wrappedValue: value)
     }
 
+    var protoType: String {
+        wrappedValue.positiveProtoType
+    }
 }

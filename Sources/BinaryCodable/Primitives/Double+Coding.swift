@@ -46,4 +46,6 @@ extension Double: ProtobufCodable {
     init(fromProtobuf data: Data) throws {
         try self.init(decodeFrom: data.swapped)
     }
+
+    var protoType: String { "double" }
 }
