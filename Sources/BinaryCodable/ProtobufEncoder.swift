@@ -44,7 +44,7 @@ public final class ProtobufEncoder {
         return root.data
     }
 
-    public func getProtobufDefinition<T>(_ value: T) throws -> String where T: Encodable {
+    func getProtobufDefinition<T>(_ value: T) throws -> String where T: Encodable {
         let root = try ProtoNode(encoding: "\(type(of: value))", path: [], info: [:])
             .encoding(value)
         return try "syntax = \"proto3\";\n\n" + root.protobufDefinition()
