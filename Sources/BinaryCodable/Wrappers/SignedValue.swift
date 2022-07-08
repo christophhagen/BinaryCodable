@@ -1,27 +1,31 @@
 import Foundation
 
 /**
- A wrapper for integer values which forces them to be encoded using variable-length encoding.
+ A wrapper for integers more efficient for negative values.
 
- This encoding format is more efficient than the standard  `Zig-Zag` encoding when numbers are mostly positive.
+ This encoding format enforces  `Zig-Zag` encoding, which is more efficient  when numbers are often negative.
+
+ - Note: This wrapper is only useful when encoding and decoding to/from protobuf data.
+ It has no effect for the standard `BinaryEncoder` and `BinaryDecoder`, where integer values are
+ encoded using `Zig-Zag` encoding by default.
 
  Use the property wrapped within a `Codable` definition to enforce fixed-width encoding for a property:
  ```swift
  struct MyStruct: Codable {
 
-     /// Mostly positive values
-     @PositiveInteger
+     /// Efficient for small positive and negative values
+     @SignedValue
      var count: Int32
  }
  ```
 
-The `PositiveInteger` property wrapper is supported for `Int`, `Int32`, and `Int64` types.
+The `SignedValue` property wrapper is supported for `Int`, `Int32`, and `Int64` types.
 
  - SeeAlso: [Laguage Guide (proto3): Scalar value types](https://developers.google.com/protocol-buffers/docs/proto3#scalar)
  */
 @propertyWrapper
-public struct PositiveInteger<WrappedValue>: ExpressibleByIntegerLiteral
-where WrappedValue: PositiveIntegerCompatible,
+public struct SignedValue<WrappedValue>: ExpressibleByIntegerLiteral
+where WrappedValue: SignedValueCompatible,
       WrappedValue: SignedInteger {
 
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
@@ -42,38 +46,38 @@ where WrappedValue: PositiveIntegerCompatible,
     }
 }
 
-extension PositiveInteger: Equatable where WrappedValue: Equatable {
+extension SignedValue: Equatable where WrappedValue: Equatable {
 
 }
 
-extension PositiveInteger: Comparable where WrappedValue: Comparable {
+extension SignedValue: Comparable where WrappedValue: Comparable {
 
-    public static func < (lhs: PositiveInteger<WrappedValue>, rhs: PositiveInteger<WrappedValue>) -> Bool {
+    public static func < (lhs: SignedValue<WrappedValue>, rhs: SignedValue<WrappedValue>) -> Bool {
         lhs.wrappedValue < rhs.wrappedValue
     }
 }
 
-extension PositiveInteger: Hashable where WrappedValue: Hashable {
+extension SignedValue: Hashable where WrappedValue: Hashable {
 
 }
 
-extension PositiveInteger: CodablePrimitive where WrappedValue: VariableLengthCodable, WrappedValue: DataTypeProvider {
+extension SignedValue: CodablePrimitive where WrappedValue: ZigZagCodable, WrappedValue: DataTypeProvider {
 
     /**
      Encode the wrapped value to binary data compatible with the protobuf encoding.
      - Returns: The binary data in host-independent format.
      */
     func data() -> Data {
-        wrappedValue.variableLengthEncoding
+        wrappedValue.zigZagEncoded
     }
 
     init(decodeFrom data: Data) throws {
-        let wrappedValue = try WrappedValue(fromVarint: data)
+        let wrappedValue = try WrappedValue(fromZigZag: data)
         self.init(wrappedValue: wrappedValue)
     }
 }
 
-extension PositiveInteger: DataTypeProvider where WrappedValue: DataTypeProvider {
+extension SignedValue: DataTypeProvider where WrappedValue: DataTypeProvider {
 
     /// The wire type of the wrapped value.
     static var dataType: DataType {
@@ -81,7 +85,7 @@ extension PositiveInteger: DataTypeProvider where WrappedValue: DataTypeProvider
     }
 }
 
-extension PositiveInteger: Encodable where WrappedValue: Encodable {
+extension SignedValue: Encodable where WrappedValue: Encodable {
 
     /**
      Encode the wrapped value transparently to the given encoder.
@@ -94,7 +98,7 @@ extension PositiveInteger: Encodable where WrappedValue: Encodable {
     }
 }
 
-extension PositiveInteger: Decodable where WrappedValue: Decodable {
+extension SignedValue: Decodable where WrappedValue: Decodable {
     /**
      Decode a wrapped value from a decoder.
      - Parameter decoder: The decoder to use for decoding.
@@ -106,7 +110,7 @@ extension PositiveInteger: Decodable where WrappedValue: Decodable {
     }
 }
 
-public extension PositiveInteger where WrappedValue: AdditiveArithmetic {
+public extension SignedValue where WrappedValue: AdditiveArithmetic {
 
     /**
      The zero value.
@@ -118,7 +122,7 @@ public extension PositiveInteger where WrappedValue: AdditiveArithmetic {
     }
 }
 
-public extension PositiveInteger where WrappedValue: FixedWidthInteger {
+public extension SignedValue where WrappedValue: FixedWidthInteger {
 
     /// The maximum representable integer in this type.
     ///
@@ -139,14 +143,14 @@ public extension PositiveInteger where WrappedValue: FixedWidthInteger {
     }
 }
 
-extension PositiveInteger: ProtobufCodable where WrappedValue: VariableLengthCodable, WrappedValue: PositiveIntegerCompatible {
+extension SignedValue: ProtobufCodable where WrappedValue: ZigZagCodable, WrappedValue: SignedValueCompatible {
 
     func protobufData() throws -> Data {
-        wrappedValue.variableLengthEncoding
+        wrappedValue.zigZagEncoded
     }
 
     init(fromProtobuf data: Data) throws {
-        let value = try WrappedValue(fromVarint: data)
+        let value = try WrappedValue(fromZigZag: data)
         self.init(wrappedValue: value)
     }
 

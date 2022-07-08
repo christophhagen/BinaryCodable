@@ -30,7 +30,7 @@ extension Int64: VariableLengthCodable {
     }
 }
 
-extension Int64: ZigZagCodable {
+extension Int64: ZigZagEncodable {
     
     /**
      Encode a 64 bit signed integer using variable-length encoding.
@@ -47,6 +47,9 @@ extension Int64: ZigZagCodable {
         }
         return ((UInt64(-1 - self) << 1) + 1).variableLengthEncoding
     }
+}
+
+extension Int64: ZigZagDecodable {
     
     init(fromZigZag data: Data) throws {
         let unsigned = try UInt64(fromVarint: data)
@@ -86,34 +89,26 @@ extension Int64: FixedSizeCompatible {
     }
 }
 
-extension Int64: PositiveIntegerCompatible {
+extension Int64: SignedValueCompatible {
 
     public var positiveProtoType: String {
         "int64"
     }
 }
 
-extension Int64: ProtobufCodable {
+extension Int64: ProtobufEncodable {
 
     func protobufData() -> Data {
-        guard self < 0 else {
-            return (UInt64(self.magnitude) << 1).protobufData()
-        }
-        return ((UInt64(-1 - self) << 1) + 1).protobufData()
-    }
-
-    init(fromProtobuf data: Data) throws {
-        let unsigned = try UInt64(fromProtobuf: data)
-
-        // Check the last bit to get sign
-        if unsigned & 1 > 0 {
-            // Divide by 2 and subtract one to get absolute value of negative values.
-            self = -Int64(unsigned >> 1) - 1
-        } else {
-            // Divide by two to get absolute value of positive values
-            self = Int64(unsigned >> 1)
-        }
+        variableLengthEncoding
     }
 
     var protoType: String { "sint64" }
+}
+
+extension Int64: ProtobufDecodable {
+
+    init(fromProtobuf data: Data) throws {
+        try self.init(fromVarint: data)
+    }
+
 }

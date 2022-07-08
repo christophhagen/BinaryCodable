@@ -33,7 +33,7 @@ extension Int: VariableLengthCodable {
     }
 }
 
-extension Int: PositiveIntegerCompatible {
+extension Int: SignedValueCompatible {
 
     public var positiveProtoType: String {
         "int64"

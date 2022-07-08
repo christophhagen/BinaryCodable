@@ -3,7 +3,7 @@ syntax = "proto3";
 message SimpleStruct {
 
   // Equivalent to Swift `Int64`
-  sint64 integer64 = 1;
+  int64 integer64 = 1;
 
   // Equivalent to Swift `String`
   string text = 2;
@@ -29,10 +29,10 @@ message WrappedContainer {
     // Equivalent to Swift `FixedSize<UInt64>`
     fixed64 eightByteUInt = 4;
 
-    // Equivalent to Swift `PositiveInteger<Int32>`
+    // Equivalent to Swift `SignedValue<Int32>`
     int32 signed32 = 5;
 
-    // Equivalent to Swift `PositiveInteger<Int64>`
+    // Equivalent to Swift `SignedValue<Int64>`
     int64 signed64 = 6;
 }
 

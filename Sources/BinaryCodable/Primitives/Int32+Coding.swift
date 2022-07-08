@@ -78,7 +78,7 @@ extension Int32: FixedSizeCompatible {
     }
 }
 
-extension Int32: PositiveIntegerCompatible {
+extension Int32: SignedValueCompatible {
 
     public var positiveProtoType: String {
         "int32"

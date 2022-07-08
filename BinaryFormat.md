@@ -9,9 +9,7 @@ The encoding format used by `BinaryCodable` is similar to Google's [Protocol Buf
 Integers are encoded with different strategies depending on their size. Smaller types, like `UInt8`, `Int8`, `UInt16`, and `Int16` are encoded using their binary representations in little-endian format.
 
 Larger integers, like `UInt32`, `Int32`, `UInt64`, `Int64`, `Int`, and `UInt` are (by default) encoded using variable length zig-zag encoding, similar to [Protobuf signed integers](https://developers.google.com/protocol-buffers/docs/encoding#signed-ints). This means that smaller values are encoded as shorter binary representations, which is useful if integer values are mostly small.
-**Note:** The `Varint` implementation is not equivalent to `Protobuf`, since `BinaryCodable` uses the last byte of a large integer directly, and thus encodes `Int.max` with 9 Byte instead of 10. This encoding is adapted when [enforcing protobuf compatibility](#protobuf-compatibility).
-
-Integers using the [`PositiveInteger` property wrapper](#positive-signed-integers) are encoded using standard varint encoding, similar (with the caveat noted above) to [Protobuf Base128 Varints](https://developers.google.com/protocol-buffers/docs/encoding#varints).
+**Note:** The `Varint` implementation is not equivalent to `Protobuf`, since `BinaryCodable` uses the last byte of a large integer directly, and thus encodes `Int.max` with 9 Byte instead of 10. This encoding is adapted when enforcing protobuf compatibility.
 
 The property wrapper [`FixedSize`](#fixed-size-integers) forces the values to be encoded using their little-endian representations.
 

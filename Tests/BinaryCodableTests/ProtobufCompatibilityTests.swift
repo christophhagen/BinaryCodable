@@ -99,10 +99,10 @@ final class ProtobufCompatibilityTests: XCTestCase {
             @FixedSize
             var fixedU64: UInt64
 
-            @PositiveInteger
+            @SignedValue
             var signed32: Int32
 
-            @PositiveInteger
+            @SignedValue
             var signed64: Int64
 
             enum CodingKeys: Int, CodingKey {
@@ -140,6 +140,38 @@ final class ProtobufCompatibilityTests: XCTestCase {
 
         try testProtoToCodable(protoValue, expected: codableValue)
         try testCodableToProto(codableValue, expected: protoValue)
+
+        let emptyCodable = Test(
+            fixed32: 0,
+            fixedU32: 0,
+            fixed64: 0,
+            fixedU64: 0,
+            signed32: 0,
+            signed64: 0)
+
+        let emptyProto = WrappedContainer()
+
+        XCTAssertEqual(try emptyProto.serializedData(), Data())
+        XCTAssertEqual(try ProtobufEncoder().encode(emptyCodable), Data())
+
+        try testProtoToCodable(protoValue, expected: codableValue)
+        try testCodableToProto(codableValue, expected: protoValue)
+
+    }
+
+    func testNormalIntegerEncoding() throws {
+        struct Test: Codable, Equatable {
+
+            var integer: Int32
+
+            enum CodingKeys: Int, CodingKey {
+                case integer = 1
+            }
+        }
+
+        let codable = Test(integer: 123)
+        let data = try ProtobufEncoder().encode(codable)
+        XCTAssertEqual(Array(data), [8, 123])
     }
 
     func testNestedStructs() throws {

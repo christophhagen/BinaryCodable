@@ -130,19 +130,9 @@ While varints are efficient for small numbers, their encoding introduces a stora
  
  The `FixedSize` wrapper is available to all `Varint` types: `Int`, `UInt`, `Int32`, `UInt32`, `Int64`, and `UInt64`.
  
-#### Positive signed integers
-
-Integers are [encoded as `ZigZag-Varint` values](BinaryFormat.md#integer-encoding), which is efficient while numbers are small (negative and positive). For numbers which are mostly or exclusively positive (like item counts), it can be more efficient to store them as a simple `Varint`. `BinaryCodable` offers `SignedValue` wrappers that can be applied to `Int`, `Int32` and `Int64` properties to increase the efficiency for positive values. This is expecially useful for [Protobuf support](protobuf-compatibility).
-
-Whenever your integers are expected to be positive, then you should apply the wrapper:
-```swift
-struct MyStruct: Codable {
-
-    /// More efficiently encodes positive numbers
-    @PositiveInteger 
-    var count: Int
-}
-```
+ #### Other property wrappers
+ 
+ There are additional wrappers that can be applied to properties, but these are only useful when encoding in [protobuf-compatible format](#protobuf-compatibility).
 
 ### Options
 
@@ -160,12 +150,12 @@ Both `BinaryEncoder` and `BinaryDecoder` offer the property `forceProtobufCompat
 | :-- | :-- | :-- |
 `double` | `Double` | Always 8 byte
 `float` | `Float` | Always 4 byte
-`int32` | `PositiveInteger<Int32>` | See [`PositiveInteger` wrapper](#positive-signed-integers)
-`int64` | `PositiveInteger<Int64>` | See [`PositiveInteger` wrapper](#positive-signed-integers)
+`int32` | `Int32` | Uses variable-length encoding
+`int64` | `Int64` | Uses variable-length encoding
 `uint32` | `UInt32` | Uses variable-length encoding
 `uint64` | `UInt64` | Uses variable-length encoding
-`sint32` | `Int32` | Uses ZigZag encoding
-`sint64` | `Int64` | Uses ZigZag encoding
+`sint32` | `Int32` | Uses ZigZag encoding, see [`SignedInteger` wrapper](#signed-integers)
+`sint64` | `Int64` | Uses ZigZag encodingsee [`SignedInteger` wrapper](#signed-integers)
 `fixed32` | `FixedSize<UInt32>` | See [`FixedSize` wrapper](#fixed-size-integers)
 `fixed64` | `FixedSize<UInt64>` | See [`FixedSize` wrapper](#fixed-size-integers)
 `sfixed32` | `FixedSize<Int32>` | See [`FixedSize` wrapper](#fixed-size-integers)
@@ -176,9 +166,26 @@ Both `BinaryEncoder` and `BinaryDecoder` offer the property `forceProtobufCompat
 `message` | `struct` | Nested messages should also be supported.
 `repeated`| `Array` | Scalar values must always be `packed` (the proto3 default)
 
-**Important notice** Protobuf compatibility requires [integer coding keys](#coding-keys), or the encoding/decoding will fail.
 
-Unsupported features of Protobuf *may* cause the encoding to fail with a `BinaryEncodingError` of type `notProtobufCompatible`. Interoperability should be thoroughly checked through testing.
+**Important notes** 
+- Protobuf compatibility requires [integer coding keys](#coding-keys), or the encoding/decoding will fail.
+- Advanced protobuf features like message concatenation are not supported.
+- Unsupported features of Protobuf *may* cause the encoding to fail with a `BinaryEncodingError` of type `notProtobufCompatible`. Interoperability should be thoroughly checked through testing.
+
+ 
+#### Signed integers
+
+Integers are by default [encoded as `Varint` values](BinaryFormat.md#integer-encoding), which is efficient while numbers are small and positive. For numbers which are mostly or also often negative, it is more efficient to store them using `Zig-Zag` encoding. `BinaryCodable` offers the `SignedValue` wrapper that can be applied to `Int`, `Int32` and `Int64` properties to increase the efficiency for negative values.
+
+Whenever your integers are expected to be negative, then you should apply the wrapper:
+```swift
+struct MyStruct: Codable {
+
+    /// More efficiently encodes negative numbers
+    @SignedValue 
+    var count: Int
+}
+```
 
 ### Binary format
 

@@ -103,7 +103,7 @@ extension UInt64: FixedSizeCompatible {
     }
 }
 
-extension UInt64: ProtobufCodable {
+extension UInt64: ZigZagEncodable {
 
     /**
      Encode a 64 bit unsigned integer using variable-length encoding.
@@ -116,7 +116,7 @@ extension UInt64: ProtobufCodable {
      - Parameter value: The value to encode.
      - Returns: The value encoded as binary data (1 to 10 byte)
      */
-    func protobufData() -> Data {
+    var zigZagEncoded: Data {
         var result = Data()
         var value = self
         while true {
@@ -132,6 +132,10 @@ extension UInt64: ProtobufCodable {
         }
     }
 
+}
+
+extension UInt64: ZigZagDecodable {
+
     /**
      Extract a variable-length value from a container.
      - Parameter byteProvider: The data container with the encoded data.
@@ -139,7 +143,7 @@ extension UInt64: ProtobufCodable {
      `ProtobufDecodingError.missingData`
      - Returns: The decoded value.
      */
-    init(fromProtobuf data: Data) throws {
+    init(fromZigZag data: Data) throws {
         var result: UInt64 = 0
 
         for byteIndex in 0...8 {
@@ -173,4 +177,18 @@ extension UInt64: ProtobufCodable {
     }
 
     var protoType: String { "uint64" }
+}
+
+extension UInt64: ProtobufEncodable {
+
+    func protobufData() -> Data {
+        variableLengthEncoding
+    }
+}
+
+extension UInt64: ProtobufDecodable {
+
+    init(fromProtobuf data: Data) throws {
+        try self.init(fromVarint: data)
+    }
 }
