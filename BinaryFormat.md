@@ -41,14 +41,15 @@ The first value is a `Varint`, which contains the length of the string key, plus
 The bits 0-2 are used to signal the size value, and bit 3 of the `Varint` indicates whether the key is a string key (`1` = string, `0` = int).
 The following data types are possible:
 
-| Data type | Raw value | Swift types | Description |
+| Data type | Raw value | Protobuf | Swift types | Description |
 |    :--    |    :--    |     :--     |     :--     |
-`variableLengthInteger` | `0` | `Int`, `Int32`, `Int64`,  `UInt`, `UInt32`, `UInt64` | A Base128 `Varint` using 1-9 bytes of data
-`byte` | `1` | `Bool`, `UInt8`, `Int8` | A single byte storing a number or boolean
-`twoBytes` | `2` | `Int16`, `UInt16` | Two bytes storing an integer using little-endian format
-`variableLength` | `3` | `String`, `Struct`, ... | The length of the data encoded as a `Varint` followed by `length` bytes
-`fourBytes` | `4` | `Float`, `FixedSize<Int32>`, `FixedSize<UInt32>` | A 32-bit float or integer in little-endian encoding.
-`eightBytes` | `5` | `Double`, `FixedSize<Int64>`, `FixedSize<Int>`, `FixedSize<UInt64>`, `FixedSize<UInt>` | A 64-bit float or integer in little-endian encoding.
+`variableLengthInteger` | `0` | `varint`/`zigzag` | `Int`, `Int32`, `Int64`,  `UInt`, `UInt32`, `UInt64` | A Base128 `Varint` using 1-9 bytes of data
+`eightBytes` | `1` | `fixed64bit` | `Double`, `FixedSize<Int64>`, `FixedSize<Int>`, `FixedSize<UInt64>`, `FixedSize<UInt>` | A 64-bit float or integer in little-endian encoding.
+`variableLength` | `2` | `delimited` | `String`, `Struct`, ... | The length of the data encoded as a `Varint` followed by `length` bytes
+`fourBytes` | `5` | `fixed32bit` | `Float`, `FixedSize<Int32>`, `FixedSize<UInt32>` | A 32-bit float or integer in little-endian encoding.
+`byte` | `6` | - | `Bool`, `UInt8`, `Int8` | A single byte storing a number or boolean
+`twoBytes` | `7` | - | `Int16`, `UInt16` | Two bytes storing an integer using little-endian format
+
 
 With the four lower bits occupied by the data type and the string key indicator, the remaining bits are left to encode the length of the string key.
 
@@ -56,7 +57,7 @@ For example, a property named `xyz`  of type `UInt8` with value `123` would be e
 
 | Byte 0 | Byte 1 | Byte 2 | Byte 3 | Byte 4 |
 |  :--   |  :--   |  :--   |  :--   |  :--   |
-| `0` `011` `1` `001` | `01111000` | `01111001` | `01111010` | `01111011` |
+| `0` `011` `1` `110` | `01111000` | `01111001` | `01111010` | `01111011` |
 | Length `3`, `String` key, Data type `byte` | `x` | `y` | `z` | `123` |
 
 ### Integer keys
@@ -76,7 +77,7 @@ Integer coding keys are encoded as `Varint` instead of the `String` key length. 
 
 | Byte 0 | Byte 1 |
 |  :--   |  :--   |
-| `0` `010` `0` `001` | `01111011` |
+| `0` `010` `0` `110` | `01111011` |
 | Integer key `2`, `Int` key, Data type `byte` | `123` |
 
 Evidently this is a significant improvement, especially for long property names. Note that while it is possible to specify any integer as the key (between 2^59 and -2^59), small, positive integers are the most efficient.

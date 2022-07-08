@@ -127,18 +127,6 @@ extension FixedSize: Decodable where WrappedValue: Decodable {
     }
 }
 
-public extension FixedSize where WrappedValue: AdditiveArithmetic {
-
-    /**
-     The zero value.
-
-     Zero is the identity element for addition. For any value, `x + .zero == x` and `.zero + x == x`.
-     */
-    static var zero: Self {
-        .init(wrappedValue: .zero)
-    }
-}
-
 public extension FixedSize where WrappedValue: FixedWidthInteger {
 
     /// The maximum representable integer in this type.

@@ -3,7 +3,7 @@ import Foundation
 extension Bool: EncodablePrimitive {
     
     static var dataType: DataType {
-        .byte
+        .variableLengthInteger
     }
     
     func data() -> Data {

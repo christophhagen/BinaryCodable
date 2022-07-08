@@ -128,12 +128,68 @@ struct MapContainer {
   init() {}
 }
 
+struct PrimitiveTypesContainer {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Swift equivalent: `Double`
+  var doubleValue: Double = 0
+
+  /// Swift equivalent: `Float`
+  var floatValue: Float = 0
+
+  /// Swift equivalent: `Int32`
+  var intValue32: Int32 = 0
+
+  /// Swift equivalent: `Int64`
+  var intValue64: Int64 = 0
+
+  /// Swift equivalent: `UInt32`
+  var uIntValue32: UInt32 = 0
+
+  /// Swift equivalent: `UInt64`
+  var uIntValue64: UInt64 = 0
+
+  /// Swift equivalent: `SignedValue<Int32>`
+  var sIntValue32: Int32 = 0
+
+  /// Swift equivalent: `SignedValue<Int64>`
+  var sIntValue64: Int64 = 0
+
+  /// Swift equivalent: `FixedSize<UInt32>`
+  var fIntValue32: UInt32 = 0
+
+  /// Swift equivalent: `FixedSize<UInt64>`
+  var fIntValue64: UInt64 = 0
+
+  /// Swift equivalent: `FixedSize<Int32>`
+  var sfIntValue32: Int32 = 0
+
+  /// Swift equivalent: `FixedSize<Int64>`
+  var sfIntValue64: Int64 = 0
+
+  /// Swift equivalent: `Bool`
+  var boolValue: Bool = false
+
+  /// Swift equivalent: `String`
+  var stringValue: String = String()
+
+  /// Swift equivalent: `Data`
+  var dataValue: Data = Data()
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 #if swift(>=5.5) && canImport(_Concurrency)
 extension SimpleStruct: @unchecked Sendable {}
 extension WrappedContainer: @unchecked Sendable {}
 extension Outer: @unchecked Sendable {}
 extension Outer2: @unchecked Sendable {}
 extension MapContainer: @unchecked Sendable {}
+extension PrimitiveTypesContainer: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -357,6 +413,122 @@ extension MapContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
   static func ==(lhs: MapContainer, rhs: MapContainer) -> Bool {
     if lhs.x != rhs.x {return false}
     if lhs.y != rhs.y {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension PrimitiveTypesContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "PrimitiveTypesContainer"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "doubleValue"),
+    2: .same(proto: "floatValue"),
+    3: .same(proto: "intValue32"),
+    4: .same(proto: "intValue64"),
+    5: .same(proto: "uIntValue32"),
+    6: .same(proto: "uIntValue64"),
+    7: .same(proto: "sIntValue32"),
+    8: .same(proto: "sIntValue64"),
+    9: .same(proto: "fIntValue32"),
+    10: .same(proto: "fIntValue64"),
+    11: .same(proto: "sfIntValue32"),
+    12: .same(proto: "sfIntValue64"),
+    13: .same(proto: "boolValue"),
+    14: .same(proto: "stringValue"),
+    15: .same(proto: "dataValue"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularDoubleField(value: &self.doubleValue) }()
+      case 2: try { try decoder.decodeSingularFloatField(value: &self.floatValue) }()
+      case 3: try { try decoder.decodeSingularInt32Field(value: &self.intValue32) }()
+      case 4: try { try decoder.decodeSingularInt64Field(value: &self.intValue64) }()
+      case 5: try { try decoder.decodeSingularUInt32Field(value: &self.uIntValue32) }()
+      case 6: try { try decoder.decodeSingularUInt64Field(value: &self.uIntValue64) }()
+      case 7: try { try decoder.decodeSingularSInt32Field(value: &self.sIntValue32) }()
+      case 8: try { try decoder.decodeSingularSInt64Field(value: &self.sIntValue64) }()
+      case 9: try { try decoder.decodeSingularFixed32Field(value: &self.fIntValue32) }()
+      case 10: try { try decoder.decodeSingularFixed64Field(value: &self.fIntValue64) }()
+      case 11: try { try decoder.decodeSingularSFixed32Field(value: &self.sfIntValue32) }()
+      case 12: try { try decoder.decodeSingularSFixed64Field(value: &self.sfIntValue64) }()
+      case 13: try { try decoder.decodeSingularBoolField(value: &self.boolValue) }()
+      case 14: try { try decoder.decodeSingularStringField(value: &self.stringValue) }()
+      case 15: try { try decoder.decodeSingularBytesField(value: &self.dataValue) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.doubleValue != 0 {
+      try visitor.visitSingularDoubleField(value: self.doubleValue, fieldNumber: 1)
+    }
+    if self.floatValue != 0 {
+      try visitor.visitSingularFloatField(value: self.floatValue, fieldNumber: 2)
+    }
+    if self.intValue32 != 0 {
+      try visitor.visitSingularInt32Field(value: self.intValue32, fieldNumber: 3)
+    }
+    if self.intValue64 != 0 {
+      try visitor.visitSingularInt64Field(value: self.intValue64, fieldNumber: 4)
+    }
+    if self.uIntValue32 != 0 {
+      try visitor.visitSingularUInt32Field(value: self.uIntValue32, fieldNumber: 5)
+    }
+    if self.uIntValue64 != 0 {
+      try visitor.visitSingularUInt64Field(value: self.uIntValue64, fieldNumber: 6)
+    }
+    if self.sIntValue32 != 0 {
+      try visitor.visitSingularSInt32Field(value: self.sIntValue32, fieldNumber: 7)
+    }
+    if self.sIntValue64 != 0 {
+      try visitor.visitSingularSInt64Field(value: self.sIntValue64, fieldNumber: 8)
+    }
+    if self.fIntValue32 != 0 {
+      try visitor.visitSingularFixed32Field(value: self.fIntValue32, fieldNumber: 9)
+    }
+    if self.fIntValue64 != 0 {
+      try visitor.visitSingularFixed64Field(value: self.fIntValue64, fieldNumber: 10)
+    }
+    if self.sfIntValue32 != 0 {
+      try visitor.visitSingularSFixed32Field(value: self.sfIntValue32, fieldNumber: 11)
+    }
+    if self.sfIntValue64 != 0 {
+      try visitor.visitSingularSFixed64Field(value: self.sfIntValue64, fieldNumber: 12)
+    }
+    if self.boolValue != false {
+      try visitor.visitSingularBoolField(value: self.boolValue, fieldNumber: 13)
+    }
+    if !self.stringValue.isEmpty {
+      try visitor.visitSingularStringField(value: self.stringValue, fieldNumber: 14)
+    }
+    if !self.dataValue.isEmpty {
+      try visitor.visitSingularBytesField(value: self.dataValue, fieldNumber: 15)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: PrimitiveTypesContainer, rhs: PrimitiveTypesContainer) -> Bool {
+    if lhs.doubleValue != rhs.doubleValue {return false}
+    if lhs.floatValue != rhs.floatValue {return false}
+    if lhs.intValue32 != rhs.intValue32 {return false}
+    if lhs.intValue64 != rhs.intValue64 {return false}
+    if lhs.uIntValue32 != rhs.uIntValue32 {return false}
+    if lhs.uIntValue64 != rhs.uIntValue64 {return false}
+    if lhs.sIntValue32 != rhs.sIntValue32 {return false}
+    if lhs.sIntValue64 != rhs.sIntValue64 {return false}
+    if lhs.fIntValue32 != rhs.fIntValue32 {return false}
+    if lhs.fIntValue64 != rhs.fIntValue64 {return false}
+    if lhs.sfIntValue32 != rhs.sfIntValue32 {return false}
+    if lhs.sfIntValue64 != rhs.sfIntValue64 {return false}
+    if lhs.boolValue != rhs.boolValue {return false}
+    if lhs.stringValue != rhs.stringValue {return false}
+    if lhs.dataValue != rhs.dataValue {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

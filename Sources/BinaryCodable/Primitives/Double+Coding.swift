@@ -22,15 +22,19 @@ extension Double: DecodablePrimitive {
     }
 }
 
-extension Double: ProtobufCodable {
+extension Double: ProtobufEncodable {
 
-    var protobufData: Data {
-        data().swapped
+    func protobufData() throws -> Data {
+        print("Here")
+        return data().swapped
     }
+
+    var protoType: String { "double" }
+}
+
+extension Double: ProtobufDecodable {
 
     init(fromProtobuf data: Data) throws {
         try self.init(decodeFrom: data.swapped)
     }
-
-    var protoType: String { "double" }
 }

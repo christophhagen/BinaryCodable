@@ -24,7 +24,7 @@ extension Float: DecodablePrimitive {
 
 extension Float: ProtobufCodable {
 
-    var protobufData: Data {
+    func protobufData() throws -> Data {
         data().swapped
     }
 

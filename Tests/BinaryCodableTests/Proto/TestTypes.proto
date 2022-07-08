@@ -55,3 +55,51 @@ message MapContainer {
 
     map<uint32,string> y = 2;
 }
+
+message PrimitiveTypesContainer {
+
+    // Swift equivalent: `Double`
+    double doubleValue = 1;
+
+    // Swift equivalent: `Float`
+    float floatValue = 2;
+
+    // Swift equivalent: `Int32`
+    int32 intValue32 = 3;
+
+    // Swift equivalent: `Int64`
+    int64 intValue64 = 4;
+
+    // Swift equivalent: `UInt32`
+    uint32 uIntValue32 = 5;
+
+    // Swift equivalent: `UInt64`
+    uint64 uIntValue64 = 6;
+
+    // Swift equivalent: `SignedValue<Int32>`
+    sint32 sIntValue32 = 7;
+
+    // Swift equivalent: `SignedValue<Int64>`
+    sint64 sIntValue64 = 8;
+
+    // Swift equivalent: `FixedSize<UInt32>`
+    fixed32 fIntValue32 = 9;
+
+    // Swift equivalent: `FixedSize<UInt64>`
+    fixed64 fIntValue64 = 10;
+
+    // Swift equivalent: `FixedSize<Int32>`
+    sfixed32 sfIntValue32 = 11;
+
+    // Swift equivalent: `FixedSize<Int64>`
+    sfixed64 sfIntValue64 = 12;
+
+    // Swift equivalent: `Bool`
+    bool boolValue = 13;
+
+    // Swift equivalent: `String`
+    string stringValue = 14;
+
+    // Swift equivalent: `Data`
+    bytes dataValue = 15;
+}
