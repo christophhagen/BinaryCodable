@@ -7,6 +7,8 @@ protocol NonNilEncodingContainer {
     var dataType: DataType { get }
 
     func encodeWithKey(_ key: CodingKeyWrapper) -> Data
+
+    var isEmpty: Bool { get }
 }
 
 protocol EncodingContainer: NonNilEncodingContainer {

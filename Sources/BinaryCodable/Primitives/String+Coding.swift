@@ -27,4 +27,6 @@ extension String: DecodablePrimitive {
 extension String: ProtobufCodable {
     
     var protoType: String { "string" }
+
+    static let zero = ""
 }

@@ -3,12 +3,10 @@ import Foundation
 final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
 
     var count: Int {
-        content.count + nilIndices.count
+        content.count
     }
 
     private var content = [NonNilEncodingContainer]()
-
-    private var nilIndices = Set<Int>()
 
     @discardableResult
     private func assign<T>(_ encoded: () throws -> T) rethrows -> T where T: NonNilEncodingContainer {
@@ -31,7 +29,7 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
             }
 
             try assign {
-                try EncodedPrimitive(primitive: primitive)
+                try EncodedPrimitive(protobuf: primitive)
             }
             return
         }
@@ -61,21 +59,8 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
 
 extension ProtoUnkeyedEncoder: NonNilEncodingContainer {
 
-    private var rawIndicesData: Data {
-        nilIndices.sorted().map { $0.variableLengthEncoding }.joinedData
-    }
-
-    private var nilIndicesData: Data {
-        let count = nilIndices.count
-        return count.variableLengthEncoding + rawIndicesData
-    }
-
-    private var contentData: Data {
-        content.map { $0.dataWithLengthInformationIfRequired }.joinedData
-    }
-
     private var packedProtoData: Data {
-        let data = contentData
+        let data = self.data
         return data.count.variableLengthEncoding + data
     }
 
@@ -92,10 +77,14 @@ extension ProtoUnkeyedEncoder: NonNilEncodingContainer {
     }
 
     var data: Data {
-        nilIndicesData + contentData
+        content.map { $0.dataWithLengthInformationIfRequired }.joinedData
     }
 
     var dataType: DataType {
         .variableLength
+    }
+
+    var isEmpty: Bool {
+        !content.contains { !$0.isEmpty }
     }
 }

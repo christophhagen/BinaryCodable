@@ -20,7 +20,8 @@ The `FixedSize` property wrapper is supported for `UInt32`, `UInt64`, `Int32`, a
 @propertyWrapper
 public struct FixedSize<WrappedValue>: ExpressibleByIntegerLiteral
 where WrappedValue: FixedSizeCompatible,
-      WrappedValue: ExpressibleByIntegerLiteral {
+      WrappedValue: ExpressibleByIntegerLiteral,
+      WrappedValue: Hashable {
 
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
 
@@ -41,19 +42,26 @@ where WrappedValue: FixedSizeCompatible,
 
 }
 
-extension FixedSize: ProtobufCodable {
+extension FixedSize: ProtobufEncodable where WrappedValue: ProtobufDecodable {
 
     func protobufData() throws -> Data {
         wrappedValue.fixedSizeEncoded
     }
 
+    var protoType: String {
+        wrappedValue.fixedProtoType
+    }
+}
+
+extension FixedSize: ProtobufDecodable where WrappedValue: ProtobufDecodable {
+
+    static var zero: FixedSize {
+        .init(wrappedValue: .zero)
+    }
+
     init(fromProtobuf data: Data) throws {
         let value = try WrappedValue(fromFixedSize: data)
         self.init(wrappedValue: value)
-    }
-
-    var protoType: String {
-        wrappedValue.fixedProtoType
     }
 }
 
@@ -68,9 +76,7 @@ extension FixedSize: Comparable where WrappedValue: Comparable {
     }
 }
 
-extension FixedSize: Hashable where WrappedValue: Hashable {
-
-}
+extension FixedSize: Hashable { }
 
 extension FixedSize: CodablePrimitive where WrappedValue: DataTypeProvider {
 

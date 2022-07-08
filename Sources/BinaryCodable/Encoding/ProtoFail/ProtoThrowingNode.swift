@@ -48,4 +48,6 @@ extension ProtoThrowingNode: EncodingContainer {
     var dataType: DataType {
         .byte
     }
+
+    var isEmpty: Bool { false }
 }

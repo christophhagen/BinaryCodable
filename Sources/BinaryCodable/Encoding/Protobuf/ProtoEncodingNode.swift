@@ -45,4 +45,8 @@ extension ProtoEncodingNode: NonNilEncodingContainer {
     func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
         container!.encodeWithKey(key)
     }
+
+    var isEmpty: Bool {
+        container?.isEmpty ?? true
+    }
 }

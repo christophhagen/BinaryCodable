@@ -14,7 +14,7 @@ extension Int16: EncodablePrimitive {
 extension Int16: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        guard data.count == MemoryLayout<UInt32>.size else {
+        guard data.count == MemoryLayout<UInt16>.size else {
             throw BinaryDecodingError.invalidDataSize
         }
         let value = read(data: data, into: UInt16.zero)

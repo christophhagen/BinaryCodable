@@ -73,4 +73,8 @@ extension ProtoDictKeyedEncoder: NonNilEncodingContainer {
     var dataType: DataType {
         .variableLength
     }
+
+    var isEmpty: Bool {
+        !content.contains { !$0.isEmpty }
+    }
 }

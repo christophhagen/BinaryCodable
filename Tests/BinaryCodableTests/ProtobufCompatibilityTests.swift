@@ -32,6 +32,16 @@ extension Simple {
     }
 }
 
+private struct MapTest: Codable, Equatable {
+    let x: [String: Data]
+    let y: [UInt32: String]
+
+    enum CodingKeys: Int, CodingKey {
+        case x = 1
+        case y = 2
+    }
+}
+
 final class ProtobufCompatibilityTests: XCTestCase {
 
     func testProtoToCodable<T>(_ value: SwiftProtobuf.Message, expected: T) throws where T: Decodable, T: Equatable {
@@ -187,16 +197,6 @@ final class ProtobufCompatibilityTests: XCTestCase {
     }
 
     func testProtoMaps() throws {
-        struct MapTest: Codable, Equatable {
-            let x: [String: Data]
-            let y: [UInt32: String]
-
-            enum CodingKeys: Int, CodingKey {
-                case x = 1
-                case y = 2
-            }
-        }
-
         let x: [String: Data] = ["a" : .init(repeating: 2, count: 2), "b": .init(repeating: 1, count: 1)]
         let y: [UInt32: String] = [123: "a", 234: "b"]
 
@@ -206,6 +206,36 @@ final class ProtobufCompatibilityTests: XCTestCase {
         }
         let codable = MapTest(x: x, y: y)
         
+        try testCodableToProto(codable, expected: proto)
+        try testProtoToCodable(proto, expected: codable)
+    }
+
+    func testProtoMapsWithDefaultValues() throws {
+        let x: [String: Data] = ["" : .init(repeating: 2, count: 2), "b": Data()]
+        let y: [UInt32: String] = [0: "a", 234: ""]
+
+        let proto = MapContainer.with {
+            $0.x = x
+            $0.y = y
+        }
+        let codable = MapTest(x: x, y: y)
+
+        let data = try proto.serializedData()
+        print(Array(data))
+
+        try testCodableToProto(codable, expected: proto)
+        try testProtoToCodable(proto, expected: codable)
+    }
+
+    func testDefaultValues() throws {
+        let codable = Simple(
+            integer64: 0,
+            text: "",
+            data: Data(),
+            intArray: [])
+
+        let proto = codable.proto
+
         try testCodableToProto(codable, expected: proto)
         try testProtoToCodable(proto, expected: codable)
     }

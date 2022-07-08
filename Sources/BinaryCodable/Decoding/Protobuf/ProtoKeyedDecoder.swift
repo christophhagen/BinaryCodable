@@ -1,6 +1,6 @@
 import Foundation
 
-final class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtocol where Key: CodingKey {
+class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtocol where Key: CodingKey {
 
     let content: [DecodingKey: Data]
 
@@ -31,6 +31,11 @@ final class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainer
         super.init(codingPath: codingPath, options: options)
     }
 
+    init(content: [DecodingKey: Data], codingPath: [CodingKey], options: Set<CodingOption>) {
+        self.content = content
+        super.init(codingPath: codingPath, options: options)
+    }
+
     var allKeys: [Key] {
         content.keys.compactMap { key in
             switch key {
@@ -46,11 +51,13 @@ final class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainer
         content.keys.contains { $0.isEqual(to: key) }
     }
 
-    private func getData(forKey key: CodingKey) throws -> Data {
-        guard let data = content.first(where: { $0.key.isEqual(to: key) })?.value else {
-            throw BinaryDecodingError.missingDataForKey(key)
-        }
-        return data
+
+    private func getDataIfAvailable(forKey key: CodingKey) -> Data? {
+        content.first(where: { $0.key.isEqual(to: key) })?.value
+    }
+
+    func getData(forKey key: CodingKey) -> Data {
+        getDataIfAvailable(forKey: key) ?? Data()
     }
 
     func decodeNil(forKey key: Key) throws -> Bool {
@@ -58,28 +65,32 @@ final class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainer
     }
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
-        let data = try getData(forKey: key)
+        let data = getDataIfAvailable(forKey: key)
         if let _ = type as? DecodablePrimitive.Type {
             if let ProtoType = type as? ProtobufDecodable.Type {
-                return try ProtoType.init(fromProtobuf: data) as! T
+                if let data = data {
+                    return try ProtoType.init(fromProtobuf: data) as! T
+                } else {
+                    return ProtoType.zero as! T
+                }
             }
             throw BinaryDecodingError.unsupportedType(type)
         } else if type is AnyDictionary.Type {
-            let node = ProtoDictDecodingNode(data: data, codingPath: codingPath, options: options)
+            let node = ProtoDictDecodingNode(data: data ?? Data(), codingPath: codingPath, options: options)
             return try T.init(from: node)
         }
-        let node = ProtoDecodingNode(data: data, codingPath: codingPath, options: options)
+        let node = ProtoDecodingNode(data: data ?? Data(), codingPath: codingPath, options: options)
         return try T.init(from: node)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        let data = try getData(forKey: key)
+        let data = getData(forKey: key)
         let container = try ProtoKeyedDecoder<NestedKey>(data: data, codingPath: codingPath, options: options)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
-        let data = try getData(forKey: key)
+        let data = getData(forKey: key)
         return try ProtoUnkeyedDecoder(data: data, codingPath: codingPath, options: options)
     }
 

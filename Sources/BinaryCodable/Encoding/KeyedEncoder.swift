@@ -61,17 +61,17 @@ extension KeyedEncoder: EncodingContainer {
         return content.sorted { $0.key < $1.key }
     }
 
-    var combinedData: Data {
+    var data: Data {
         sortedKeysIfNeeded.map { key, value -> Data in
             value.encodeWithKey(key)
         }.reduce(Data(), +)
     }
     
-    var data: Data {
-        combinedData
-    }
-    
     var dataType: DataType {
         .variableLength
+    }
+
+    var isEmpty: Bool {
+        !content.values.contains { !$0.isEmpty }
     }
 }

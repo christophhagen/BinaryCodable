@@ -7,11 +7,21 @@ protocol ProtobufEncodable {
     func protobufData() throws -> Data
 
     var protoType: String { get }
+
+    var isZero: Bool { get }
 }
 
 protocol ProtobufDecodable {
 
     init(fromProtobuf data: Data) throws
+
+    static var zero: Self { get }
+
+}
+
+extension ProtobufEncodable where Self: Equatable, Self: ProtobufDecodable {
+
+    var isZero: Bool { self == .zero }
 }
 
 

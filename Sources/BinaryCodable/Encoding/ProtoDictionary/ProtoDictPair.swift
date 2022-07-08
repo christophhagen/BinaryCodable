@@ -17,4 +17,8 @@ extension ProtoDictPair: NonNilEncodingContainer {
     var dataType: DataType {
         .variableLength
     }
+
+    var isEmpty: Bool {
+        false
+    }
 }

@@ -78,4 +78,8 @@ extension UnkeyedEncoder: EncodingContainer {
     var dataType: DataType {
         .variableLength
     }
+
+    var isEmpty: Bool {
+        count == 0
+    }
 }

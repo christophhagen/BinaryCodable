@@ -122,4 +122,6 @@ extension MixedCodingKeyWrapper: EncodingContainer {
     var dataType: DataType {
         intValue != nil ? Int.dataType: String.dataType
     }
+
+    var isEmpty: Bool { false }
 }

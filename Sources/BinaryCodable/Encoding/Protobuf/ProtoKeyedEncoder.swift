@@ -22,7 +22,7 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         let container: NonNilEncodingContainer
         if let primitive = value as? EncodablePrimitive {
-            container = try EncodedPrimitive(primitive: primitive)
+            container = try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
         } else if value is AnyDictionary {
             container = try ProtoDictEncodingNode(codingPath: codingPath, options: options).encoding(value)
         } else {
@@ -65,27 +65,30 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
     }
 }
 
-
 extension ProtoKeyedEncoder: NonNilEncodingContainer {
 
-    private var sortedKeysIfNeeded: [(key: CodingKeyWrapper, value: NonNilEncodingContainer)] {
-        guard sortKeysDuringEncoding else {
-            return content.map { $0 }
-        }
-        return content.sorted { $0.key < $1.key }
+    private var nonEmptyValues: [(key: IntKeyWrapper, value: NonNilEncodingContainer)] {
+        content.filter { !$0.value.isEmpty }
     }
 
-    var combinedData: Data {
+    private var sortedKeysIfNeeded: [(key: IntKeyWrapper, value: NonNilEncodingContainer)] {
+        guard sortKeysDuringEncoding else {
+            return nonEmptyValues.map { $0 }
+        }
+        return nonEmptyValues.sorted { $0.key < $1.key }
+    }
+
+    var data: Data {
         sortedKeysIfNeeded.map { key, value -> Data in
             value.encodeWithKey(key)
         }.reduce(Data(), +)
     }
 
-    var data: Data {
-        combinedData
-    }
-
     var dataType: DataType {
         .variableLength
+    }
+
+    var isEmpty: Bool {
+        !content.values.contains { !$0.isEmpty }
     }
 }

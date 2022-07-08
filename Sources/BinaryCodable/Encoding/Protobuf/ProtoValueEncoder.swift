@@ -37,4 +37,8 @@ extension ProtoValueEncoder: NonNilEncodingContainer {
     var dataType: DataType {
         container!.dataType
     }
+
+    var isEmpty: Bool {
+        container?.isEmpty ?? true
+    }
 }

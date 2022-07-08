@@ -39,4 +39,8 @@ extension ValueEncoder: EncodingContainer {
     var dataType: DataType {
         container!.dataType
     }
+
+    var isEmpty: Bool {
+        container?.isEmpty ?? true
+    }
 }

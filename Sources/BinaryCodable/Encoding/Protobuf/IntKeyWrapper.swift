@@ -32,6 +32,10 @@ extension IntKeyWrapper: EncodingContainer {
     var dataType: DataType {
         Int.dataType
     }
+
+    var isEmpty: Bool {
+        false
+    }
 }
 
 
