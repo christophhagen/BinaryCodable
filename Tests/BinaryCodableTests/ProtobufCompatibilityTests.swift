@@ -252,9 +252,6 @@ final class ProtobufCompatibilityTests: XCTestCase {
         }
         let codable = MapTest(x: x, y: y)
 
-        let data = try proto.serializedData()
-        print(Array(data))
-
         try testCodableToProto(codable, expected: proto)
         try testProtoToCodable(proto, expected: codable)
     }
