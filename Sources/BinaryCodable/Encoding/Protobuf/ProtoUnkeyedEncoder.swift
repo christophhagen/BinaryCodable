@@ -23,7 +23,13 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
         if let primitive = value as? EncodablePrimitive {
             // Ensure that only same-type values are encoded
 
-            #warning("Improve detection of same types")
+            // TODO: Improve detection of same types
+            // The Protobuf repeated fields must have the same type
+            // Currently, we only check that the data type of the primitives matches,
+            // so different types with the same DataType would not cause an error
+            // This isn't a huge problem, since this could only happen if somebody would
+            // write a custom encoding routine, so they would probably know that this breaks
+            // Protobuf support.
             if let first = content.first, first.dataType != primitive.dataType {
                 throw BinaryEncodingError.notProtobufCompatible("All values in unkeyed containers must have the same type")
             }

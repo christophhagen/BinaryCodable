@@ -70,7 +70,11 @@ extension KeyedProtoEncoder: ProtoContainer {
                 guard let field = key.intValue else {
                     throw BinaryEncodingError.notProtobufCompatible("No integer key for field '\(key.stringValue)'")
                 }
-                #warning("Add additional message definitions")
+                // TODO: Add additional message definitions
+                // The protobuf description needs to print also nested messages
+                // Currently, only the top level is shown
+                // This requires additional methods on the hierarchy to get all nested definitions
+                // within a container.
                 return "\(value.protoTypeName) \(key.stringValue) = \(field);"
             }
             .joined(separator: "\n\n").indented()
