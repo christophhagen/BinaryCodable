@@ -37,19 +37,19 @@ final class ProtobufCompatibilityTests: XCTestCase {
     func testProtoToCodable<T>(_ value: SwiftProtobuf.Message, expected: T) throws where T: Decodable, T: Equatable {
         let data = try value.serializedData()
 
-        let decoder = BinaryDecoder()
-        decoder.forceProtobufCompatibility = true
+        let decoder = ProtobufDecoder()
+        
         do {
             let decoded = try decoder.decode(T.self, from: data)
             XCTAssertEqual(decoded, expected)
         } catch {
+            print(Array(data))
             throw error
         }
     }
 
     func testCodableToProto<T, P>(_ value: T, expected: P) throws where T: Encodable, P: SwiftProtobuf.Message, P: Equatable {
-        let encoder = BinaryEncoder()
-        encoder.forceProtobufCompatibility = true
+        let encoder = ProtobufEncoder()
 
         let data = try encoder.encode(value)
 
@@ -184,5 +184,29 @@ final class ProtobufCompatibilityTests: XCTestCase {
 
         try testCodableToProto(value, expected: proto)
         try testProtoToCodable(proto, expected: value)
+    }
+
+    func testProtoMaps() throws {
+        struct MapTest: Codable, Equatable {
+            let x: [String: Data]
+            let y: [UInt32: String]
+
+            enum CodingKeys: Int, CodingKey {
+                case x = 1
+                case y = 2
+            }
+        }
+
+        let x: [String: Data] = ["a" : .init(repeating: 2, count: 2), "b": .init(repeating: 1, count: 1)]
+        let y: [UInt32: String] = [123: "a", 234: "b"]
+
+        let proto = MapContainer.with {
+            $0.x = x
+            $0.y = y
+        }
+        let codable = MapTest(x: x, y: y)
+        
+        try testCodableToProto(codable, expected: proto)
+        try testProtoToCodable(proto, expected: codable)
     }
 }

@@ -47,3 +47,11 @@ message Outer2 {
 
     repeated SimpleStruct values = 1;
 }
+
+// A container to test different map types
+message MapContainer {
+
+    map<string,bytes> x = 1;
+
+    map<uint32,string> y = 2;
+}
