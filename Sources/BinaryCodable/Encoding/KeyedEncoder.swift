@@ -21,31 +21,31 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
         if let primitive = value as? EncodablePrimitive {
             container = try EncodedPrimitive(primitive: primitive)
         } else {
-            container = try EncodingNode(codingPath: codingPath, options: options).encoding(value)
+            container = try EncodingNode(path: codingPath, info: userInfo).encoding(value)
         }
         assign(container, to: key)
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        let container = KeyedEncoder<NestedKey>(codingPath: codingPath + [key], options: options)
+        let container = KeyedEncoder<NestedKey>(path: codingPath + [key], info: userInfo)
         assign(container, to: key)
         return KeyedEncodingContainer(container)
     }
     
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
-        let container = UnkeyedEncoder(codingPath: codingPath + [key], options: options)
+        let container = UnkeyedEncoder(path: codingPath + [key], info: userInfo)
         assign(container, to: key)
         return container
     }
     
     func superEncoder() -> Encoder {
-        let container = EncodingNode(codingPath: codingPath, options: options)
+        let container = EncodingNode(path: codingPath, info: userInfo)
         assign(container, to: SuperEncoderKey())
         return container
     }
     
     func superEncoder(forKey key: Key) -> Encoder {
-        let container = EncodingNode(codingPath: codingPath + [key], options: options)
+        let container = EncodingNode(path: codingPath + [key], info: userInfo)
         assign(container, to: key)
         return container
     }

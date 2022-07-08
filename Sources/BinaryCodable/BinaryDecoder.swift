@@ -22,9 +22,7 @@ import Foundation
  */
 public final class BinaryDecoder {
 
-    private var options: Set<CodingOption> {
-        []
-    }
+    public var userInfo = [CodingUserInfoKey : Any]()
 
     /**
      Create a new binary encoder.
@@ -42,7 +40,7 @@ public final class BinaryDecoder {
      - Throws: Errors of type `BinaryDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        let root = DecodingNode(data: data, top: true, codingPath: [], options: options)
+        let root = DecodingNode(data: data, top: true, path: [], info: userInfo)
         return try type.init(from: root)
     }
 

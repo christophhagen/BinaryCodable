@@ -20,9 +20,7 @@ import Foundation
  */
 public final class ProtobufEncoder {
 
-    private var options: Set<CodingOption> {
-        []
-    }
+    public var userInfo = [CodingUserInfoKey : Any]()
 
     /**
      Create a new binary encoder.
@@ -39,13 +37,13 @@ public final class ProtobufEncoder {
      - Throws: Errors of type `BinaryEncodingError`
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
-        let root = ProtoEncodingNode(codingPath: [], options: options)
+        let root = ProtoEncodingNode(path: [], info: userInfo)
         try value.encode(to: root)
         return root.data
     }
 
     func getProtobufDefinition<T>(_ value: T) throws -> String where T: Encodable {
-        let root = try ProtoNode(encoding: "\(type(of: value))", path: [], info: [:])
+        let root = try ProtoNode(encoding: "\(type(of: value))", path: [], info: userInfo)
             .encoding(value)
         return try "syntax = \"proto3\";\n\n" + root.protobufDefinition()
     }

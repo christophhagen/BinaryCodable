@@ -6,10 +6,10 @@ final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContaine
 
     private let isAtTopLevel: Bool
 
-    init(data: DataDecoder, top: Bool = false, codingPath: [CodingKey], options: Set<CodingOption>) {
+    init(data: DataDecoder, top: Bool = false, path: [CodingKey], info: UserInfo) {
         self.data = data
         self.isAtTopLevel = top
-        super.init(codingPath: codingPath, options: options)
+        super.init(path: path, info: info)
     }
 
     func decodeNil() -> Bool {
@@ -18,7 +18,7 @@ final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContaine
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         guard let Primitive = type as? DecodablePrimitive.Type else {
-            let node = ProtoDecodingNode(decoder: data, codingPath: codingPath, options: options)
+            let node = ProtoDecodingNode(decoder: data, path: codingPath, info: userInfo)
             return try T.init(from: node)
         }
         let data: Data

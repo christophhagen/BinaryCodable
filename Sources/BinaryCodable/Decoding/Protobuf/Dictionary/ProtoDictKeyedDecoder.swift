@@ -2,7 +2,7 @@ import Foundation
 
 final class ProtoDictKeyedDecoder<Key>: ProtoKeyedDecoder<Key> where Key: CodingKey {
 
-    override init(data: Data, codingPath: [CodingKey], options: Set<CodingOption>) throws {
+    override init(data: Data, path: [CodingKey], info: UserInfo) throws {
         let decoder = DataDecoder(data: data)
         var content = [DecodingKey: [Data]]()
         while decoder.hasMoreBytes {
@@ -46,6 +46,6 @@ final class ProtoDictKeyedDecoder<Key>: ProtoKeyedDecoder<Key> where Key: Coding
                 $0.count.variableLengthEncoding + $0
             }.joinedData
         }
-        super.init(content: mapped, codingPath: codingPath, options: options)
+        super.init(content: mapped, path: path, info: info)
     }
 }

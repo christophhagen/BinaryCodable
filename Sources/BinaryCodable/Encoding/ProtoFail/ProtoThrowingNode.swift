@@ -9,18 +9,18 @@ class ProtoThrowingNode: AbstractEncodingNode, Encoder {
 
     let error: BinaryEncodingError
 
-    convenience init(reason: String, codingPath: [CodingKey], options: Set<CodingOption>) {
-        self.init(error: .notProtobufCompatible(reason), codingPath: codingPath, options: options)
+    convenience init(reason: String, path: [CodingKey], info: UserInfo) {
+        self.init(error: .notProtobufCompatible(reason), path: path, info: info)
     }
 
-    init(error: BinaryEncodingError, codingPath: [CodingKey], options: Set<CodingOption>) {
+    init(error: BinaryEncodingError, path: [CodingKey], info: UserInfo) {
         self.error = error
-        super.init(codingPath: codingPath, options: options)
+        super.init(path: path, info: info)
     }
 
     init(from node: ProtoThrowingNode) {
         self.error = node.error
-        super.init(codingPath: node.codingPath, options: node.options)
+        super.init(path: node.codingPath, info: node.userInfo)
     }
 
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {

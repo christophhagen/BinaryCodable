@@ -4,9 +4,9 @@ final class ProtoUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer 
 
     private let decoder: DataDecoder
 
-    init(data: Data, codingPath: [CodingKey], options: Set<CodingOption>) throws {
+    init(data: Data, path: [CodingKey], info: UserInfo) throws {
         self.decoder = DataDecoder(data: data)
-        super.init(codingPath: codingPath, options: options)
+        super.init(path: path, info: info)
     }
 
     var count: Int? {
@@ -33,25 +33,25 @@ final class ProtoUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer 
             }
             throw BinaryDecodingError.unsupportedType(type)
         }
-        let node = ProtoDecodingNode(decoder: decoder, codingPath: codingPath, options: options)
+        let node = ProtoDecodingNode(decoder: decoder, path: codingPath, info: userInfo)
         return try T.init(from: node)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
         currentIndex += 1
         let data = try decoder.getData(for: .variableLength)
-        let container = try ProtoKeyedDecoder<NestedKey>(data: data, codingPath: codingPath, options: options)
+        let container = try ProtoKeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
         currentIndex += 1
         let data = try decoder.getData(for: .variableLength)
-        return try ProtoUnkeyedDecoder(data: data, codingPath: codingPath, options: options)
+        return try ProtoUnkeyedDecoder(data: data, path: codingPath, info: userInfo)
     }
 
     func superDecoder() throws -> Decoder {
         currentIndex += 1
-        return ProtoDecodingNode(decoder: decoder, codingPath: codingPath, options: options)
+        return ProtoDecodingNode(decoder: decoder, path: codingPath, info: userInfo)
     }
 }

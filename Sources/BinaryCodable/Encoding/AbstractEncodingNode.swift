@@ -15,6 +15,6 @@ class AbstractEncodingNode: AbstractNode {
      - Note: The default value for this option is `false`.
      */
     var sortKeysDuringEncoding: Bool {
-        options.contains(.sortKeys)
+        userInfo[CodingOption.sortKeys.infoKey] != nil
     }
 }

@@ -4,7 +4,7 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
 
     let content: [DecodingKey: Data]
 
-    init(data: Data, codingPath: [CodingKey], options: Set<CodingOption>) throws {
+    init(data: Data, path: [CodingKey], info: UserInfo) throws {
         let decoder = DataDecoder(data: data)
         var content = [DecodingKey: [Data]]()
         while decoder.hasMoreBytes {
@@ -28,12 +28,12 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
                 $0.count.variableLengthEncoding + $0
             }.joinedData
         }
-        super.init(codingPath: codingPath, options: options)
+        super.init(path: path, info: info)
     }
 
-    init(content: [DecodingKey: Data], codingPath: [CodingKey], options: Set<CodingOption>) {
+    init(content: [DecodingKey: Data], path: [CodingKey], info: UserInfo) {
         self.content = content
-        super.init(codingPath: codingPath, options: options)
+        super.init(path: path, info: info)
     }
 
     var allKeys: [Key] {
@@ -76,22 +76,22 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
             }
             throw BinaryDecodingError.unsupportedType(type)
         } else if type is AnyDictionary.Type {
-            let node = ProtoDictDecodingNode(data: data ?? Data(), codingPath: codingPath, options: options)
+            let node = ProtoDictDecodingNode(data: data ?? Data(), path: codingPath, info: userInfo)
             return try T.init(from: node)
         }
-        let node = ProtoDecodingNode(data: data ?? Data(), codingPath: codingPath, options: options)
+        let node = ProtoDecodingNode(data: data ?? Data(), path: codingPath, info: userInfo)
         return try T.init(from: node)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
         let data = getData(forKey: key)
-        let container = try ProtoKeyedDecoder<NestedKey>(data: data, codingPath: codingPath, options: options)
+        let container = try ProtoKeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
         let data = getData(forKey: key)
-        return try ProtoUnkeyedDecoder(data: data, codingPath: codingPath, options: options)
+        return try ProtoUnkeyedDecoder(data: data, path: codingPath, info: userInfo)
     }
 
     func superDecoder() throws -> Decoder {

@@ -1,17 +1,15 @@
 import Foundation
 
+typealias UserInfo = [CodingUserInfoKey : Any]
+
 class AbstractNode {
 
     let codingPath: [CodingKey]
 
-    let options: Set<CodingOption>
+    let userInfo: UserInfo
 
-    var userInfo: [CodingUserInfoKey : Any] {
-        options.reduce(into: [:]) { $0[$1.infoKey] = true }
-    }
-
-    init(codingPath: [CodingKey], options: Set<CodingOption>) {
-        self.codingPath = codingPath
-        self.options = options
+    init(path: [CodingKey], info: UserInfo) {
+        self.codingPath = path
+        self.userInfo = info
     }
 }

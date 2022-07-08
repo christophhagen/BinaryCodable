@@ -23,7 +23,7 @@ final class ProtoValueEncoder: AbstractEncodingNode, SingleValueEncodingContaine
             return
         }
         try assign {
-            try ProtoEncodingNode(codingPath: codingPath, options: options).encoding(value)
+            try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
         }
     }
 }

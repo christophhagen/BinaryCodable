@@ -37,25 +37,25 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
             assign(node)
             return
         }
-        let node = try ProtoEncodingNode(codingPath: codingPath, options: options).encoding(value)
+        let node = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
         assign(node)
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         let container = ProtoKeyedThrowingEncoder<NestedKey>(
             reason: "Nested containers not supported for dictionaries",
-            codingPath: codingPath, options: options)
+            path: codingPath, info: userInfo)
         return KeyedEncodingContainer(container)
     }
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
         ProtoUnkeyedThrowingEncoder(
             reason: "Nested containers not supported for dictionaries",
-            codingPath: codingPath, options: options)
+            path: codingPath, info: userInfo)
     }
 
     func superEncoder() -> Encoder {
-        ProtoThrowingNode(error: .superNotSupported, codingPath: codingPath, options: options)
+        ProtoThrowingNode(error: .superNotSupported, path: codingPath, info: userInfo)
     }
 }
 

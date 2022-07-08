@@ -18,7 +18,7 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
         if let primitive = value as? EncodablePrimitive {
             container = try EncodedPrimitive(protobuf: primitive)
         } else {
-            container = try ProtoEncodingNode(codingPath: codingPath, options: options).encoding(value)
+            container = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
         }
         let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
         assign(container, to: wrapped)
@@ -27,11 +27,11 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         do {
             let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
-            let container = ProtoKeyedEncoder<NestedKey>(codingPath: codingPath + [key], options: options)
+            let container = ProtoKeyedEncoder<NestedKey>(path: codingPath + [key], info: userInfo)
             assign(container, to: wrapped)
             return KeyedEncodingContainer(container)
         } catch {
-            let container = ProtoKeyedThrowingEncoder<NestedKey>(error: error as! BinaryEncodingError, codingPath: codingPath, options: options)
+            let container = ProtoKeyedThrowingEncoder<NestedKey>(error: error as! BinaryEncodingError, path: codingPath, info: userInfo)
             return KeyedEncodingContainer(container)
         }
     }
@@ -39,21 +39,21 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         do {
             let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
-            let container = ProtoUnkeyedEncoder(codingPath: codingPath + [key], options: options)
+            let container = ProtoUnkeyedEncoder(path: codingPath + [key], info: userInfo)
             assign(container, to: wrapped)
             return container
         } catch {
-            let container = ProtoUnkeyedThrowingEncoder(error: error as! BinaryEncodingError, codingPath: codingPath, options: options)
+            let container = ProtoUnkeyedThrowingEncoder(error: error as! BinaryEncodingError, path: codingPath, info: userInfo)
             return container
         }
     }
 
     func superEncoder() -> Encoder {
-        ProtoThrowingNode(error: .superNotSupported, codingPath: codingPath, options: options)
+        ProtoThrowingNode(error: .superNotSupported, path: codingPath, info: userInfo)
     }
 
     func superEncoder(forKey key: Key) -> Encoder {
-        ProtoThrowingNode(error: .superNotSupported, codingPath: codingPath, options: options)
+        ProtoThrowingNode(error: .superNotSupported, path: codingPath, info: userInfo)
     }
 }
 

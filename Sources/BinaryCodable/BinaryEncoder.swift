@@ -30,12 +30,14 @@ public final class BinaryEncoder {
      */
     public var sortKeysDuringEncoding: Bool = false
 
-    private var options: Set<CodingOption> {
-        var result = Set<CodingOption>()
+    public var userInfo = [CodingUserInfoKey : Any]()
+
+    private var fullInfo: [CodingUserInfoKey : Any] {
+        var info = userInfo
         if sortKeysDuringEncoding {
-            result.insert(.sortKeys)
+            info[CodingOption.sortKeys.infoKey] = true
         }
-        return result
+        return info
     }
     
     /**
@@ -53,7 +55,7 @@ public final class BinaryEncoder {
      - Throws: Errors of type `BinaryEncodingError`
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
-        let root = EncodingNode(codingPath: [], options: options)
+        let root = EncodingNode(path: [], info: userInfo)
         try value.encode(to: root)
         if root.isNil {
             return Data()

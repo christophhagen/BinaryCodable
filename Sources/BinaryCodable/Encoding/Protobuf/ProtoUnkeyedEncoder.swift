@@ -33,26 +33,26 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
             }
             return
         }
-        let node = try ProtoEncodingNode(codingPath: codingPath, options: options).encoding(value)
+        let node = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
         assign { node }
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         let container = assign {
-            ProtoKeyedEncoder<NestedKey>(codingPath: codingPath, options: options)
+            ProtoKeyedEncoder<NestedKey>(path: codingPath, info: userInfo)
         }
         return KeyedEncodingContainer(container)
     }
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
         assign {
-            ProtoUnkeyedEncoder(codingPath: codingPath, options: options)
+            ProtoUnkeyedEncoder(path: codingPath, info: userInfo)
         }
     }
 
     func superEncoder() -> Encoder {
         assign {
-            ProtoEncodingNode(codingPath: codingPath, options: options)
+            ProtoEncodingNode(path: codingPath, info: userInfo)
         }
     }
 }

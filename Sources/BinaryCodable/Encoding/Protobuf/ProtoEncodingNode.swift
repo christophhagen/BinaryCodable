@@ -14,16 +14,16 @@ class ProtoEncodingNode: AbstractEncodingNode, Encoder {
     }
 
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        let container = wrap { ProtoKeyedEncoder<Key>(codingPath: codingPath, options: options) }
+        let container = wrap { ProtoKeyedEncoder<Key>(path: codingPath, info: userInfo) }
         return KeyedEncodingContainer(container)
     }
 
     func unkeyedContainer() -> UnkeyedEncodingContainer {
-        wrap { ProtoUnkeyedEncoder(codingPath: codingPath, options: options) }
+        wrap { ProtoUnkeyedEncoder(path: codingPath, info: userInfo) }
     }
 
     func singleValueContainer() -> SingleValueEncodingContainer {
-        wrap { ProtoValueEncoder(codingPath: codingPath, options: options) }
+        wrap { ProtoValueEncoder(path: codingPath, info: userInfo) }
     }
 
     func encoding<T>(_ value: T) throws -> Self where T: Encodable {
