@@ -8,6 +8,16 @@ public protocol FixedSizeCompatible {
 
     /// The protobuf type equivalent to the fixed size type
     var fixedProtoType: String { get }
+
+    /// The value encoded as fixed size binary data
+    var fixedSizeEncoded: Data { get }
+
+    /**
+     Decode the value from binary data.
+     - Parameter data: The binary data of the correct size for the type.
+     - Throws: `BinaryDecodingError`
+     */
+    init(fromFixedSize data: Data) throws
 }
 
 extension FixedSizeCompatible {
