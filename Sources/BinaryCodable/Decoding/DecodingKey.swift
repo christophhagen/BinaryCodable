@@ -36,7 +36,6 @@ enum DecodingKey {
 
     static func decodeProto(from decoder: DataDecoder) throws -> (key: DecodingKey, dataType: DataType) {
         let raw = try decoder.getVarint()
-        print(raw)
         let dataType = try DataType(decodeFrom: raw)
         let key = DecodingKey.intKey(raw >> 3)
         return (key, dataType)
