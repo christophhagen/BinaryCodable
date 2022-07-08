@@ -62,24 +62,6 @@ extension Int64: ZigZagCodable {
     }
 }
 
-extension Int64: HostIndependentRepresentable {
-
-    /**
-     Convert the value to a host-independent (little endian) format.
-     */
-    var hostIndependentRepresentation: UInt64 {
-        CFSwapInt64HostToLittle(.init(bitPattern: self))
-    }
-
-    /**
-     Create an `Int64` value from its host-independent (little endian) representation.
-     - Parameter value: The host-independent representation
-     */
-    init(fromHostIndependentRepresentation value: UInt64) {
-        self.init(bitPattern: CFSwapInt64LittleToHost(value))
-    }
-}
-
 extension Int64: FixedSizeCompatible {
 
     static public var fixedSizeDataType: DataType {
@@ -88,6 +70,19 @@ extension Int64: FixedSizeCompatible {
 
     public var fixedProtoType: String {
         "sfixed64"
+    }
+
+    public init(fromFixedSize data: Data) throws {
+        guard data.count == MemoryLayout<UInt64>.size else {
+            throw BinaryDecodingError.invalidDataSize
+        }
+        let value = read(data: data, into: UInt64.zero)
+        self.init(bitPattern: CFSwapInt64LittleToHost(value))
+    }
+
+    public var fixedSizeEncoded: Data {
+        let value = CFSwapInt64HostToLittle(.init(bitPattern: self))
+        return toData(value)
     }
 }
 

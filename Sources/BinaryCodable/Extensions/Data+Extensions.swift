@@ -24,3 +24,16 @@ extension Sequence where Element: Sequence, Element.Element == UInt8 {
         Data(joined())
     }
 }
+
+func read<T>(data: Data, into value: T) -> T {
+    Data(data).withUnsafeBytes {
+        $0.baseAddress!.load(as: T.self)
+    }
+}
+
+func toData<T>(_ value: T) -> Data {
+    var target = value
+    return withUnsafeBytes(of: &target) {
+        Data($0)
+    }
+}

@@ -33,22 +33,6 @@ extension UInt32: VariableLengthCodable {
     }
 }
 
-extension UInt32: HostIndependentRepresentable {
-
-    /// The little-endian representation
-    var hostIndependentRepresentation: UInt32 {
-        CFSwapInt32HostToLittle(self)
-    }
-
-    /**
-     Create an `UInt32` value from its host-independent (little endian) representation.
-     - Parameter value: The host-independent representation
-     */
-    init(fromHostIndependentRepresentation value: UInt32) {
-        self = CFSwapInt32LittleToHost(value)
-    }
-}
-
 extension UInt32: FixedSizeCompatible {
 
     static public var fixedSizeDataType: DataType {
@@ -57,6 +41,18 @@ extension UInt32: FixedSizeCompatible {
 
     public var fixedProtoType: String {
         "fixed32"
+    }
+
+    public init(fromFixedSize data: Data) throws {
+        guard data.count == MemoryLayout<UInt32>.size else {
+            throw BinaryDecodingError.invalidDataSize
+        }
+        self = read(data: data, into: UInt32.zero)
+    }
+
+    public var fixedSizeEncoded: Data {
+        let value = CFSwapInt32HostToLittle(self)
+        return toData(value)
     }
 }
 

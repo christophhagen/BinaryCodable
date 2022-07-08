@@ -3,7 +3,7 @@ import Foundation
 extension Double: EncodablePrimitive {
     
     func data() -> Data {
-        hostIndependentBinaryData
+        toData(CFConvertDoubleHostToSwapped(self))
     }
     
     static var dataType: DataType {
@@ -14,33 +14,18 @@ extension Double: EncodablePrimitive {
 extension Double: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        try self.init(hostIndependentBinaryData: data)
-    }
-}
-
-extension Double: HostIndependentRepresentable {
-
-    /// The double converted to little-endian
-    var hostIndependentRepresentation: CFSwappedFloat64 {
-        CFConvertDoubleHostToSwapped(self)
-    }
-
-    /**
-     Create a double from a little-endian float64.
-     - Parameter value: The host-independent representation.
-     */
-    init(fromHostIndependentRepresentation value: CFSwappedFloat64) {
+        guard data.count == MemoryLayout<CFSwappedFloat64>.size else {
+            throw BinaryDecodingError.invalidDataSize
+        }
+        let value = read(data: data, into: CFSwappedFloat64())
         self = CFConvertDoubleSwappedToHost(value)
     }
-
-    /// Create an empty host-indepentent float64
-    static var empty: CFSwappedFloat64 { .init() }
 }
 
 extension Double: ProtobufCodable {
 
     var protobufData: Data {
-        hostIndependentBinaryData.swapped
+        data().swapped
     }
 
     init(fromProtobuf data: Data) throws {

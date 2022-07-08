@@ -30,24 +30,6 @@ extension Int32: VariableLengthCodable {
     }
 }
 
-extension Int32: HostIndependentRepresentable {
-
-    /**
-     Convert the value to a host-independent (little endian) format.
-     */
-    var hostIndependentRepresentation: UInt32 {
-        CFSwapInt32HostToLittle(.init(bitPattern: self))
-    }
-
-    /**
-     Create an `Int32` value from its host-independent (little endian) representation.
-     - Parameter value: The host-independent representation
-     */
-    init(fromHostIndependentRepresentation value: UInt32) {
-        self.init(bitPattern: CFSwapInt32LittleToHost(value))
-    }
-}
-
 extension Int32: ZigZagCodable {
 
     /**
@@ -74,12 +56,25 @@ extension Int32: ZigZagCodable {
 
 extension Int32: FixedSizeCompatible {
 
-    static public var fixedSizeDataType: DataType {
+    public static var fixedSizeDataType: DataType {
         .fourBytes
     }
 
     public var fixedProtoType: String {
         "sfixed32"
+    }
+
+    public init(fromFixedSize data: Data) throws {
+        guard data.count == MemoryLayout<UInt32>.size else {
+            throw BinaryDecodingError.invalidDataSize
+        }
+        let value = read(data: data, into: UInt32.zero)
+        self.init(bitPattern: CFSwapInt32LittleToHost(value))
+    }
+
+    public var fixedSizeEncoded: Data {
+        let value = CFSwapInt32HostToLittle(.init(bitPattern: self))
+        return toData(value)
     }
 }
 

@@ -38,6 +38,23 @@ where WrappedValue: FixedSizeCompatible,
     public init(integerLiteral value: WrappedValue.IntegerLiteralType) {
         self.wrappedValue = WrappedValue.init(integerLiteral: value)
     }
+
+}
+
+extension FixedSize: ProtobufCodable {
+
+    func protobufData() throws -> Data {
+        wrappedValue.fixedSizeEncoded
+    }
+
+    init(fromProtobuf data: Data) throws {
+        let value = try WrappedValue(fromFixedSize: data)
+        self.init(wrappedValue: value)
+    }
+
+    var protoType: String {
+        wrappedValue.fixedProtoType
+    }
 }
 
 extension FixedSize: Equatable where WrappedValue: Equatable {
@@ -55,19 +72,18 @@ extension FixedSize: Hashable where WrappedValue: Hashable {
 
 }
 
-extension FixedSize: CodablePrimitive where WrappedValue: HostIndependentRepresentable,
-                                            WrappedValue: DataTypeProvider {
+extension FixedSize: CodablePrimitive where WrappedValue: DataTypeProvider {
 
     /**
      Encode the wrapped value to binary data compatible with the protobuf encoding.
      - Returns: The binary data in host-independent format.
      */
     func data() -> Data {
-        wrappedValue.hostIndependentBinaryData
+        wrappedValue.fixedSizeEncoded
     }
 
     init(decodeFrom data: Data) throws {
-        let wrappedValue = try WrappedValue(hostIndependentBinaryData: data)
+        let wrappedValue = try WrappedValue(fromFixedSize: data)
         self.init(wrappedValue: wrappedValue)
     }
 }
@@ -135,21 +151,5 @@ public extension FixedSize where WrappedValue: FixedWidthInteger {
     /// exponentiation.
     static var min: Self {
         .init(wrappedValue: .min)
-    }
-}
-
-extension FixedSize: ProtobufCodable where WrappedValue: HostIndependentRepresentable, WrappedValue: FixedSizeCompatible {
-
-    func protobufData() throws -> Data {
-        wrappedValue.hostIndependentBinaryData
-    }
-
-    init(fromProtobuf data: Data) throws {
-        let value = try WrappedValue(hostIndependentBinaryData: data)
-        self.init(wrappedValue: value)
-    }
-
-    var protoType: String {
-        wrappedValue.fixedProtoType
     }
 }
