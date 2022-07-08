@@ -209,8 +209,8 @@ extension WrappedContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       case 2: try { try decoder.decodeSingularFixed32Field(value: &self.fourByteUint) }()
       case 3: try { try decoder.decodeSingularSFixed64Field(value: &self.eightByteInt) }()
       case 4: try { try decoder.decodeSingularFixed64Field(value: &self.eightByteUint) }()
-      case 5: try { try decoder.decodeSingularInt32Field(value: &self.signed32) }()
-      case 6: try { try decoder.decodeSingularInt64Field(value: &self.signed64) }()
+      case 5: try { try decoder.decodeSingularSInt32Field(value: &self.signed32) }()
+      case 6: try { try decoder.decodeSingularSInt64Field(value: &self.signed64) }()
       default: break
       }
     }
@@ -230,10 +230,10 @@ extension WrappedContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       try visitor.visitSingularFixed64Field(value: self.eightByteUint, fieldNumber: 4)
     }
     if self.signed32 != 0 {
-      try visitor.visitSingularInt32Field(value: self.signed32, fieldNumber: 5)
+      try visitor.visitSingularSInt32Field(value: self.signed32, fieldNumber: 5)
     }
     if self.signed64 != 0 {
-      try visitor.visitSingularInt64Field(value: self.signed64, fieldNumber: 6)
+      try visitor.visitSingularSInt64Field(value: self.signed64, fieldNumber: 6)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
