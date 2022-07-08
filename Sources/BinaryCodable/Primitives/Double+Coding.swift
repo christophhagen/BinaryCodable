@@ -25,8 +25,7 @@ extension Double: DecodablePrimitive {
 extension Double: ProtobufEncodable {
 
     func protobufData() throws -> Data {
-        print("Here")
-        return data().swapped
+        data().swapped
     }
 
     var protoType: String { "double" }
