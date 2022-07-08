@@ -10,7 +10,7 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     
     private func assign(_ encoded: () throws -> EncodingContainer?) throws {
         guard container == nil else {
-            throw BinaryEncodingError.invalidEncoding("Multiple values encoded in single value container")
+            throw BinaryEncodingError.multipleValuesInSingleValueContainer
         }
         container = try encoded()
     }
