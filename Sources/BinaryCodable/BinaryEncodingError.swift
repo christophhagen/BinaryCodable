@@ -30,7 +30,7 @@ extension BinaryEncodingError {
         .notProtobufCompatible("Nil values are not supported")
     }
 
-    static func unsupportedType<T>(_ value: T) -> BinaryEncodingError {
+    static func unsupportedType(_ value: EncodablePrimitive) -> BinaryEncodingError {
         .notProtobufCompatible("\(type(of: value)) values are not supported")
     }
 
