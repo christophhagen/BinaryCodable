@@ -14,22 +14,4 @@ class AbstractNode {
         self.codingPath = codingPath
         self.options = options
     }
-
-    /**
-     Force the encoder to encode using a protobuf-compatible format.
-
-     Enabling this option provoides limited compatibility with Google's Protocol Buffers.
-
-     Encoding unsupported data types causes `BinaryEncodingError.notProtobufCompatible` errors.
-     */
-    var forceProtobufCompatibility: Bool {
-        options.contains(.protobufCompatibility)
-    }
-
-    func failIfProto(_ reason: String) {
-        guard forceProtobufCompatibility else {
-            return
-        }
-        fatalError(reason)
-    }
 }

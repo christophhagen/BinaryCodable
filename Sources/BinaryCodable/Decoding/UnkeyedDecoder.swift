@@ -9,17 +9,13 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     init(data: Data, codingPath: [CodingKey], options: Set<CodingOption>) throws {
         let decoder = DataDecoder(data: data)
         self.decoder = decoder
-        if options.contains(.protobufCompatibility) {
-            self.nilIndices = []
-        } else {
-            let nilIndicesCount = try decoder.getVarint()
-            guard nilIndicesCount >= 0 else {
-                throw BinaryDecodingError.invalidDataSize
-            }
-            self.nilIndices = try (0..<nilIndicesCount)
-                .map { _ in try decoder.getVarint() }
-                .reduce(into: []) { $0.insert($1) }
+        let nilIndicesCount = try decoder.getVarint()
+        guard nilIndicesCount >= 0 else {
+            throw BinaryDecodingError.invalidDataSize
         }
+        self.nilIndices = try (0..<nilIndicesCount)
+            .map { _ in try decoder.getVarint() }
+            .reduce(into: []) { $0.insert($1) }
         super.init(codingPath: codingPath, options: options)
     }
 
@@ -50,12 +46,6 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
         if let Primitive = type as? DecodablePrimitive.Type {
             let dataType = Primitive.dataType
             let data = try decoder.getData(for: dataType)
-            if forceProtobufCompatibility {
-                if let ProtoType = Primitive as? ProtobufDecodable.Type {
-                    return try ProtoType.init(fromProtobuf: data) as! T
-                }
-                throw BinaryDecodingError.notProtobufCompatible
-            }
             return try Primitive.init(decodeFrom: data) as! T
         }
         let node = DecodingNode(decoder: decoder, isNil: nextValueIsNil, codingPath: codingPath, options: options)

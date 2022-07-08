@@ -47,7 +47,7 @@ public enum BinaryDecodingError: Error {
 
      This error can only appear when the `forceProtobufCompatibility = true` for the encoder.
      */
-    case notProtobufCompatible
+    case notProtobufCompatible(String)
 
     /**
      The binary data contains multiple values for a key.
@@ -55,4 +55,17 @@ public enum BinaryDecodingError: Error {
      This data format is only supported for unpacked arrays when specifying `forceProtobufCompatibility = true`
      */
     case multipleValuesForKey
+
+    case unexpectedDictionaryKey
+}
+
+extension BinaryDecodingError {
+
+    static func unsupportedType<T>(_ t: T.Type) -> BinaryDecodingError {
+        .notProtobufCompatible("\(type(of: t)) values are not supported")
+    }
+
+    static var superNotSupported: BinaryEncodingError {
+        .notProtobufCompatible("Decoding super is not supported")
+    }
 }

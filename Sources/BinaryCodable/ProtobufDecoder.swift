@@ -1,7 +1,9 @@
 import Foundation
 
 /**
- An encoder to convert binary data back to `Codable` objects.
+ An encoder to convert protobuf binary data back to `Codable` objects.
+
+ Decoding unsupported data types causes `BinaryDecodingError.notProtobufCompatible` errors.
 
  To decode from data, instantiate a decoder and specify the type:
  ```
@@ -20,7 +22,7 @@ import Foundation
  ```
  - Note: A single decoder can be used to decode multiple messages.
  */
-public final class BinaryDecoder {
+public final class ProtobufDecoder {
 
     private var options: Set<CodingOption> {
         []
@@ -42,7 +44,7 @@ public final class BinaryDecoder {
      - Throws: Errors of type `BinaryDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        let root = DecodingNode(data: data, top: true, codingPath: [], options: options)
+        let root = ProtoDecodingNode(data: data, top: true, codingPath: [], options: options)
         return try type.init(from: root)
     }
 
@@ -54,6 +56,6 @@ public final class BinaryDecoder {
      - Throws: Errors of type `BinaryDecodingError`
      */
     public static func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        try BinaryDecoder().decode(type, from: data)
+        try ProtobufDecoder().decode(type, from: data)
     }
 }
