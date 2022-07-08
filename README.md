@@ -4,7 +4,7 @@ This package provides convenient encoding and decoding to/from binary data for a
 
 ## Use cases
 
-There are only few encoders and decoders available for Swift's Codable format, and Apple provides a [JSONEncoder](https://developer.apple.com/documentation/foundation/jsonencoder) and a [PropertyListEncoder](https://developer.apple.com/documentation/foundation/propertylistencoder) for basic encoding. While these can cover some use cases (especially when interacting with Web Content through JSON), they lack efficiency when designing APIs within an ecosystem. JSON, for example, is notoriously inefficient when it comes to binary data.
+There are only few encoders and decoders available for Swift's Codable format, and Apple provides a [JSONEncoder](https://developer.apple.com/documentation/foundation/jsonencoder) and a [PropertyListEncoder](https://developer.apple.com/documentation/foundation/propertylistencoder) for basic encoding. While these can cover some use cases (especially when interacting with Web Content through JSON), they lack encoding efficiency when designing APIs within an ecosystem. JSON, for example, is notoriously inefficient when it comes to binary data.
 
 One very popular alternative for binary data are Google's [Protocol Buffers](https://developers.google.com/protocol-buffers), which offer broad support across different platforms and programming languages. But they don't support Swift's `Codable` protocol, and thus require manual message definitions, the Protobuf compiler, and a lot of copying between data structures during encoding and decoding.
 
@@ -83,6 +83,13 @@ Alternatively, the type can be inferred:
 ```swift
 let message: Message = try decoder.decode(from: data)
 ```
+
+### Errors
+
+It is possible for both encoding and decoding to fail. 
+All possible errors occuring during encoding produce `BinaryEncodingError` errors, while unsuccessful decoding produces `BinaryDecodingError`s. 
+Both are enums with several cases describing the nature of the error. 
+See the documentation of the types to learn more about the different error conditions.
 
 ### Coding Keys
 
@@ -187,14 +194,41 @@ struct MyStruct: Codable {
 }
 ```
 
-### Binary format
+## Binary format
 
 To learn more about the encoding format, see [BinaryFormat.md](BinaryFormat.md).
 
-### Tests
+## Tests
 
 The library comes with an extensive test suite, which checks that encoding works correctly for many cases. These tests can be executed using ```swift test``` from the package root, or when opening the package using Xcode.
 
-### License
+## License
 
 MIT. See [License.md](License.md)
+
+## Roadmap
+
+### Generate protobuf definitions
+
+It should be possible to generate a string containing a working Protobuf definition for any type that is determined to be Protobuf compatible.
+
+### Speed
+
+Increasing the speed of the encoding and decoding process is not a huge priority at the moment. 
+If you have any pointers on how to improve the performance further, feel free to contribute.
+
+## Contributing
+
+Users of the library are encouraged to contribute to this repository.
+
+### Feature suggestions
+
+Please file an issue with a description of the feature you're missing. Check other open and closed issues for similar suggestions and comment on them before creating a new issue.
+
+### Bug reporting
+
+File an issue with a clear description of the problem. Please include message definitions and other data where possible so that the error can be reproduced.
+
+### Documentation
+
+If you would like to extend the documentation of this library, or translate the documentation into other languages, please also open an issue, and I'll contact you for further discussions.
