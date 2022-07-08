@@ -1,41 +1,39 @@
 import Foundation
 
-final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
-    
-    private var container: EncodingContainer?
-    
+final class ProtoValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
+
+    private var container: NonNilEncodingContainer?
+
     func encodeNil() throws {
         try assign { nil }
     }
-    
-    private func assign(_ encoded: () throws -> EncodingContainer?) throws {
+
+    private func assign(_ encoded: () throws -> NonNilEncodingContainer?) throws {
         guard container == nil else {
             throw BinaryEncodingError.invalidEncoding("Multiple values encoded in single value container")
         }
         container = try encoded()
     }
-    
+
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             try assign {
-                try EncodedPrimitive(primitive: primitive)
+                try EncodedPrimitive(protobuf: primitive)
             }
             return
         }
         try assign {
-            try EncodingNode(codingPath: codingPath, options: options).encoding(value)
+            try ProtoEncodingNode(codingPath: codingPath, options: options).encoding(value)
         }
     }
 }
 
-extension ValueEncoder: EncodingContainer {
+extension ProtoValueEncoder: NonNilEncodingContainer {
 
-    var isNil: Bool { container?.isNil ?? true }
-    
     var data: Data {
         container?.data ?? .empty
     }
-    
+
     var dataType: DataType {
         container!.dataType
     }

@@ -6,18 +6,19 @@ struct EncodedPrimitive: EncodingContainer {
 
     let data: Data
 
-    init(primitive: EncodablePrimitive, protobuf: Bool) throws {
+    init(primitive: EncodablePrimitive) throws {
         self.dataType = primitive.dataType
-        if protobuf {
-            guard primitive.dataType.isProtobufCompatible else {
-                throw BinaryEncodingError.notProtobufCompatible
-            }
-            guard let value = primitive as? ProtobufEncodable else {
-                throw BinaryEncodingError.notProtobufCompatible
-            }
-            self.data = try value.protobufData()
-        } else {
-            self.data = try primitive.data()
+        self.data = try primitive.data()
+    }
+
+    init(protobuf: EncodablePrimitive) throws {
+        guard protobuf.dataType.isProtobufCompatible else {
+            throw BinaryEncodingError.unsupportedType(protobuf)
         }
+        guard let value = protobuf as? ProtobufEncodable else {
+            throw BinaryEncodingError.unsupportedType(protobuf)
+        }
+        self.data = try value.protobufData()
+        self.dataType = protobuf.dataType
     }
 }

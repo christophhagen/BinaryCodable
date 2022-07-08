@@ -1,10 +1,10 @@
 import Foundation
 
-class EncodingNode: AbstractEncodingNode, Encoder {
-    
-    var container: EncodingContainer?
-    
-    func wrap<T>(container: () -> T) -> T where T: EncodingContainer {
+class ProtoEncodingNode: AbstractEncodingNode, Encoder {
+
+    var container: NonNilEncodingContainer?
+
+    func wrap<T>(container: () -> T) -> T where T: NonNilEncodingContainer {
         guard self.container == nil else {
             fatalError("Multiple calls to `container<>(keyedBy:)`, `unkeyedContainer()`, or `singleValueContainer()` for an encoder")
         }
@@ -12,34 +12,32 @@ class EncodingNode: AbstractEncodingNode, Encoder {
         self.container = value
         return value
     }
-    
+
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        let container = wrap { KeyedEncoder<Key>(codingPath: codingPath, options: options) }
+        let container = wrap { ProtoKeyedEncoder<Key>(codingPath: codingPath, options: options) }
         return KeyedEncodingContainer(container)
     }
-    
+
     func unkeyedContainer() -> UnkeyedEncodingContainer {
-        wrap { UnkeyedEncoder(codingPath: codingPath, options: options) }
-    }
-    
-    func singleValueContainer() -> SingleValueEncodingContainer {
-        wrap { ValueEncoder(codingPath: codingPath, options: options) }
+        wrap { ProtoUnkeyedEncoder(codingPath: codingPath, options: options) }
     }
 
-    func encoding<T>(_ value: T) throws -> EncodingNode where T: Encodable {
+    func singleValueContainer() -> SingleValueEncodingContainer {
+        wrap { ProtoValueEncoder(codingPath: codingPath, options: options) }
+    }
+
+    func encoding<T>(_ value: T) throws -> Self where T: Encodable {
         try value.encode(to: self)
         return self
     }
 }
 
-extension EncodingNode: EncodingContainer {
+extension ProtoEncodingNode: NonNilEncodingContainer {
 
-    var isNil: Bool { container?.isNil ?? true }
-    
     var data: Data {
         container!.data
     }
-    
+
     var dataType: DataType {
         container!.dataType
     }

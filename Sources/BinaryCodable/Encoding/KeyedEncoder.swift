@@ -2,21 +2,14 @@ import Foundation
 
 final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProtocol where Key: CodingKey {
     
-    var content = [CodingKeyWrapper : EncodingContainer]()
-    
-    @discardableResult
-    func assign<T>(to key: CodingKey, container: () throws -> T) rethrows -> T where T: EncodingContainer {
-        if forceProtobufCompatibility && key.intValue == nil {
-            // Protobuf requires integer keys
-            fatalError("Protobuf compatibility requires integer keys")
-        }
-        let wrapped = CodingKeyWrapper(key)
+    var content = [MixedCodingKeyWrapper : EncodingContainer]()
+
+    func assign(_ value: EncodingContainer, to key: CodingKey) {
+        let wrapped = MixedCodingKeyWrapper(key)
         guard content[wrapped] == nil else {
             fatalError("Multiple values encoded for key \(key)")
         }
-        let value = try container()
         content[wrapped] = value
-        return value
     }
     
     func encodeNil(forKey key: Key) throws {
@@ -24,42 +17,37 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     }
     
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
+        let container: EncodingContainer
         if let primitive = value as? EncodablePrimitive {
-            try assign(to: key) {
-                try EncodedPrimitive(primitive: primitive, protobuf: forceProtobufCompatibility)
-            }
-            return
+            container = try EncodedPrimitive(primitive: primitive)
+        } else {
+            container = try EncodingNode(codingPath: codingPath, options: options).encoding(value)
         }
-        try assign(to: key) {
-            try EncodingNode(codingPath: codingPath, options: options).encoding(value)
-        }
+        assign(container, to: key)
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        let container = assign(to: key) {
-            KeyedEncoder<NestedKey>(codingPath: codingPath + [key], options: options)
-        }
+        let container = KeyedEncoder<NestedKey>(codingPath: codingPath + [key], options: options)
+        assign(container, to: key)
         return KeyedEncodingContainer(container)
     }
     
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
-        assign(to: key) {
-            UnkeyedEncoder(codingPath: codingPath + [key], options: options)
-        }
+        let container = UnkeyedEncoder(codingPath: codingPath + [key], options: options)
+        assign(container, to: key)
+        return container
     }
     
     func superEncoder() -> Encoder {
-        failIfProto("Protobuf compatibility does not support encoding super")
-        return assign(to: SuperEncoderKey()) {
-            EncodingNode(codingPath: codingPath, options: options)
-        }
+        let container = EncodingNode(codingPath: codingPath, options: options)
+        assign(container, to: SuperEncoderKey())
+        return container
     }
     
     func superEncoder(forKey key: Key) -> Encoder {
-        failIfProto("Protobuf compatibility does not support encoding super")
-        return assign(to: key) {
-            EncodingNode(codingPath: codingPath + [key], options: options)
-        }
+        let container = EncodingNode(codingPath: codingPath + [key], options: options)
+        assign(container, to: key)
+        return container
     }
 }
 
@@ -75,7 +63,7 @@ extension KeyedEncoder: EncodingContainer {
 
     var combinedData: Data {
         sortedKeysIfNeeded.map { key, value -> Data in
-            value.encodeWithKey(key, proto: forceProtobufCompatibility)
+            value.encodeWithKey(key)
         }.reduce(Data(), +)
     }
     

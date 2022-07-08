@@ -1,17 +1,20 @@
 import Foundation
 
-protocol EncodingContainer {
+protocol NonNilEncodingContainer {
     
     var data: Data { get }
     
     var dataType: DataType { get }
 
-    var isNil: Bool { get }
-
-    func encodeWithKey(_ key: CodingKeyWrapper, proto: Bool) -> Data
+    func encodeWithKey(_ key: CodingKeyWrapper) -> Data
 }
 
-extension EncodingContainer {
+protocol EncodingContainer: NonNilEncodingContainer {
+
+    var isNil: Bool { get }
+}
+
+extension NonNilEncodingContainer {
     
     var dataWithLengthInformationIfRequired: Data {
         guard dataType == .variableLength else {
@@ -26,8 +29,8 @@ extension EncodingContainer {
     }
 
 
-    func encodeWithKey(_ key: CodingKeyWrapper, proto: Bool) -> Data {
-        key.encode(for: dataType, proto: proto) + dataWithLengthInformationIfRequired
+    func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
+        key.encode(for: dataType) + dataWithLengthInformationIfRequired
     }
 }
 

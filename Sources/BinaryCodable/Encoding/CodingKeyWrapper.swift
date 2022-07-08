@@ -6,12 +6,20 @@ private let intKeyUpperBound = Int(bitPattern: 0x07FFFFFFFFFFFFFF)
 /// The smallest value (inclusive) for a valid integer coding key
 private let intKeyLowerBound = Int(bitPattern: 0x87FFFFFFFFFFFFFF)
 
+
+protocol CodingKeyWrapper {
+
+    func encode(for dataType: DataType) -> Data
+}
+
 /**
  A wrapper around a coding key to allow usage in dictionaries.
  */
-struct CodingKeyWrapper {
+struct MixedCodingKeyWrapper: CodingKeyWrapper {
     
-    private let codingKey: CodingKey
+    private let intValue: Int?
+
+    private let stringValue: String
 
     /**
      Create a wrapper around a coding key.
@@ -23,7 +31,13 @@ struct CodingKeyWrapper {
                 fatalError("Integer key \(int) is out of range for coding key \(codingKey.stringValue)")
             }
         }
-        self.codingKey = codingKey
+        self.intValue = codingKey.intValue
+        self.stringValue = codingKey.stringValue
+    }
+
+    init(intValue: Int?, stringValue: String) {
+        self.intValue = intValue
+        self.stringValue = stringValue
     }
 
     /**
@@ -32,7 +46,7 @@ struct CodingKeyWrapper {
      - Returns: The encoded data of the coding key, the data type and the key type indicator.
      */
     func encode(for dataType: DataType) -> Data {
-        guard let intValue = codingKey.intValue else {
+        guard let intValue = intValue else {
             return encodeStringValue(for: dataType)
         }
         return encode(int: intValue, for: dataType, isStringKey: false)
@@ -44,10 +58,10 @@ struct CodingKeyWrapper {
      - Returns: The encoded data of the coding key, the data type and the key type indicator.
      */
     private func encodeStringValue(for dataType: DataType) -> Data {
-        let count = codingKey.stringValue.count
+        let count = stringValue.count
         let data = encode(int: count, for: dataType, isStringKey: true)
         // It's assumed that all property names can be represented in UTF-8
-        return data + codingKey.stringValue.data(using: .utf8)!
+        return data + stringValue.data(using: .utf8)!
     }
 
     /**
@@ -66,46 +80,46 @@ struct CodingKeyWrapper {
         let mixed = (int << 4) | dataType.rawValue | (isStringKey ? 0x08 : 0x00)
         return mixed.variableLengthEncoding
     }
-
-    func encode(for dataType: DataType, proto: Bool) -> Data {
-        if proto {
-            return encodeProto(for: dataType)
-        }
-        return encode(for: dataType)
-    }
-
-    func encodeProto(for dataType: DataType) -> Data {
-        // Bit 0-2 are the data type
-        // Remaining bits are the integer
-        let mixed = (codingKey.intValue! << 3) | dataType.rawValue
-        return mixed.variableLengthEncoding
-    }
 }
 
-extension CodingKeyWrapper: Equatable {
+extension MixedCodingKeyWrapper: Equatable {
     
-    static func == (lhs: CodingKeyWrapper, rhs: CodingKeyWrapper) -> Bool {
-        lhs.codingKey.stringValue == rhs.codingKey.stringValue
+    static func == (lhs: MixedCodingKeyWrapper, rhs: MixedCodingKeyWrapper) -> Bool {
+        lhs.stringValue == rhs.stringValue
     }
 }
 
-extension CodingKeyWrapper: Hashable {
+extension MixedCodingKeyWrapper: Hashable {
     
     func hash(into hasher: inout Hasher) {
-        if let int = codingKey.intValue {
+        if let int = intValue {
             hasher.combine(int)
         } else {
-            hasher.combine(codingKey.stringValue)
+            hasher.combine(stringValue)
         }
     }
 }
 
-extension CodingKeyWrapper: Comparable {
+extension MixedCodingKeyWrapper: Comparable {
 
-    static func < (lhs: CodingKeyWrapper, rhs: CodingKeyWrapper) -> Bool {
-        if let lhsInt = lhs.codingKey.intValue, let rhsInt = rhs.codingKey.intValue {
+    static func < (lhs: MixedCodingKeyWrapper, rhs: MixedCodingKeyWrapper) -> Bool {
+        if let lhsInt = lhs.intValue, let rhsInt = rhs.intValue {
             return lhsInt < rhsInt
         }
-        return lhs.codingKey.stringValue < rhs.codingKey.stringValue
+        return lhs.stringValue < rhs.stringValue
+    }
+}
+
+extension MixedCodingKeyWrapper: EncodingContainer {
+
+    var data: Data {
+        if let intValue = intValue {
+            return UInt64(intValue).protobufData()
+        }
+        return stringValue.data(using: .utf8)!
+    }
+
+    var dataType: DataType {
+        intValue != nil ? Int.dataType: String.dataType
     }
 }

@@ -18,22 +18,13 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
     }
     
     func encodeNil() throws {
-        guard !forceProtobufCompatibility else {
-            throw BinaryEncodingError.notProtobufCompatible
-        }
         nilIndices.insert(count)
     }
     
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
-            // Ensure that only same-type values are encoded
-            if forceProtobufCompatibility {
-                if let first = content.first, first.dataType != primitive.dataType {
-                    throw BinaryEncodingError.notProtobufCompatible
-                }
-            }
             try assign {
-                try EncodedPrimitive(primitive: primitive, protobuf: forceProtobufCompatibility)
+                try EncodedPrimitive(primitive: primitive)
             }
             return
         }
@@ -80,26 +71,6 @@ extension UnkeyedEncoder: EncodingContainer {
         content.map { $0.dataWithLengthInformationIfRequired }.joinedData
     }
 
-    private var packedProtoData: Data {
-        let data = contentData
-        return data.count.variableLengthEncoding + data
-    }
-
-    func encodeWithKey(_ key: CodingKeyWrapper, proto: Bool) -> Data {
-        guard proto else {
-            return key.encode(for: dataType) + dataWithLengthInformationIfRequired
-        }
-        // Don't prepend index set for protobuf, separate complex types
-        if let first = content.first, first.dataType == .variableLength {
-            // Unpacked
-            return content
-                .map { $0.encodeWithKey(key, proto: proto) }
-                .joinedData
-        }
-        // Packed
-        return key.encodeProto(for: dataType) + packedProtoData
-    }
-    
     var data: Data {
         nilIndicesData + contentData
     }
