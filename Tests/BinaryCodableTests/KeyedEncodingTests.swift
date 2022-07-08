@@ -13,10 +13,10 @@ final class KeyedEncodingTests: XCTestCase {
 
     func testEncodingWithByteType() throws {
         struct Test: Codable, Equatable {
-            let value: Bool
+            let value: UInt8
         }
         let expected: [UInt8] = [0b01011110, 118, 97, 108, 117, 101, 1]
-        try compare(Test(value: true), to: expected)
+        try compare(Test(value: 1), to: expected)
     }
 
     func testEncodingWithTwoByteType() throws {
