@@ -45,7 +45,7 @@ public final class BinaryDecoder {
     }
 
     /**
-     Decode a type from binary data.
+     Decode a single value from binary data using a default decoder.
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance
      - Returns: The decoded instance

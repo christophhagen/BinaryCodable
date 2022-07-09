@@ -42,6 +42,16 @@ public final class ProtobufEncoder {
         return root.data
     }
 
+    /**
+     Encode a single value to binary data using a default encoder.
+     - Parameter value: The value to encode
+     - Returns: The encoded data
+     - Throws: Errors of type `BinaryEncodingError`
+     */
+    public static func encode<T>(_ value: T) throws -> Data where T: Encodable {
+        try ProtobufEncoder().encode(value)
+    }
+
     func getProtobufDefinition<T>(_ value: T) throws -> String where T: Encodable {
         let root = try ProtoNode(encoding: "\(type(of: value))", path: [], info: userInfo)
             .encoding(value)
