@@ -33,6 +33,29 @@ extension Int: VariableLengthCodable {
     }
 }
 
+extension Int: FixedSizeCompatible {
+
+    public static var fixedSizeDataType: DataType {
+        .eightBytes
+    }
+
+    public var fixedProtoType: String {
+        "sfixed64"
+    }
+
+    public init(fromFixedSize data: Data) throws {
+        let signed = try Int64(fromFixedSize: data)
+        guard let value = Int(exactly: signed) else {
+            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+        }
+        self = value
+    }
+
+    public var fixedSizeEncoded: Data {
+        Int64(self).fixedSizeEncoded
+    }
+}
+
 extension Int: SignedValueCompatible {
 
     public var positiveProtoType: String {
@@ -61,5 +84,21 @@ extension Int: ZigZagCodable {
             throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
         }
         self = value
+    }
+}
+
+extension Int: ProtobufEncodable {
+
+    func protobufData() -> Data {
+        variableLengthEncoding
+    }
+
+    var protoType: String { "sint64" }
+}
+
+extension Int: ProtobufDecodable {
+
+    init(fromProtobuf data: Data) throws {
+        try self.init(fromVarint: data)
     }
 }

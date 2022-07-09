@@ -175,8 +175,6 @@ extension UInt64: ZigZagDecodable {
         }
         self = result
     }
-
-    var protoType: String { "uint64" }
 }
 
 extension UInt64: ProtobufEncodable {
@@ -184,6 +182,8 @@ extension UInt64: ProtobufEncodable {
     func protobufData() -> Data {
         variableLengthEncoding
     }
+
+    var protoType: String { "uint64" }
 }
 
 extension UInt64: ProtobufDecodable {
