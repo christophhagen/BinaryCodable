@@ -4,17 +4,13 @@ class ProtoDecodingNode: AbstractDecodingNode, Decoder {
 
     let storage: Storage
 
-    private let isAtTopLevel: Bool
-
-    init(data: Data, top: Bool = false, path: [CodingKey], info: UserInfo) {
+    init(data: Data, path: [CodingKey], info: UserInfo) {
         self.storage = .data(data)
-        self.isAtTopLevel = top
         super.init(path: path, info: info)
     }
 
-    init(decoder: DataDecoder, isNil: Bool = false, path: [CodingKey], info: UserInfo) {
+    init(decoder: DataDecoder, path: [CodingKey], info: UserInfo) {
         self.storage = .decoder(decoder)
-        self.isAtTopLevel = false
         super.init(path: path, info: info)
     }
 
@@ -30,7 +26,6 @@ class ProtoDecodingNode: AbstractDecodingNode, Decoder {
     func singleValueContainer() throws -> SingleValueDecodingContainer {
         return ProtoValueDecoder(
             data: storage.useAsDecoder(),
-            top: isAtTopLevel,
             path: codingPath,
             info: userInfo)
     }

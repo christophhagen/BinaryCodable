@@ -47,7 +47,7 @@ public final class ProtobufDecoder {
      - Throws: Errors of type `BinaryDecodingError` or `ProtobufDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        let root = ProtoDecodingNode(data: data, top: true, path: [], info: userInfo)
+        let root = ProtoDecodingNode(data: data, path: [], info: userInfo)
         return try type.init(from: root)
     }
 

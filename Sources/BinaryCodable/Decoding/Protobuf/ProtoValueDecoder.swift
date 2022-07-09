@@ -4,11 +4,8 @@ final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContaine
 
     let data: DataDecoder
 
-    private let isAtTopLevel: Bool
-
-    init(data: DataDecoder, top: Bool = false, path: [CodingKey], info: UserInfo) {
+    init(data: DataDecoder, path: [CodingKey], info: UserInfo) {
         self.data = data
-        self.isAtTopLevel = top
         super.init(path: path, info: info)
     }
 
