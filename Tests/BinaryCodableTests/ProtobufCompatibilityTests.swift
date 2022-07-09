@@ -268,4 +268,58 @@ final class ProtobufCompatibilityTests: XCTestCase {
         try testCodableToProto(codable, expected: proto)
         try testProtoToCodable(proto, expected: codable)
     }
+
+    func testFieldNumberBounds() throws {
+        struct FieldBounds: Codable, Equatable {
+            let low: Bool
+            let high: Bool
+
+            enum CodingKeys: Int, CodingKey {
+                case low = 1
+                case high = 536870911
+            }
+        }
+
+        let codable = FieldBounds(low: true, high: true)
+        let proto = FieldNumberTest.with {
+            $0.low = true
+            $0.high = true
+        }
+        try testCodableToProto(codable, expected: proto)
+        try testProtoToCodable(proto, expected: codable)
+
+        struct FieldOutOfLowBounds: Codable, Equatable {
+            let low: Bool
+            let high: Bool
+
+            enum CodingKeys: Int, CodingKey {
+                case low = 0
+                case high = 536870911
+            }
+        }
+        let codable2 = FieldOutOfLowBounds(low: true, high: true)
+        do {
+            let encoder = ProtobufEncoder()
+            _ = try encoder.encode(codable2)
+        } catch BinaryCodable.BinaryEncodingError.notProtobufCompatible {
+
+        }
+
+        struct FieldOutOfHighBounds: Codable, Equatable {
+            let low: Bool
+            let high: Bool
+
+            enum CodingKeys: Int, CodingKey {
+                case low = 1
+                case high = 536870912
+            }
+        }
+        let codable3 = FieldOutOfHighBounds(low: true, high: true)
+        do {
+            let encoder = ProtobufEncoder()
+            _ = try encoder.encode(codable3)
+        } catch BinaryCodable.BinaryEncodingError.notProtobufCompatible {
+
+        }
+    }
 }

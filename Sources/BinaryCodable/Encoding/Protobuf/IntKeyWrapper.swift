@@ -1,10 +1,23 @@
 import Foundation
 
+/// The largest value (inclusive) for a valid protobuf field number (536870911)
+private let protoFieldUpperBound = 0x1FFFFFFF
+
+/// The smallest value (inclusive) for a valid integer coding key
+private let protoFieldLowerBound = 1
+
+/**
+ Wraps a protobuf field number to use as a coding key.
+ */
 struct IntKeyWrapper: CodingKeyWrapper {
 
     private let intValue: Int
 
-    init(value: Int) {
+    init(value: Int) throws {
+        guard value >= protoFieldLowerBound && value <= protoFieldUpperBound else {
+            throw BinaryEncodingError.notProtobufCompatible(
+                "Field numbers must be positive integers not greater than 536870911 (0x1FFFFFFF)")
+        }
         self.intValue = value
     }
 
@@ -12,7 +25,7 @@ struct IntKeyWrapper: CodingKeyWrapper {
         guard let value = key.intValue else {
             throw BinaryEncodingError.notProtobufCompatible("Int key required")
         }
-        self.intValue = value
+        try self.init(value: value)
     }
 
     func encode(for dataType: DataType) -> Data {

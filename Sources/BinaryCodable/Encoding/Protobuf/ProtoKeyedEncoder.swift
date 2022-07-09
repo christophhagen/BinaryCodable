@@ -10,9 +10,6 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
     }
 
     func assign(_ value: NonNilEncodingContainer, to key: IntKeyWrapper) {
-        guard content[key] == nil else {
-            fatalError("Multiple values encoded for key \(key)")
-        }
         content[key] = value
     }
 

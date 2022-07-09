@@ -51,3 +51,7 @@ extension BinaryEncodingError {
         .notProtobufCompatible("Encoding super is not supported")
     }
 }
+
+extension BinaryEncodingError: Equatable {
+    
+}

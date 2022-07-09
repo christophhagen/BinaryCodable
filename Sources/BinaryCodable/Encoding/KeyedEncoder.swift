@@ -6,9 +6,6 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
 
     func assign(_ value: EncodingContainer, to key: CodingKey) {
         let wrapped = MixedCodingKeyWrapper(key)
-        guard content[wrapped] == nil else {
-            fatalError("Multiple values encoded for key \(key)")
-        }
         content[wrapped] = value
     }
     

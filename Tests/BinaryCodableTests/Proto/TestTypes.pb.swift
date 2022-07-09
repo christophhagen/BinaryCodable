@@ -183,6 +183,20 @@ struct PrimitiveTypesContainer {
   init() {}
 }
 
+struct FieldNumberTest {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var low: Bool = false
+
+  var high: Bool = false
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 #if swift(>=5.5) && canImport(_Concurrency)
 extension SimpleStruct: @unchecked Sendable {}
 extension WrappedContainer: @unchecked Sendable {}
@@ -190,6 +204,7 @@ extension Outer: @unchecked Sendable {}
 extension Outer2: @unchecked Sendable {}
 extension MapContainer: @unchecked Sendable {}
 extension PrimitiveTypesContainer: @unchecked Sendable {}
+extension FieldNumberTest: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -529,6 +544,44 @@ extension PrimitiveTypesContainer: SwiftProtobuf.Message, SwiftProtobuf._Message
     if lhs.boolValue != rhs.boolValue {return false}
     if lhs.stringValue != rhs.stringValue {return false}
     if lhs.dataValue != rhs.dataValue {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension FieldNumberTest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "FieldNumberTest"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "low"),
+    536870911: .same(proto: "high"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularBoolField(value: &self.low) }()
+      case 536870911: try { try decoder.decodeSingularBoolField(value: &self.high) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.low != false {
+      try visitor.visitSingularBoolField(value: self.low, fieldNumber: 1)
+    }
+    if self.high != false {
+      try visitor.visitSingularBoolField(value: self.high, fieldNumber: 536870911)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: FieldNumberTest, rhs: FieldNumberTest) -> Bool {
+    if lhs.low != rhs.low {return false}
+    if lhs.high != rhs.high {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

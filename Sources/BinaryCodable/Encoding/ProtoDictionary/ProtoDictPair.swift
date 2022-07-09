@@ -10,8 +10,8 @@ struct ProtoDictPair {
 extension ProtoDictPair: NonNilEncodingContainer {
 
     var data: Data {
-        key.encodeWithKey(IntKeyWrapper(value: 1))
-        + value.encodeWithKey(IntKeyWrapper(value: 2))
+        key.encodeWithKey(try! IntKeyWrapper(value: 1))
+        + value.encodeWithKey(try! IntKeyWrapper(value: 2))
     }
 
     var dataType: DataType {

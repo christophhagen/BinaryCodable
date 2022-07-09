@@ -103,3 +103,10 @@ message PrimitiveTypesContainer {
     // Swift equivalent: `Data`
     bytes dataValue = 15;
 }
+
+message FieldNumberTest {
+
+    bool low = 1;
+
+    bool high = 0x1FFFFFFF;
+}
