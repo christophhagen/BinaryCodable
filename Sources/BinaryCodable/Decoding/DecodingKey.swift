@@ -37,7 +37,9 @@ enum DecodingKey {
     static func decodeProto(from decoder: DataDecoder) throws -> (key: DecodingKey, dataType: DataType) {
         let raw = try decoder.getVarint()
         let dataType = try DataType(decodeFrom: raw)
-        let key = DecodingKey.intKey(raw >> 3)
+        let fieldNumber = raw >> 3
+        try IntKeyWrapper.checkFieldBounds(fieldNumber)
+        let key = DecodingKey.intKey(fieldNumber)
         return (key, dataType)
     }
 }

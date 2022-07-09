@@ -13,11 +13,15 @@ struct IntKeyWrapper: CodingKeyWrapper {
 
     private let intValue: Int
 
-    init(value: Int) throws {
-        guard value >= protoFieldLowerBound && value <= protoFieldUpperBound else {
+    static func checkFieldBounds(_ field: Int) throws {
+        if field < protoFieldLowerBound || field > protoFieldUpperBound {
             throw BinaryEncodingError.notProtobufCompatible(
                 "Field numbers must be positive integers not greater than 536870911 (0x1FFFFFFF)")
         }
+    }
+
+    init(value: Int) throws {
+        try IntKeyWrapper.checkFieldBounds(value)
         self.intValue = value
     }
 
