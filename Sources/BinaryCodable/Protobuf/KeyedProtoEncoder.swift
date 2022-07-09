@@ -16,13 +16,13 @@ final class KeyedProtoEncoder<Key>: AbstractProtoNode, KeyedEncodingContainerPro
     }
     
     func encodeNil(forKey key: Key) throws {
-        throw BinaryEncodingError.nilValuesNotSupported
+        throw ProtobufEncodingError.nilValuesNotSupported
     }
     
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             guard let protoPrimitive = primitive as? ProtobufEncodable else {
-                throw BinaryEncodingError.unsupportedType(primitive)
+                throw ProtobufEncodingError.unsupported(type: primitive)
             }
             try assign(to: key) {
                 try ProtoPrimitive(primitive: protoPrimitive)
@@ -68,7 +68,7 @@ extension KeyedProtoEncoder: ProtoContainer {
             .sorted { $0.key < $1.key }
             .map { key, value -> String in
                 guard let field = key.intValue else {
-                    throw BinaryEncodingError.notProtobufCompatible("No integer key for field '\(key.stringValue)'")
+                    throw ProtobufEncodingError.missingIntegerKey(key.stringValue)
                 }
                 // TODO: Add additional message definitions
                 // The protobuf description needs to print also nested messages

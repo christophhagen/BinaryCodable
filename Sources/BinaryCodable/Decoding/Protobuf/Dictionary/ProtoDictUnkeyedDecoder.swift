@@ -13,14 +13,14 @@ final class ProtoDictUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContai
 
             let (keyField, keyDataType) = try DecodingKey.decodeProto(from: pairDecoder)
             guard case .intKey(1) = keyField else {
-                throw BinaryDecodingError.unexpectedDictionaryKey
+                throw ProtobufDecodingError.unexpectedDictionaryKey
             }
             let keyData = try pairDecoder.getData(for: keyDataType)
             elements.append((dataType: keyDataType, data: keyData))
 
             let (valueField, valueDataType) = try DecodingKey.decodeProto(from: pairDecoder)
             guard case .intKey(2) = valueField else {
-                throw BinaryDecodingError.unexpectedDictionaryKey
+                throw ProtobufDecodingError.unexpectedDictionaryKey
             }
             let valueData = try pairDecoder.getData(for: valueDataType)
             elements.append((dataType: valueDataType, data: valueData))
@@ -50,7 +50,7 @@ final class ProtoDictUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContai
     private func getCurrentElementVariableLengthData() throws -> Data {
         let element = currentElement
         guard element.dataType == .variableLength else {
-            throw BinaryDecodingError.unexpectedDictionaryKey
+            throw ProtobufDecodingError.unexpectedDictionaryKey
         }
         return element.data
     }
@@ -60,12 +60,12 @@ final class ProtoDictUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContai
         if let Primitive = type as? DecodablePrimitive.Type {
             let element = currentElement
             guard element.dataType == Primitive.dataType else {
-                throw BinaryDecodingError.unexpectedDictionaryKey
+                throw ProtobufDecodingError.unexpectedDictionaryKey
             }
             if let ProtoType = type as? ProtobufDecodable.Type {
                 return try ProtoType.init(fromProtobuf: element.data) as! T
             }
-            throw BinaryDecodingError.unsupportedType(type)
+            throw ProtobufDecodingError.unsupported(type: type)
         }
         let decoder = DataDecoder(data: try getCurrentElementVariableLengthData())
         let node = ProtoDecodingNode(decoder: decoder, path: codingPath, info: userInfo)
@@ -86,6 +86,6 @@ final class ProtoDictUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContai
     }
 
     func superDecoder() throws -> Decoder {
-        throw BinaryDecodingError.superNotSupported
+        throw ProtobufDecodingError.superNotSupported
     }
 }

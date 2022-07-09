@@ -10,7 +10,7 @@ final class ProtoDictKeyedDecoder<Key>: ProtoKeyedDecoder<Key> where Key: Coding
             let pairDecoder = DataDecoder(data: pairData)
             let (keyField, keyDataType) = try DecodingKey.decodeProto(from: pairDecoder)
             guard case .intKey(1) = keyField else {
-                throw BinaryDecodingError.unexpectedDictionaryKey
+                throw ProtobufDecodingError.unexpectedDictionaryKey
             }
             let keyData = try pairDecoder.getData(for: keyDataType)
             let key: DecodingKey
@@ -22,12 +22,12 @@ final class ProtoDictKeyedDecoder<Key>: ProtoKeyedDecoder<Key> where Key: Coding
                 let value = try String(decodeFrom: keyData)
                 key = .stringKey(value)
             default:
-                throw BinaryDecodingError.unexpectedDictionaryKey
+                throw ProtobufDecodingError.unexpectedDictionaryKey
             }
 
             let (valueField, valueDataType) = try DecodingKey.decodeProto(from: pairDecoder)
             guard case .intKey(2) = valueField else {
-                throw BinaryDecodingError.unexpectedDictionaryKey
+                throw ProtobufDecodingError.unexpectedDictionaryKey
             }
             let valueData = try pairDecoder.getData(for: valueDataType)
             guard content[key] != nil else {

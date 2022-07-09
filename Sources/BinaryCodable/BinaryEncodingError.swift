@@ -15,13 +15,6 @@ public enum BinaryEncodingError: Error {
     case stringEncodingFailed(String)
 
     /**
-     Attempted to encode a data type not compatible with Google's Protocol Buffers.
-
-     The associated value of the error is a textual description of the unsupported feature.
-     */
-    case notProtobufCompatible(String)
-
-    /**
      A procedural error occuring during encoding.
 
      A custom implementation of `func encode(to encoder: Encoder) throws` tried to encode multiple values into a single value container:
@@ -35,21 +28,6 @@ public enum BinaryEncodingError: Error {
      ```
      */
     case multipleValuesInSingleValueContainer
-}
-
-extension BinaryEncodingError {
-
-    static var nilValuesNotSupported: BinaryEncodingError {
-        .notProtobufCompatible("Nil values are not supported")
-    }
-
-    static func unsupportedType(_ value: EncodablePrimitive) -> BinaryEncodingError {
-        .notProtobufCompatible("\(type(of: value)) values are not supported")
-    }
-
-    static var superNotSupported: BinaryEncodingError {
-        .notProtobufCompatible("Encoding super is not supported")
-    }
 }
 
 extension BinaryEncodingError: Equatable {

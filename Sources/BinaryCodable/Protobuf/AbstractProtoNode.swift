@@ -8,7 +8,7 @@ class AbstractProtoNode {
 
     let encodedType: String
 
-    var incompatibilityReason: String?
+    var encodingError: Error?
 
     var isRoot: Bool {
         codingPath.isEmpty

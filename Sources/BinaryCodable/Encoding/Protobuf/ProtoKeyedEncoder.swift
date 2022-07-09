@@ -14,7 +14,8 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
     }
 
     func encodeNil(forKey key: Key) throws {
-        throw BinaryEncodingError.nilValuesNotSupported    }
+        throw ProtobufEncodingError.nilValuesNotSupported
+    }
 
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         let container: NonNilEncodingContainer
@@ -35,12 +36,11 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
             assign(container, to: wrapped)
             return KeyedEncodingContainer(container)
         } catch {
-            let container = ProtoKeyedThrowingEncoder<NestedKey>(error: error as! BinaryEncodingError,
+            let container = ProtoKeyedThrowingEncoder<NestedKey>(error: error as! ProtobufEncodingError,
                                                                  path: codingPath + [key],
                                                                  info: userInfo)
             return KeyedEncodingContainer(container)
         }
-
     }
 
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
@@ -50,7 +50,10 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
             assign(container, to: wrapped)
             return container
         } catch {
-            let container = ProtoUnkeyedThrowingEncoder(error: error as! BinaryEncodingError, path: codingPath, info: userInfo)
+            let container = ProtoUnkeyedThrowingEncoder(
+                error: error as! ProtobufEncodingError,
+                path: codingPath,
+                info: userInfo)
             return container
         }
     }

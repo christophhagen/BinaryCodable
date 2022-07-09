@@ -31,7 +31,7 @@ final class ProtoUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer 
             if let ProtoType = type as? ProtobufDecodable.Type {
                 return try ProtoType.init(fromProtobuf: data) as! T
             }
-            throw BinaryDecodingError.unsupportedType(type)
+            throw ProtobufDecodingError.unsupported(type: type)
         }
         let node = ProtoDecodingNode(decoder: decoder, path: codingPath, info: userInfo)
         return try T.init(from: node)

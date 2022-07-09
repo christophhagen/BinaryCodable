@@ -13,10 +13,10 @@ struct EncodedPrimitive: EncodingContainer {
 
     init(protobuf: EncodablePrimitive, excludeDefaults: Bool = false) throws {
         guard protobuf.dataType.isProtobufCompatible else {
-            throw BinaryEncodingError.unsupportedType(protobuf)
+            throw ProtobufEncodingError.unsupported(type: protobuf)
         }
         guard let value = protobuf as? ProtobufEncodable else {
-            throw BinaryEncodingError.unsupportedType(protobuf)
+            throw ProtobufEncodingError.unsupported(type: protobuf)
         }
         if excludeDefaults && value.isZero {
             self.data = .empty

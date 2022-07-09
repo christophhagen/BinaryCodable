@@ -10,7 +10,7 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
     }
 
     func encodeNil(forKey key: Key) throws {
-        throw BinaryEncodingError.nilValuesNotSupported
+        throw ProtobufEncodingError.nilValuesNotSupported
     }
 
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
@@ -31,7 +31,10 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
             assign(container, to: wrapped)
             return KeyedEncodingContainer(container)
         } catch {
-            let container = ProtoKeyedThrowingEncoder<NestedKey>(error: error as! BinaryEncodingError, path: codingPath, info: userInfo)
+            let container = ProtoKeyedThrowingEncoder<NestedKey>(
+                error: error as! ProtobufEncodingError,
+                path: codingPath,
+                info: userInfo)
             return KeyedEncodingContainer(container)
         }
     }
@@ -43,7 +46,10 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
             assign(container, to: wrapped)
             return container
         } catch {
-            let container = ProtoUnkeyedThrowingEncoder(error: error as! BinaryEncodingError, path: codingPath, info: userInfo)
+            let container = ProtoUnkeyedThrowingEncoder(
+                error: error as! ProtobufEncodingError,
+                path: codingPath,
+                info: userInfo)
             return container
         }
     }

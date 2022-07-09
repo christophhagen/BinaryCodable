@@ -74,7 +74,7 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
                     return ProtoType.zero as! T
                 }
             }
-            throw BinaryDecodingError.unsupportedType(type)
+            throw ProtobufDecodingError.unsupported(type: type)
         } else if type is AnyDictionary.Type {
             let node = ProtoDictDecodingNode(data: data ?? Data(), path: codingPath, info: userInfo)
             return try T.init(from: node)
@@ -95,10 +95,10 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
     }
 
     func superDecoder() throws -> Decoder {
-        throw BinaryDecodingError.superNotSupported
+        throw ProtobufDecodingError.superNotSupported
     }
 
     func superDecoder(forKey key: Key) throws -> Decoder {
-        throw BinaryDecodingError.superNotSupported
+        throw ProtobufDecodingError.superNotSupported
     }
 }

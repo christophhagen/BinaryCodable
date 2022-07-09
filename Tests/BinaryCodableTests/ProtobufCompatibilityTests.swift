@@ -301,7 +301,7 @@ final class ProtobufCompatibilityTests: XCTestCase {
         do {
             let encoder = ProtobufEncoder()
             _ = try encoder.encode(codable2)
-        } catch BinaryCodable.BinaryEncodingError.notProtobufCompatible {
+        } catch ProtobufEncodingError.integerKeyOutOfRange {
 
         }
 
@@ -318,7 +318,7 @@ final class ProtobufCompatibilityTests: XCTestCase {
         do {
             let encoder = ProtobufEncoder()
             _ = try encoder.encode(codable3)
-        } catch BinaryCodable.BinaryEncodingError.notProtobufCompatible {
+        } catch ProtobufEncodingError.integerKeyOutOfRange {
 
         }
     }

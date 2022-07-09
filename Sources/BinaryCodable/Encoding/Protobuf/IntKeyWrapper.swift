@@ -15,8 +15,7 @@ struct IntKeyWrapper: CodingKeyWrapper {
 
     static func checkFieldBounds(_ field: Int) throws {
         if field < protoFieldLowerBound || field > protoFieldUpperBound {
-            throw BinaryEncodingError.notProtobufCompatible(
-                "Field numbers must be positive integers not greater than 536870911 (0x1FFFFFFF)")
+            throw ProtobufEncodingError.integerKeyOutOfRange(field)
         }
     }
 
@@ -27,7 +26,7 @@ struct IntKeyWrapper: CodingKeyWrapper {
 
     init(_ key: CodingKey) throws {
         guard let value = key.intValue else {
-            throw BinaryEncodingError.notProtobufCompatible("Int key required")
+            throw ProtobufEncodingError.missingIntegerKey(key.stringValue)
         }
         try self.init(value: value)
     }

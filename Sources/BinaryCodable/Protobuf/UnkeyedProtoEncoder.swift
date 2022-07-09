@@ -12,20 +12,20 @@ final class UnkeyedProtoEncoder: AbstractProtoNode, UnkeyedEncodingContainer {
     private func assign<T>(_ encoded: () throws -> T) rethrows -> T where T: ProtoContainer {
         let value = try encoded()
         if let existingType = content.first?.protoTypeName, existingType != value.protoTypeName {
-            incompatibilityReason = "All values in unkeyed containers must be of the same type"
+            encodingError = ProtobufEncodingError.multipleTypesInUnkeyedContainer
         }
         content.append(value)
         return value
     }
     
     func encodeNil() throws {
-        throw BinaryEncodingError.nilValuesNotSupported
+        throw ProtobufEncodingError.nilValuesNotSupported
     }
     
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             guard let protoPrimitive = primitive as? ProtobufEncodable else {
-                throw BinaryEncodingError.unsupportedType(primitive)
+                throw ProtobufEncodingError.unsupported(type: primitive)
             }
             try assign {
                 try ProtoPrimitive(primitive: protoPrimitive)
@@ -52,8 +52,7 @@ final class UnkeyedProtoEncoder: AbstractProtoNode, UnkeyedEncodingContainer {
     }
     
     func superEncoder() -> Encoder {
-        incompatibilityReason = "Super encoding is not supported"
-        return ProtoNode(encoding: encodedType, path: codingPath, info: userInfo)
+        ProtoThrowingNode(error: .superNotSupported, path: codingPath, info: userInfo)
     }
 }
 
@@ -61,13 +60,13 @@ extension UnkeyedProtoEncoder: ProtoContainer {
 
     func protobufDefinition() throws -> String {
         if isRoot {
-            throw BinaryEncodingError.notProtobufCompatible("Top-level unkeyed values are not supported")
+            throw ProtobufEncodingError.rootIsNotKeyedContainer
         }
-        if let reason = incompatibilityReason {
-            throw BinaryEncodingError.notProtobufCompatible(reason)
+        if let error = encodingError {
+            throw error
         }
         guard let def = try content.first?.protobufDefinition() else {
-            throw BinaryEncodingError.notProtobufCompatible("No value in unkeyed container to determine type")
+            throw ProtobufEncodingError.protobufDefinitionUnavailable("No value in unkeyed container to determine type")
         }
         return def
     }

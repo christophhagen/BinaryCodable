@@ -39,7 +39,7 @@ public final class ProtobufDecoder {
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance
      - Returns: The decoded instance
-     - Throws: Errors of type `BinaryDecodingError`
+     - Throws: Errors of type `BinaryDecodingError` or `ProtobufDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         let root = ProtoDecodingNode(data: data, top: true, path: [], info: userInfo)
@@ -51,7 +51,7 @@ public final class ProtobufDecoder {
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance
      - Returns: The decoded instance
-     - Throws: Errors of type `BinaryDecodingError`
+     - Throws: Errors of type `BinaryDecodingError` or `ProtobufDecodingError`
      */
     public static func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         try ProtobufDecoder().decode(type, from: data)

@@ -7,7 +7,7 @@ final class ProtoNode: AbstractProtoNode, Encoder {
     private func wrap<T>(container: () -> T) -> T where T: ProtoContainer {
         let value = container()
         guard self.container == nil else {
-            incompatibilityReason = "Multiple calls to `container<>(keyedBy:)`, `unkeyedContainer()`, or `singleValueContainer()` for an encoder"
+            encodingError = ProtobufEncodingError.multipleContainersAccessed
             return value
         }
         self.container = value
@@ -36,11 +36,11 @@ final class ProtoNode: AbstractProtoNode, Encoder {
 extension ProtoNode: ProtoContainer {
 
     func protobufDefinition() throws -> String {
-        if let reason = incompatibilityReason {
-            throw BinaryEncodingError.notProtobufCompatible(reason)
+        if let error = encodingError {
+            throw error
         }
         guard let container = container else {
-            throw BinaryEncodingError.notProtobufCompatible("No calls to `container<>(keyedBy:)`, `unkeyedContainer()`, or `singleValueContainer()` for an encoder")
+            throw ProtobufEncodingError.noContainersAccessed
         }
         return try container.protobufDefinition()
     }

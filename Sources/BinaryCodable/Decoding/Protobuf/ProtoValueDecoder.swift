@@ -31,6 +31,6 @@ final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContaine
         if let ProtoType = Primitive as? ProtobufDecodable.Type {
             return try ProtoType.init(fromProtobuf: data) as! T
         }
-        throw BinaryDecodingError.unsupportedType(type)
+        throw ProtobufDecodingError.unsupported(type: type)
     }
 }

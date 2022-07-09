@@ -5,12 +5,12 @@ final class ValueProtoEncoder: AbstractProtoNode, SingleValueEncodingContainer {
     private var container: ProtoContainer?
     
     func encodeNil() throws {
-        throw BinaryEncodingError.nilValuesNotSupported
+        throw ProtobufEncodingError.nilValuesNotSupported
     }
     
     private func assign(_ encoded: () throws -> ProtoContainer?) rethrows {
         guard container == nil else {
-            incompatibilityReason = "Multiple values encoded into single value container"
+            encodingError = BinaryEncodingError.multipleValuesInSingleValueContainer
             return
         }
         container = try encoded()
@@ -19,7 +19,7 @@ final class ValueProtoEncoder: AbstractProtoNode, SingleValueEncodingContainer {
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             guard let protoPrimitive = primitive as? ProtobufEncodable else {
-                throw BinaryEncodingError.unsupportedType(primitive)
+                throw ProtobufEncodingError.unsupported(type: primitive)
             }
             try assign {
                 try ProtoPrimitive(primitive: protoPrimitive)
@@ -36,10 +36,10 @@ extension ValueProtoEncoder: ProtoContainer {
 
     func protobufDefinition() throws -> String {
         if isRoot {
-            throw BinaryEncodingError.notProtobufCompatible("Single values are not supported")
+            throw ProtobufEncodingError.rootIsNotKeyedContainer
         }
         guard let container = container else {
-            throw BinaryEncodingError.notProtobufCompatible("No value encoded into single value container")
+            throw ProtobufEncodingError.noValueInSingleValueContainer
         }
         return try container.protobufDefinition()
     }

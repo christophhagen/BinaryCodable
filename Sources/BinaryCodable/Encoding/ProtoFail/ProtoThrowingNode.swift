@@ -7,13 +7,9 @@ import Foundation
  */
 class ProtoThrowingNode: AbstractEncodingNode, Encoder {
 
-    let error: BinaryEncodingError
+    let error: ProtobufEncodingError
 
-    convenience init(reason: String, path: [CodingKey], info: UserInfo) {
-        self.init(error: .notProtobufCompatible(reason), path: path, info: info)
-    }
-
-    init(error: BinaryEncodingError, path: [CodingKey], info: UserInfo) {
+    init(error: ProtobufEncodingError, path: [CodingKey], info: UserInfo) {
         self.error = error
         super.init(path: path, info: info)
     }

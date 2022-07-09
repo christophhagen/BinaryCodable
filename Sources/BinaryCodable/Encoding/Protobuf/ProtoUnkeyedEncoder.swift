@@ -16,7 +16,7 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
     }
 
     func encodeNil() throws {
-        throw BinaryEncodingError.nilValuesNotSupported
+        throw ProtobufEncodingError.nilValuesNotSupported
     }
 
     func encode<T>(_ value: T) throws where T : Encodable {
@@ -31,7 +31,7 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
             // write a custom encoding routine, so they would probably know that this breaks
             // Protobuf support.
             if let first = content.first, first.dataType != primitive.dataType {
-                throw BinaryEncodingError.notProtobufCompatible("All values in unkeyed containers must have the same type")
+                throw ProtobufEncodingError.multipleTypesInUnkeyedContainer
             }
 
             try assign {

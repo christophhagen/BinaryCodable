@@ -24,7 +24,7 @@ public final class ProtobufEncoder {
 
     /**
      Create a new binary encoder.
-     - Note: An ecoder can be used to encode multiple messages.
+     - Note: An encoder can be used to encode multiple messages.
      */
     public init() {
 
@@ -34,7 +34,7 @@ public final class ProtobufEncoder {
      Encode a value to binary data.
      - Parameter value: The value to encode
      - Returns: The encoded data
-     - Throws: Errors of type `BinaryEncodingError`
+     - Throws: Errors of type `BinaryEncodingError` or `ProtobufEncodingError`
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
         let root = ProtoEncodingNode(path: [], info: userInfo)
@@ -46,7 +46,7 @@ public final class ProtobufEncoder {
      Encode a single value to binary data using a default encoder.
      - Parameter value: The value to encode
      - Returns: The encoded data
-     - Throws: Errors of type `BinaryEncodingError`
+     - Throws: Errors of type `BinaryEncodingError` or `ProtobufEncodingError`
      */
     public static func encode<T>(_ value: T) throws -> Data where T: Encodable {
         try ProtobufEncoder().encode(value)

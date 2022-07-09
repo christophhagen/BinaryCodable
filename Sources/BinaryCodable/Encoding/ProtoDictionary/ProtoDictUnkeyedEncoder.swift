@@ -6,7 +6,7 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
         content.count
     }
 
-    private var content = [NonNilEncodingContainer]()
+    private var content = [ProtoDictPair]()
 
     private var key: NonNilEncodingContainer?
 
@@ -21,18 +21,21 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
     }
 
     func encodeNil() throws {
-        throw BinaryEncodingError.nilValuesNotSupported
+        throw ProtobufEncodingError.nilValuesNotSupported
     }
 
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             // Ensure that only same-type values are encoded
-//            if forceProtobufCompatibility {
-//                #warning("Improve detection of same types")
-//                if let first = content.first, first.dataType != primitive.dataType {
-//                    throw BinaryEncodingError.notProtobufCompatible("All values in unkeyed containers must have the same type")
-//                }
-//            }
+            if let first = content.first {
+                if key == nil && first.key.dataType != primitive.dataType {
+                    throw ProtobufEncodingError.multipleTypesInUnkeyedContainer
+                }
+                if key != nil && first.value.dataType != primitive.dataType {
+                    throw ProtobufEncodingError.multipleTypesInUnkeyedContainer
+                }
+            }
+
             let node = try EncodedPrimitive(protobuf: primitive)
             assign(node)
             return
@@ -42,16 +45,13 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        let container = ProtoKeyedThrowingEncoder<NestedKey>(
-            reason: "Nested containers not supported for dictionaries",
-            path: codingPath, info: userInfo)
-        return KeyedEncodingContainer(container)
+        // Should never happen, since this container type is only used for dictionaries
+        fatalError()
     }
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        ProtoUnkeyedThrowingEncoder(
-            reason: "Nested containers not supported for dictionaries",
-            path: codingPath, info: userInfo)
+        // Should never happen, since this container type is only used for dictionaries
+        fatalError()
     }
 
     func superEncoder() -> Encoder {

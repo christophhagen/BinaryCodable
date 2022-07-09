@@ -7,7 +7,7 @@ final class ProtobufDescriptionTests: XCTestCase {
         do {
             let definition = try ProtobufEncoder().getProtobufDefinition(value)
             XCTFail("Created invalid definition for \(type(of: value)): \(definition)")
-        } catch BinaryEncodingError.notProtobufCompatible {
+        } catch is ProtobufEncodingError {
 
         } catch {
             XCTFail("Failed protobuf definition for \(type(of: value)) with error: \(error)")
