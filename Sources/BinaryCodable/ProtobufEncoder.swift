@@ -20,6 +20,14 @@ import Foundation
  */
 public final class ProtobufEncoder {
 
+    /**
+     Any contextual information set by the user for encoding.
+
+     This dictionary is passed to all containers during the encoding process.
+
+     Contains also keys for any custom options set for the encoder.
+     See `sortKeysDuringEncoding`.
+     */
     public var userInfo = [CodingUserInfoKey : Any]()
 
     /**

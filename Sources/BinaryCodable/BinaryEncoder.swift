@@ -20,18 +20,35 @@ public final class BinaryEncoder {
      Sort keyed data in the binary representation.
 
      Enabling this option causes all keyed data (e.g. `Dictionary`, `Struct`) to be sorted by their keys before encoding.
-     This enables deterministic encoding where the binary output is consistent across multiple invocations.
+     This option can enable deterministic encoding where the binary output is consistent across multiple invocations.
+
+     - Warning: Output will not be deterministic when using `Set`, or `Dictionary<Key, Value>` where `Key` is not `String` or `Int`.
 
      Enabling this option introduces computational overhead due to sorting, which can become significant when dealing with many entries.
 
      This option has no impact on decoding using `BinaryDecoder`.
 
+     Enabling this option will add the `CodingUserInfoKey(rawValue: "sort")` to the `userInfo` dictionary.
+
      - Note: The default value for this option is `false`.
      */
     public var sortKeysDuringEncoding: Bool = false
 
+    /**
+     Any contextual information set by the user for encoding.
+
+     This dictionary is passed to all containers during the encoding process.
+
+     Contains also keys for any custom options set for the encoder.
+     See `sortKeysDuringEncoding`.
+     */
     public var userInfo = [CodingUserInfoKey : Any]()
 
+    /**
+     The info for encoding.
+
+     Combines the info data provided by the user with the internal keys of the encoding options.
+     */
     private var fullInfo: [CodingUserInfoKey : Any] {
         var info = userInfo
         if sortKeysDuringEncoding {
@@ -42,7 +59,7 @@ public final class BinaryEncoder {
     
     /**
      Create a new binary encoder.
-     - Note: An ecoder can be used to encode multiple messages.
+     - Note: An encoder can be used to encode multiple messages.
      */
     public init() {
         

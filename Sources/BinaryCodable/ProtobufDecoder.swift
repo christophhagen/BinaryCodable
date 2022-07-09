@@ -24,6 +24,11 @@ import Foundation
  */
 public final class ProtobufDecoder {
 
+    /**
+     Any contextual information set by the user for decoding.
+
+     This dictionary is passed to all containers during the decoding process.
+     */
     public var userInfo = [CodingUserInfoKey : Any]()
 
     /**
