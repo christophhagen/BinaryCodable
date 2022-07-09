@@ -18,7 +18,7 @@ final class ProtoValueEncoder: AbstractEncodingNode, SingleValueEncodingContaine
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             try assign {
-                try EncodedPrimitive(protobuf: primitive)
+                try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
             }
             return
         }

@@ -110,3 +110,12 @@ message FieldNumberTest {
 
     bool high = 0x1FFFFFFF;
 }
+
+message EnumContainer {
+
+    enum Selection {
+          DEFAULT = 0;
+          ONE = 1;
+      }
+      Selection selection = 1;
+}

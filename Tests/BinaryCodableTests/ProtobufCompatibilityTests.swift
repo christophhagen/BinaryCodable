@@ -62,7 +62,6 @@ final class ProtobufCompatibilityTests: XCTestCase {
         let encoder = ProtobufEncoder()
 
         let data = try encoder.encode(value)
-
         do {
             let decoded = try P.init(serializedData: data)
             XCTAssertEqual(decoded, expected)
@@ -321,5 +320,34 @@ final class ProtobufCompatibilityTests: XCTestCase {
         } catch ProtobufEncodingError.integerKeyOutOfRange {
 
         }
+    }
+
+    func testEnum() throws {
+        struct EnumTest: Codable, Equatable {
+            let selection: Selection
+
+            enum CodingKeys: Int, CodingKey {
+                case selection = 1
+            }
+
+            enum Selection: Int, Codable {
+                case `default` = 0
+                case one = 1
+            }
+        }
+
+        let codable = EnumTest(selection: .one)
+
+        let proto = EnumContainer.with { $0.selection = .one }
+
+        try testCodableToProto(codable, expected: proto)
+        try testProtoToCodable(proto, expected: codable)
+
+        let codable2 = EnumTest(selection: .default)
+
+        let proto2 = EnumContainer.with { $0.selection = .default }
+
+        try testCodableToProto(codable2, expected: proto2)
+        try testProtoToCodable(proto2, expected: codable2)
     }
 }

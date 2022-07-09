@@ -21,16 +21,14 @@ final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContaine
             let node = ProtoDecodingNode(decoder: data, path: codingPath, info: userInfo)
             return try T.init(from: node)
         }
-        let data: Data
-        if Primitive.dataType == .variableLength, isAtTopLevel {
-            data = self.data.getAllData()
-        } else {
-            data = try self.data.getData(for: Primitive.dataType)
-        }
 
-        if let ProtoType = Primitive as? ProtobufDecodable.Type {
-            return try ProtoType.init(fromProtobuf: data) as! T
+        guard let ProtoType = Primitive as? ProtobufDecodable.Type else {
+            throw ProtobufDecodingError.unsupported(type: type)
         }
-        throw ProtobufDecodingError.unsupported(type: type)
+        guard self.data.hasMoreBytes else {
+            return ProtoType.zero as! T
+        }
+        let data = try self.data.getData(for: Primitive.dataType)
+        return try ProtoType.init(fromProtobuf: data) as! T
     }
 }

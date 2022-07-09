@@ -197,6 +197,58 @@ struct FieldNumberTest {
   init() {}
 }
 
+struct EnumContainer {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var selection: EnumContainer.Selection = .default
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  enum Selection: SwiftProtobuf.Enum {
+    typealias RawValue = Int
+    case `default` // = 0
+    case one // = 1
+    case UNRECOGNIZED(Int)
+
+    init() {
+      self = .default
+    }
+
+    init?(rawValue: Int) {
+      switch rawValue {
+      case 0: self = .default
+      case 1: self = .one
+      default: self = .UNRECOGNIZED(rawValue)
+      }
+    }
+
+    var rawValue: Int {
+      switch self {
+      case .default: return 0
+      case .one: return 1
+      case .UNRECOGNIZED(let i): return i
+      }
+    }
+
+  }
+
+  init() {}
+}
+
+#if swift(>=4.2)
+
+extension EnumContainer.Selection: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  static var allCases: [EnumContainer.Selection] = [
+    .default,
+    .one,
+  ]
+}
+
+#endif  // swift(>=4.2)
+
 #if swift(>=5.5) && canImport(_Concurrency)
 extension SimpleStruct: @unchecked Sendable {}
 extension WrappedContainer: @unchecked Sendable {}
@@ -205,6 +257,8 @@ extension Outer2: @unchecked Sendable {}
 extension MapContainer: @unchecked Sendable {}
 extension PrimitiveTypesContainer: @unchecked Sendable {}
 extension FieldNumberTest: @unchecked Sendable {}
+extension EnumContainer: @unchecked Sendable {}
+extension EnumContainer.Selection: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -585,4 +639,43 @@ extension FieldNumberTest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
+}
+
+extension EnumContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "EnumContainer"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "selection"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularEnumField(value: &self.selection) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.selection != .default {
+      try visitor.visitSingularEnumField(value: self.selection, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: EnumContainer, rhs: EnumContainer) -> Bool {
+    if lhs.selection != rhs.selection {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension EnumContainer.Selection: SwiftProtobuf._ProtoNameProviding {
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "DEFAULT"),
+    1: .same(proto: "ONE"),
+  ]
 }
