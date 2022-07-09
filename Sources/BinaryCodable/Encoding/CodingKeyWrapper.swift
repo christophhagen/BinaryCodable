@@ -1,10 +1,30 @@
 import Foundation
 
-/// The largest value (inclusive) for a valid integer coding key
+/**
+ The largest value (inclusive) for a valid integer coding key.
+
+ The value is:
+
+ Hex: `0x07FFFFFFFFFFFFFF`
+
+ Decimal: `576460752303423487`
+
+ Mathmatically: `2^59-1`
+ */
 private let intKeyUpperBound = Int(bitPattern: 0x07FFFFFFFFFFFFFF)
 
-/// The smallest value (inclusive) for a valid integer coding key
-private let intKeyLowerBound = Int(bitPattern: 0x87FFFFFFFFFFFFFF)
+/**
+ The smallest value (inclusive) for a valid integer coding key.
+
+ The value is:
+
+ Hex: `0xF800000000000000`
+
+ Decimal: `-576460752303423488`
+
+ Mathmatically: `-2^59`
+ */
+private let intKeyLowerBound = Int(bitPattern: 0xF800000000000000)
 
 
 protocol CodingKeyWrapper {

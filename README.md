@@ -102,22 +102,29 @@ Unlike JSON (which is human-readable), the binary representation produced by `Bi
 ```swift
 struct Message: Codable {
 
-    enum CodingKeys: Int, CodingKey {
-        case sender = 1
-        case isRead = 2
-        case unreadCount = 3
-    }
-
     var sender: String
     
     var isRead: Bool
     
     var unreadCount: Int
+    
+    // Assign an integer to each property
+    enum CodingKeys: Int, CodingKey {
+        case sender = 1
+        case isRead = 2
+        case unreadCount = 3
+    }
 }
 ```
 The enum must have a raw value of either `Int` or `String`, and the cases must match the property names within the type (it is possible to omit keys for properties which should not be encoded).
 
 Using integer keys can significantly decrease the binary size, especially for long property names. Additionally, integer keys can be useful when intending to store the binary data persistently. Changes to property names can be performed in the code without breaking the decoding of older data (although this can also be achieved with custom `String` keys).
+
+Notes: 
+- Small, positive integer keys produce the smallest binary sizes.
+- The `0` integer key shouldn't be used, since it is also used internally when encoding `super`.
+- Negative values for integer keys are **not** recommended (but possible). Since the keys are encoded as `Varint`, they are very inefficient for negative numbers.
+- The allowed range for integer keys is from `-576460752303423488` (`-2^59`, inclusive) to `576460752303423487` (`2^59-1`, inclusive). Values outside of these bounds will cause a `fatalError` crash.
 
 ### Property wrappers
 
