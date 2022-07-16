@@ -10,7 +10,7 @@ One very popular alternative for binary data are Google's [Protocol Buffers](htt
 
 So if you're looking for a decently efficient binary encoder in a pure Swift project, then `BinaryCodable` may be right for you. Simply make your `struct`s (or classes!) conform to `Codable`, and `BinaryCodable` does the rest!
 
-The [message format](#binary-format) is similar to that of `Protocol Buffers` (with some additions to support more types). It is possible to create [limited compatibility](#protobuf-compatibility) between the two formats to exchange data with systems that don't support Swift.
+The [message format](#binary-format) is similar to that of `Protocol Buffers` (with some additions to support more types). It is possible to create [limited compatibility](#protocol-buffer-compatibility) between the two formats to exchange data with systems that don't support Swift.
 
 ## Installation
 
