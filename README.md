@@ -22,7 +22,7 @@ dependencies: [
     .package(
         name: "BinaryCodable", 
         url: "https://github.com/christophhagen/BinaryCodable", 
-        from: "0.1.0")
+        from: "1.0.0")
 ],
 targets: [
     .target(name: "MyTarget", dependencies: [
