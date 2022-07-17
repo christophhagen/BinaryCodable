@@ -23,7 +23,7 @@ func compare<T>(_ value: T, possibleResults: [[UInt8]]) throws where T: Codable,
     let encoder = BinaryEncoder()
     let data = try encoder.encode(value)
     if !possibleResults.contains(Array(data)) {
-        XCTFail("\(Array(data)) is not one of the provided options")
+        XCTFail("\(Array(data)) is not one of the provided options: \(possibleResults)")
     }
     let decoder = BinaryDecoder()
     let decoded = try decoder.decode(T.self, from: data)

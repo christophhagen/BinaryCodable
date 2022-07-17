@@ -64,12 +64,6 @@ final class StructEncodingTests: XCTestCase {
     }
 
     func testIntegerKeysLowerBound() throws {
-        // 0x87FFFFFFFFFFFFFF  -8646911284551352321 decoded as: 0x07FFFFFFFFFFFFFF (576460752303423487)
-        // 0x8FFFFFFFFFFFFFFF  -8070450532247928833 decoded as: -1
-        // 0xE000000000000000  -2305843009213693952 decoded as: 0
-        // 0xF000000000000000  -1152921504606846976 decoded as: 0
-        // 0xF800000000000000   -576460752303423488 decoded
-        // 0xF7FFFFFFFFFFFFFF   -576460752303423489 decoded as: 576460752303423487
         struct TestLowBound: Codable, Equatable {
             let val: Bool
 
@@ -87,7 +81,6 @@ final class StructEncodingTests: XCTestCase {
     }
 
     func testIntegerKeysHighBound() throws {
-        print(Int(bitPattern: 0x07FFFFFFFFFFFFFF))
         struct TestHighBound: Codable, Equatable {
             let val: Bool
 
