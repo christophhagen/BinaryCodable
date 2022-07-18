@@ -96,4 +96,32 @@ final class StructEncodingTests: XCTestCase {
         ]
         try compare(value, to: expected)
     }
+    
+    func testSortingStructKeys() throws {
+        struct Test: Codable, Equatable {
+            
+            let one: Int
+            
+            let two: String
+            
+            let three: Bool
+            
+            enum CodingKeys: Int, CodingKey {
+                case one = 1
+                case two = 2
+                case three = 3
+            }
+        }
+        
+        let val = Test(one: 123, two: "Some", three: true)
+        try compare(val, to: [
+            0x10, // Int key(1), VarInt
+            246, 1, // Int(123)
+            0x22, // Int key(2), VarLen
+            4, // Length 4
+            83, 111, 109, 101, // String "Some"
+            0x30, // Int key(3), VarInt
+            1, // Bool(true)
+        ], sort: true)
+    }
 }
