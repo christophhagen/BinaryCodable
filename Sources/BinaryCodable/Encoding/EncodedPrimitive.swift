@@ -5,10 +5,13 @@ struct EncodedPrimitive: EncodingContainer {
     let dataType: DataType
 
     let data: Data
+    
+    let isEmpty: Bool
 
     init(primitive: EncodablePrimitive) throws {
         self.dataType = primitive.dataType
         self.data = try primitive.data()
+        self.isEmpty = false
     }
 
     init(protobuf: EncodablePrimitive, excludeDefaults: Bool = false) throws {
@@ -20,13 +23,11 @@ struct EncodedPrimitive: EncodingContainer {
         }
         if excludeDefaults && value.isZero {
             self.data = .empty
+            self.isEmpty = true
         } else {
             self.data = try value.protobufData()
+            self.isEmpty = false
         }
         self.dataType = protobuf.dataType
-    }
-
-    var isEmpty: Bool {
-        data.isEmpty
     }
 }

@@ -23,7 +23,7 @@ final class OneOfAssociatedValuesEncoder<Key>: AbstractEncodingNode, KeyedEncodi
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         let container: NonNilEncodingContainer
         if let primitive = value as? EncodablePrimitive {
-            container = try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
+            container = try EncodedPrimitive(protobuf: primitive, excludeDefaults: false)
         } else if value is AnyDictionary {
             container = try ProtoDictEncodingNode(path: codingPath, info: userInfo).encoding(value)
         } else {
