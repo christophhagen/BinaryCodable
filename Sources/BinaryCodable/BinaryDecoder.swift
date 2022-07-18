@@ -46,7 +46,11 @@ public final class BinaryDecoder {
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         let root = DecodingNode(data: data, top: true, path: [], info: userInfo)
-        return try type.init(from: root)
+        do {
+            return try type.init(from: root)
+        } catch {
+            throw BinaryDecodingError(wrapping: error)
+        }
     }
 
     /**

@@ -46,4 +46,71 @@ public enum BinaryDecodingError: Error {
      The binary data contains multiple values for a key.
      */
     case multipleValuesForKey
+    
+    /**
+     An indication that the data is corrupted or otherwise invalid.
+     
+     As an associated value, this case contains the context for debugging.
+     
+     This error can occur when an unknown enum value was decoded.
+     - Note: This error case mirrors `DecodingError.dataCorrupted()`
+     */
+    case dataCorrupted(DecodingError.Context)
+    
+    /**
+     An indication that a value of the given type could not be decoded because it did not match the type of what was found in the encoded payload.
+     
+     As associated values, this case contains the attempted type and context for debugging.
+     - Note: This error case mirrors `DecodingError.typeMismatch()`
+     */
+    case typeMismatch(Any.Type, DecodingError.Context)
+    
+    /**
+     An indication that a non-optional value of the given type was expected, but a null value was found.
+     
+     - Note: This error case mirrors `DecodingError.valueNotFound()`
+     */
+    case valueNotFound(Any.Type, DecodingError.Context)
+    
+    /**
+     An unexpected and unknown error occured during decoding.
+     */
+    case unknownError(Error)
+}
+
+extension BinaryDecodingError {
+    
+    /**
+     Internal initializer to convert decoding errors to binary decoding errors.
+     - Parameter error: The error to wrap.
+     */
+    init(_ error: DecodingError) {
+        switch error {
+        case .dataCorrupted(let context):
+            self = .dataCorrupted(context)
+        case .typeMismatch(let type, let context):
+            self = .typeMismatch(type, context)
+        case .valueNotFound(let type, let context):
+            self = .valueNotFound(type, context)
+        case .keyNotFound(let key, _):
+            self = .missingDataForKey(key)
+        @unknown default:
+            self = .unknownError(error)
+        }
+    }
+    
+    /**
+     Internal initializer to convert errors to binary decoding errors.
+     - Parameter error: The error to wrap.
+     */
+    init(wrapping error: Error) {
+        switch error {
+        case let error as DecodingError:
+            self.init(error)
+        case let error as BinaryDecodingError:
+            self = error
+        default:
+            self = .unknownError(error)
+        }
+    }
 }
