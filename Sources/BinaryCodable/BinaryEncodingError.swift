@@ -28,8 +28,31 @@ public enum BinaryEncodingError: Error {
      ```
      */
     case multipleValuesInSingleValueContainer
+    
+    case invalidValue(Any, EncodingError.Context)
+    
+    case unknownError(Error)
 }
 
-extension BinaryEncodingError: Equatable {
+extension BinaryEncodingError {
     
+    init(_ error: EncodingError) {
+        switch error {
+        case .invalidValue(let type, let context):
+            self = .invalidValue(type, context)
+        @unknown default:
+            self = .unknownError(error)
+        }
+    }
+    
+    init(wrapping error: Error) {
+        switch error {
+        case let error as EncodingError:
+            self.init(error)
+        case let error as BinaryEncodingError:
+            self = error
+        default:
+            self = .unknownError(error)
+        }
+    }
 }
