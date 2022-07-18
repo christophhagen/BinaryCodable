@@ -71,8 +71,8 @@ public final class BinaryEncoder {
      - Returns: The encoded data
      - Throws: Errors of type `BinaryEncodingError`
      */
-    public func encode<T>(_ value: T) throws -> Data where T: Encodable {
         try value.encode(to: root)
+    public func encode(_ value: Encodable) throws -> Data {
         let root = EncodingNode(path: [], info: fullInfo)
         if root.isNil {
             return Data()
@@ -87,7 +87,7 @@ public final class BinaryEncoder {
      - Returns: The encoded data
      - Throws: Errors of type `BinaryEncodingError`
      */
-    public static func encode<T>(_ value: T) throws -> Data where T: Encodable {
+    public static func encode(_ value: Encodable) throws -> Data {
         try BinaryEncoder().encode(value)
     }
 }
