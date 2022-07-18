@@ -1,8 +1,9 @@
 import XCTest
 import BinaryCodable
 
-func compareEncoding<T>(_ type: T.Type, value: T, to expected: [UInt8]) throws where T: Codable, T: Equatable {
+func compareEncoding<T>(_ type: T.Type, value: T, to expected: [UInt8], sort: Bool = false) throws where T: Codable, T: Equatable {
     let encoder = BinaryEncoder()
+    encoder.sortKeysDuringEncoding = sort
     let data = try encoder.encode(value)
     XCTAssertEqual(Array(data), expected)
 
@@ -11,8 +12,8 @@ func compareEncoding<T>(_ type: T.Type, value: T, to expected: [UInt8]) throws w
     XCTAssertEqual(value, decoded)
 }
 
-func compare<T>(_ value: T, to expected: [UInt8]) throws where T: Codable, T: Equatable {
-    try compareEncoding(T.self, value: value, to: expected)
+func compare<T>(_ value: T, to expected: [UInt8], sort: Bool = false) throws where T: Codable, T: Equatable {
+    try compareEncoding(T.self, value: value, to: expected, sort: sort)
 }
 
 func compareArray<T>(_ type: T.Type, values: [T], to expected: [UInt8]) throws where T: Codable, T: Equatable {
