@@ -352,9 +352,9 @@ final class ProtobufCompatibilityTests: XCTestCase {
     }
     
     func testOneOf() throws {
-        struct Test: Codable {
+        struct Test: Codable, Equatable {
             
-            enum OneOf: Codable, ProtobufOneOf {
+            enum OneOf: Codable, Equatable, ProtobufOneOf {
                 case integer(Int64)
                 case string(String)
                 
@@ -370,15 +370,38 @@ final class ProtobufCompatibilityTests: XCTestCase {
                 case alternatives = 12345 // Doesn't matter, not used
             }
         }
-        let input = Test(alternatives: .integer(123))
-        let data = try ProtobufEncoder.encode(input)
-        let decoded = try OneOfContainer(serializedData: data)
-        XCTAssertEqual(decoded.integer, 123)
         
-        let input2 = Test(alternatives: .string("Some"))
-        let data2 = try ProtobufEncoder.encode(input2)
-        let decoded2 = try OneOfContainer(serializedData: data2)
-        XCTAssertEqual(decoded2.text, "Some")
+        let codable1 = Test(alternatives: .integer(123))
+        let proto1 = OneOfContainer.with {
+            $0.integer = 123
+        }
+        
+        try testCodableToProto(codable1, expected: proto1)
+        try testProtoToCodable(proto1, expected: codable1)
+        
+        let codable2 = Test(alternatives: .string("Some"))
+        let proto2 = OneOfContainer.with {
+            $0.text = "Some"
+        }
+        
+        try testCodableToProto(codable2, expected: proto2)
+        try testProtoToCodable(proto2, expected: codable2)
+        
+        let codable3 = Test(alternatives: .string(""))
+        let proto3 = OneOfContainer.with {
+            $0.text = ""
+        }
+        
+        try testProtoToCodable(proto3, expected: codable3)
+        try testCodableToProto(codable3, expected: proto3)
+        
+        let codable4 = Test(alternatives: .integer(0))
+        let proto4 = OneOfContainer.with {
+            $0.integer = 0
+        }
+        
+        try testCodableToProto(codable4, expected: proto4)
+        try testProtoToCodable(proto4, expected: codable4)
         
     }
 }
