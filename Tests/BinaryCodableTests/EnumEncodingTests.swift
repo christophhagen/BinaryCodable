@@ -188,4 +188,20 @@ final class EnumEncodingTests: XCTestCase {
             123] // UInt(123)
         try compare(Test.five(123, -123), possibleResults: [start + a + b, start + b + a])
     }
+    
+    func testDecodeUnknownCase() throws {
+        enum Test: Int, Codable {
+            case one // No raw value assigns 0
+        }
+        
+        try compare(Test.one, to: [0])
+        
+        let decoder = BinaryDecoder()
+        do {
+            _ = try decoder.decode(Test.self, from: Data([1]))
+            XCTFail("Enum decoding should fail for unknown case")
+        } catch BinaryDecodingError.dataCorrupted(_) {
+            // Correct error
+        }
+    }
 }

@@ -124,4 +124,32 @@ final class StructEncodingTests: XCTestCase {
             1, // Bool(true)
         ], sort: true)
     }
+    
+    func testDecodeDictionaryAsStruct() throws {
+        struct Test: Codable, Equatable {
+            let a: Int
+            let b: Int
+            let c: Int
+        }
+        
+        let input: [String: Int] = ["a" : 123, "b": 0, "c": -123456]
+        let encoded = try BinaryEncoder.encode(input)
+        
+        let decoded: Test = try BinaryDecoder.decode(from: encoded)
+        XCTAssertEqual(decoded, Test(a: 123, b: 0, c: -123456))
+    }
+    
+    func testDecodeStructAsDictionary() throws {
+        struct Test: Codable, Equatable {
+            let a: Int
+            let b: Int
+            let c: Int
+        }
+        
+        let input = Test(a: 123, b: 0, c: -123456)
+        let encoded = try BinaryEncoder.encode(input)
+        
+        let decoded: [String: Int] = try BinaryDecoder.decode(from: encoded)
+        XCTAssertEqual(decoded, ["a" : 123, "b": 0, "c": -123456])
+    }
 }

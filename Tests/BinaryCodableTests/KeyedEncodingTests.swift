@@ -93,6 +93,14 @@ final class KeyedEncodingTests: XCTestCase {
         ], sort: true)
     }
     
+    func testMixedStringIntegerKeyedDictionary() throws {
+        // Strings which can be converted to integers are encoded as such
+        // So the string "0" is actually encoded as Int key(0)
+        let value: [String : UInt8] = ["val": 123, "0": 124]
+        let part1: [UInt8] = [0b00111110, 118, 97, 108, 123] // "Val"
+        let part2: [UInt8] = [0b00000110, 124] // Int key(0), UInt8(123)
+        try compare(value, possibleResults: [part1 + part2, part2 + part1])
+    }
 
     func testIntDictEncoding() throws {
         // Dictionaries with int keys are treated as keyed containers
