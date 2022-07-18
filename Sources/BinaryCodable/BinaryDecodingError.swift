@@ -74,6 +74,8 @@ public enum BinaryDecodingError: Error {
     
     /**
      An unexpected and unknown error occured during decoding.
+     
+     As the associated value, this case contains the original error.
      */
     case unknownError(Error)
 }

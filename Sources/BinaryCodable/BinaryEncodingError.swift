@@ -29,8 +29,19 @@ public enum BinaryEncodingError: Error {
      */
     case multipleValuesInSingleValueContainer
     
+    /**
+     An indication that an encoder or its containers could not encode the given value.
+     
+     As associated values, this case contains the attempted value and context for debugging.
+     - Note: This error case mirrors `EncodingError.invalidValue()`
+     */
     case invalidValue(Any, EncodingError.Context)
     
+    /**
+     An unexpected and unknown error occured during encoding.
+     
+     As the associated value, this case contains the original error.
+     */
     case unknownError(Error)
 }
 
