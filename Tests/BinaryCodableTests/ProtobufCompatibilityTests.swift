@@ -350,4 +350,35 @@ final class ProtobufCompatibilityTests: XCTestCase {
         try testCodableToProto(codable2, expected: proto2)
         try testProtoToCodable(proto2, expected: codable2)
     }
+    
+    func testOneOf() throws {
+        struct Test: Codable {
+            
+            enum OneOf: Codable, ProtobufOneOf {
+                case integer(Int64)
+                case string(String)
+                
+                enum CodingKeys: Int, CodingKey {
+                    case integer = 1
+                    case string = 2
+                }
+            }
+            
+            let alternatives: OneOf
+            
+            enum CodingKeys: Int, CodingKey {
+                case alternatives = 12345 // Doesn't matter, not used
+            }
+        }
+        let input = Test(alternatives: .integer(123))
+        let data = try ProtobufEncoder.encode(input)
+        let decoded = try OneOfContainer(serializedData: data)
+        XCTAssertEqual(decoded.integer, 123)
+        
+        let input2 = Test(alternatives: .string("Some"))
+        let data2 = try ProtobufEncoder.encode(input2)
+        let decoded2 = try OneOfContainer(serializedData: data2)
+        XCTAssertEqual(decoded2.text, "Some")
+        
+    }
 }

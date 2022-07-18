@@ -119,3 +119,11 @@ message EnumContainer {
       }
       Selection selection = 1;
 }
+
+message OneOfContainer {
+    
+    oneof alternatives {
+        int64 integer = 1;
+        string text = 2;
+    }
+}
