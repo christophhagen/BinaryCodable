@@ -1,1 +1,5 @@
 documentation: "{BinaryFormat,ProtobufSupport}.md"
+author: 'Christoph Hagen'
+author_url: 'https://christophhagen.de'
+source_host: 'github'
+source_host_url: 'https://github.com/christophhagen/BinaryCodable'
