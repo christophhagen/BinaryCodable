@@ -78,30 +78,4 @@ final class WrapperEncodingTests: XCTestCase {
         try compare(Test(val: 123), to: [0b00111001, 118, 97, 108,
                                          123, 0, 0, 0, 0, 0, 0, 0])
     }
-
-    func test() throws {
-        let a: UInt16 = 123
-
-        let c1 = a.bigEndian
-        let data = toData(c1)
-        print(Array(data))
-        let c2 = read(data: data, into: UInt16.zero)
-        print(c2)
-        let c3 = UInt16(bigEndian: c2)
-        print(c3)
-    }
-}
-
-
-func read<T>(data: Data, into value: T) -> T {
-    Data(data).withUnsafeBytes {
-        $0.baseAddress!.load(as: T.self)
-    }
-}
-
-func toData<T>(_ value: T) -> Data {
-    var target = value
-    return withUnsafeBytes(of: &target) {
-        Data($0)
-    }
 }
