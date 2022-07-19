@@ -3,7 +3,7 @@ import Foundation
 extension UInt16: EncodablePrimitive {
     
     func data() -> Data {
-        toData(CFSwapInt16HostToLittle(self))
+        toData(littleEndian)
     }
     
     static var dataType: DataType {
@@ -17,6 +17,6 @@ extension UInt16: DecodablePrimitive {
         guard data.count == MemoryLayout<UInt16>.size else {
             throw BinaryDecodingError.invalidDataSize
         }
-        self = read(data: data, into: UInt16.zero)
+        self.init(littleEndian: read(data: data, into: UInt16.zero))
     }
 }

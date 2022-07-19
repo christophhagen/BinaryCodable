@@ -79,12 +79,12 @@ extension Int64: FixedSizeCompatible {
         guard data.count == MemoryLayout<UInt64>.size else {
             throw BinaryDecodingError.invalidDataSize
         }
-        let value = read(data: data, into: UInt64.zero)
-        self.init(bitPattern: CFSwapInt64LittleToHost(value))
+        let value = UInt64(littleEndian: read(data: data, into: UInt64.zero))
+        self.init(bitPattern: value)
     }
 
     public var fixedSizeEncoded: Data {
-        let value = CFSwapInt64HostToLittle(.init(bitPattern: self))
+        let value = UInt64(bitPattern: littleEndian)
         return toData(value)
     }
 }

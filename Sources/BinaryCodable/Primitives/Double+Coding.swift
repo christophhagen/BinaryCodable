@@ -3,7 +3,7 @@ import Foundation
 extension Double: EncodablePrimitive {
     
     func data() -> Data {
-        toData(CFConvertDoubleHostToSwapped(self))
+        toData(bitPattern.bigEndian)
     }
     
     static var dataType: DataType {
@@ -17,8 +17,8 @@ extension Double: DecodablePrimitive {
         guard data.count == MemoryLayout<CFSwappedFloat64>.size else {
             throw BinaryDecodingError.invalidDataSize
         }
-        let value = read(data: data, into: CFSwappedFloat64())
-        self = CFConvertDoubleSwappedToHost(value)
+        let value = UInt64(bigEndian: read(data: data, into: UInt64.zero))
+        self.init(bitPattern: value)
     }
 }
 

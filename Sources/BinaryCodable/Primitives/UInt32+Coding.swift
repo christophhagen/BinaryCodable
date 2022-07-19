@@ -47,12 +47,11 @@ extension UInt32: FixedSizeCompatible {
         guard data.count == MemoryLayout<UInt32>.size else {
             throw BinaryDecodingError.invalidDataSize
         }
-        self = read(data: data, into: UInt32.zero)
+        self.init(littleEndian: read(data: data, into: UInt32.zero))
     }
 
     public var fixedSizeEncoded: Data {
-        let value = CFSwapInt32HostToLittle(self)
-        return toData(value)
+        toData(littleEndian)
     }
 }
 

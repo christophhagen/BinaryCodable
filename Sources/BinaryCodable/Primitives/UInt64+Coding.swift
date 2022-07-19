@@ -94,12 +94,11 @@ extension UInt64: FixedSizeCompatible {
         guard data.count == MemoryLayout<UInt64>.size else {
             throw BinaryDecodingError.invalidDataSize
         }
-        self = read(data: data, into: UInt64.zero)
+        self.init(littleEndian: read(data: data, into: UInt64.zero))
     }
 
     public var fixedSizeEncoded: Data {
-        let value = CFSwapInt64HostToLittle(self)
-        return toData(value)
+        toData(littleEndian)
     }
 }
 
