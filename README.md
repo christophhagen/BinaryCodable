@@ -1,5 +1,7 @@
 # BinaryCodable
 
+[![Tests](https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg)](https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml)
+
 This package provides convenient encoding and decoding to/from binary data for all Swift `Codable` types. It also provides limited cross-compatibility to [Google Protocol Buffers](https://developers.google.com/protocol-buffers).
 
 ## Use cases
