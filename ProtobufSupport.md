@@ -248,3 +248,7 @@ struct ExampleOneOf: Codable {
     }
  }
  ```
+
+Note that the `Alternatives` enum must conform to `ProtobufOneOf`, which changes the encoding to create compatibility with the Protobuf binary format.
+
+**Important** The `ProtobufOneOf` protocol must not be applied to any other types, or encoding/decoding will fail.
