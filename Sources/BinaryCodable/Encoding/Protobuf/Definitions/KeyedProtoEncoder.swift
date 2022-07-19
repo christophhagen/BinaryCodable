@@ -20,6 +20,10 @@ final class KeyedProtoEncoder<Key>: AbstractProtoNode, KeyedEncodingContainerPro
     }
     
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
+        if value is ProtobufOneOf {
+            // TODO: Create oneof protobuf definition
+            throw ProtobufEncodingError.unsupportedType("Oneof definition")
+        }
         if let primitive = value as? EncodablePrimitive {
             guard let protoPrimitive = primitive as? ProtobufEncodable else {
                 throw ProtobufEncodingError.unsupported(type: primitive)

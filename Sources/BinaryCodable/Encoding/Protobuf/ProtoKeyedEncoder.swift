@@ -18,15 +18,18 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
     }
 
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
+        var wrappedKey = try IntKeyWrapper(key)
         let container: NonNilEncodingContainer
-        if let primitive = value as? EncodablePrimitive {
+        if value is ProtobufOneOf {
+            (wrappedKey, container) = try OneOfEncodingNode(path: codingPath, info: userInfo).encoding(value)
+        } else if let primitive = value as? EncodablePrimitive {
             container = try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
         } else if value is AnyDictionary {
             container = try ProtoDictEncodingNode(path: codingPath, info: userInfo).encoding(value)
         } else {
             container = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
         }
-        try assign(container, to: key)
+        assign(container, to: wrappedKey)
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {

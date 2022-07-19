@@ -249,6 +249,58 @@ extension EnumContainer.Selection: CaseIterable {
 
 #endif  // swift(>=4.2)
 
+struct OneOfContainer {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var alternatives: OneOfContainer.OneOf_Alternatives? = nil
+
+  var integer: Int64 {
+    get {
+      if case .integer(let v)? = alternatives {return v}
+      return 0
+    }
+    set {alternatives = .integer(newValue)}
+  }
+
+  var text: String {
+    get {
+      if case .text(let v)? = alternatives {return v}
+      return String()
+    }
+    set {alternatives = .text(newValue)}
+  }
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  enum OneOf_Alternatives: Equatable {
+    case integer(Int64)
+    case text(String)
+
+  #if !swift(>=4.1)
+    static func ==(lhs: OneOfContainer.OneOf_Alternatives, rhs: OneOfContainer.OneOf_Alternatives) -> Bool {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch (lhs, rhs) {
+      case (.integer, .integer): return {
+        guard case .integer(let l) = lhs, case .integer(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.text, .text): return {
+        guard case .text(let l) = lhs, case .text(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      default: return false
+      }
+    }
+  #endif
+  }
+
+  init() {}
+}
+
 #if swift(>=5.5) && canImport(_Concurrency)
 extension SimpleStruct: @unchecked Sendable {}
 extension WrappedContainer: @unchecked Sendable {}
@@ -259,6 +311,8 @@ extension PrimitiveTypesContainer: @unchecked Sendable {}
 extension FieldNumberTest: @unchecked Sendable {}
 extension EnumContainer: @unchecked Sendable {}
 extension EnumContainer.Selection: @unchecked Sendable {}
+extension OneOfContainer: @unchecked Sendable {}
+extension OneOfContainer.OneOf_Alternatives: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -678,4 +732,64 @@ extension EnumContainer.Selection: SwiftProtobuf._ProtoNameProviding {
     0: .same(proto: "DEFAULT"),
     1: .same(proto: "ONE"),
   ]
+}
+
+extension OneOfContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "OneOfContainer"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "integer"),
+    2: .same(proto: "text"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try {
+        var v: Int64?
+        try decoder.decodeSingularInt64Field(value: &v)
+        if let v = v {
+          if self.alternatives != nil {try decoder.handleConflictingOneOf()}
+          self.alternatives = .integer(v)
+        }
+      }()
+      case 2: try {
+        var v: String?
+        try decoder.decodeSingularStringField(value: &v)
+        if let v = v {
+          if self.alternatives != nil {try decoder.handleConflictingOneOf()}
+          self.alternatives = .text(v)
+        }
+      }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    switch self.alternatives {
+    case .integer?: try {
+      guard case .integer(let v)? = self.alternatives else { preconditionFailure() }
+      try visitor.visitSingularInt64Field(value: v, fieldNumber: 1)
+    }()
+    case .text?: try {
+      guard case .text(let v)? = self.alternatives else { preconditionFailure() }
+      try visitor.visitSingularStringField(value: v, fieldNumber: 2)
+    }()
+    case nil: break
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: OneOfContainer, rhs: OneOfContainer) -> Bool {
+    if lhs.alternatives != rhs.alternatives {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
 }

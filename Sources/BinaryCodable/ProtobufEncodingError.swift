@@ -58,6 +58,13 @@ public enum ProtobufEncodingError: Error {
      */
     case rootIsNotKeyedContainer
 
+    /**
+     An unavailable encoding feature was accessed.
+
+     The associated value contains a textual description of the unsupported access.
+     */
+    case invalidAccess(String)
+
     case protobufDefinitionUnavailable(String)
 
     static func unsupported(type value: EncodablePrimitive) -> ProtobufEncodingError {
