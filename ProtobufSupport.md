@@ -90,27 +90,27 @@ The assignment of integer keys follow the same [rules](https://developers.google
 
 There are several [scalar types](https://developers.google.com/protocol-buffers/docs/proto3#scalar) defined for Protocol Buffers, which are the basic building blocks of messages. `BinaryCodable` provides Swift equivalents for each of them:
 
-| Protobuf primitive | Swift equivalent | Comment |
-| :-- | :-- | :-- |
-`double` | `Double` | Always 8 byte
-`float` | `Float` | Always 4 byte
-`int32` | `Int32` | Uses variable-length encoding
-`int64` | `Int64` | Uses variable-length encoding
-`uint32` | `UInt32` | Uses variable-length encoding
-`uint64` | `UInt64` | Uses variable-length encoding
-`sint32` | `SignedInteger<Int32>` | Uses ZigZag encoding, see [`SignedInteger` wrapper](#signed-integers)
-`sint64` | `SignedInteger<Int64>` | Uses ZigZag encoding, see [`SignedInteger` wrapper](#signed-integers)
-`fixed32` | `FixedSize<UInt32>` | See [`FixedSize` wrapper](#fixed-size-integers)
-`fixed64` | `FixedSize<UInt64>` | See [`FixedSize` wrapper](#fixed-size-integers)
-`sfixed32` | `FixedSize<Int32>` | See [`FixedSize` wrapper](#fixed-size-integers)
-`sfixed64` | `FixedSize<Int64>` | See [`FixedSize` wrapper](#fixed-size-integers)
-`bool` | `Bool` | Always 1 byte
-`string` | `String` | Encoded using UTF-8
-`bytes` | `Data` | Encoded as-is
-`message` | `struct` | Nested messages are also supported.
-`repeated`| `Array` | Scalar values must always be `packed` (the proto3 default)
-`enum` | `Enum` | See [Enums](#enums)
-`oneof` | N/A | No `Codable` equivalent available
+| Protobuf primitive | Swift equivalent       | Comment                                                               |
+| :----------------- | :--------------------- | :-------------------------------------------------------------------- |
+| `double`           | `Double`               | Always 8 byte                                                         |
+| `float`            | `Float`                | Always 4 byte                                                         |
+| `int32`            | `Int32`                | Uses variable-length encoding                                         |
+| `int64`            | `Int64`                | Uses variable-length encoding                                         |
+| `uint32`           | `UInt32`               | Uses variable-length encoding                                         |
+| `uint64`           | `UInt64`               | Uses variable-length encoding                                         |
+| `sint32`           | `SignedInteger<Int32>` | Uses ZigZag encoding, see [`SignedInteger` wrapper](#signed-integers) |
+| `sint64`           | `SignedInteger<Int64>` | Uses ZigZag encoding, see [`SignedInteger` wrapper](#signed-integers) |
+| `fixed32`          | `FixedSize<UInt32>`    | See [`FixedSize` wrapper](#fixed-size-integers)                       |
+| `fixed64`          | `FixedSize<UInt64>`    | See [`FixedSize` wrapper](#fixed-size-integers)                       |
+| `sfixed32`         | `FixedSize<Int32>`     | See [`FixedSize` wrapper](#fixed-size-integers)                       |
+| `sfixed64`         | `FixedSize<Int64>`     | See [`FixedSize` wrapper](#fixed-size-integers)                       |
+| `bool`             | `Bool`                 | Always 1 byte                                                         |
+| `string`           | `String`               | Encoded using UTF-8                                                   |
+| `bytes`            | `Data`                 | Encoded as-is                                                         |
+| `message`          | `struct`               | Nested messages are also supported.                                   |
+| `repeated`         | `Array`                | Scalar values must always be `packed` (the proto3 default)            |
+| `enum`             | `Enum`                 | See [Enums](#enums)                                                   |
+| `oneof`            | `Enum`                 | See [OneOf Definition](#oneof)                                        |
 
 The Swift types `Int8`, `UInt8`, `Int16`, and `UInt16` are **not** supported, and will result in an error.
 
@@ -120,12 +120,12 @@ Note: `Int` and `UInt` values are always encoded as 64-bit numbers, despite the 
 
 The Protocol Buffer format provides several different encoding strategies for integers to minimize the binary size depending on the encoded values. By default, all integers are encoded using [Base 128 Varints](https://developers.google.com/protocol-buffers/docs/encoding#varints), but this can be changed using Swift `PropertyWrappers`. The following encoding options exist:
 
-| Swift type | [Varint encoding](https://developers.google.com/protocol-buffers/docs/encoding#varints) | [ZigZag Encoding](https://developers.google.com/protocol-buffers/docs/encoding#signed-ints) | [Fixed-size encoding](https://developers.google.com/protocol-buffers/docs/encoding#non-varint_numbers) |
-| :-- | :-- | :-- | :-- |
-`Int32` | `Int32` | `SignedInteger<Int32>` | `FixedSize<Int32>`
-`Int64` | `Int64` | `SignedInteger<Int64>` | `FixedSize<Int64>`
-`UInt32` | `UInt32` | - | `FixedSize<UInt32>`
-`UInt64` | `UInt64` | - | `FixedSize<UInt64>`
+| Swift type | [Varint encoding](https://developers.google.com/protocol-buffers/docs/encoding#varints) | [ZigZag Encoding](https://developers.google.com/protocol-buffers/docs/encoding#signed-ints) | [Fixed-size encoding](https://developers.google.com/protocol-buffers/docs/encoding#non-varint_numbers) |
+| :--------- | :-------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------- |
+| `Int32`    | `Int32`                                                                                 | `SignedInteger<Int32>`                                                                      | `FixedSize<Int32>`                                                                                     |
+| `Int64`    | `Int64`                                                                                 | `SignedInteger<Int64>`                                                                      | `FixedSize<Int64>`                                                                                     |
+| `UInt32`   | `UInt32`                                                                                | -                                                                                           | `FixedSize<UInt32>`                                                                                    |
+| `UInt64`   | `UInt64`                                                                                | -                                                                                           | `FixedSize<UInt64>`                                                                                    |
 
 #### Fixed size integers
 
@@ -203,3 +203,48 @@ struct SearchRequest: Codable {
 ```
 
 It should be noted that protobuf enums require a default key `0`.
+
+### Oneof
+
+The protobuf feature [Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof) can also be supported using a special enum definition. Given the protobuf definition (from [here](https://github.com/apple/swift-protobuf/blob/main/Documentation/API.md#oneof-fields)):
+
+```proto
+syntax = "proto3";
+message ExampleOneOf {
+   int32 field1 = 1;
+   oneof alternatives {
+       int64 id = 2;
+       string name = 3;
+   }
+}
+```
+
+The corresponding Swift definition would be:
+
+```swift
+struct ExampleOneOf: Codable {
+
+    let field1: Int32
+
+    // The oneof field
+    let alternatives: Alternatives
+ 
+    // The OneOf definition
+    enum Alternatives: Codable, ProtobufOneOf {
+        case id(Int64)
+        case name(String)
+         
+        // Field values, must not overlap with `ExampleOneOf.CodingKeys`
+        enum CodingKeys: Int, CodingKey {
+            case id = 2
+            case name = 3
+        }
+    }
+     
+    enum CodingKeys: Int, CodingKey {
+        case field1 = 1
+        // The field id of the Oneof field is not used
+        case alternatives = 123456
+    }
+ }
+ ```
