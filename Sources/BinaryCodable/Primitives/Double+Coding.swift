@@ -14,7 +14,7 @@ extension Double: EncodablePrimitive {
 extension Double: DecodablePrimitive {
 
     init(decodeFrom data: Data) throws {
-        guard data.count == MemoryLayout<CFSwappedFloat64>.size else {
+        guard data.count == MemoryLayout<UInt64>.size else {
             throw BinaryDecodingError.invalidDataSize
         }
         let value = UInt64(bigEndian: read(data: data, into: UInt64.zero))
