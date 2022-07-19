@@ -26,7 +26,9 @@ The `SignedValue` property wrapper is supported for `Int`, `Int32`, and `Int64` 
 @propertyWrapper
 public struct SignedValue<WrappedValue>: ExpressibleByIntegerLiteral
 where WrappedValue: SignedValueCompatible,
-      WrappedValue: SignedInteger {
+      WrappedValue: SignedInteger,
+      WrappedValue: FixedWidthInteger,
+      WrappedValue: Codable {
 
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
 
@@ -46,22 +48,22 @@ where WrappedValue: SignedValueCompatible,
     }
 }
 
-extension SignedValue: Equatable where WrappedValue: Equatable {
+extension SignedValue: Equatable {
 
 }
 
-extension SignedValue: Comparable where WrappedValue: Comparable {
+extension SignedValue: Comparable {
 
     public static func < (lhs: SignedValue<WrappedValue>, rhs: SignedValue<WrappedValue>) -> Bool {
         lhs.wrappedValue < rhs.wrappedValue
     }
 }
 
-extension SignedValue: Hashable where WrappedValue: Hashable {
+extension SignedValue: Hashable {
 
 }
 
-extension SignedValue: CodablePrimitive where WrappedValue: ZigZagCodable, WrappedValue: DataTypeProvider {
+extension SignedValue: CodablePrimitive, DataTypeProvider where WrappedValue: ZigZagCodable, WrappedValue: DataTypeProvider {
 
     /**
      Encode the wrapped value to binary data compatible with the protobuf encoding.
@@ -75,9 +77,6 @@ extension SignedValue: CodablePrimitive where WrappedValue: ZigZagCodable, Wrapp
         let wrappedValue = try WrappedValue(fromZigZag: data)
         self.init(wrappedValue: wrappedValue)
     }
-}
-
-extension SignedValue: DataTypeProvider where WrappedValue: DataTypeProvider {
 
     /// The wire type of the wrapped value.
     static var dataType: DataType {
@@ -85,7 +84,7 @@ extension SignedValue: DataTypeProvider where WrappedValue: DataTypeProvider {
     }
 }
 
-extension SignedValue: Encodable where WrappedValue: Encodable {
+extension SignedValue: Encodable {
 
     /**
      Encode the wrapped value transparently to the given encoder.
@@ -98,7 +97,7 @@ extension SignedValue: Encodable where WrappedValue: Encodable {
     }
 }
 
-extension SignedValue: Decodable where WrappedValue: Decodable {
+extension SignedValue: Decodable {
     /**
      Decode a wrapped value from a decoder.
      - Parameter decoder: The decoder to use for decoding.
@@ -110,7 +109,7 @@ extension SignedValue: Decodable where WrappedValue: Decodable {
     }
 }
 
-public extension SignedValue where WrappedValue: AdditiveArithmetic {
+public extension SignedValue {
 
     /**
      The zero value.
@@ -120,9 +119,6 @@ public extension SignedValue where WrappedValue: AdditiveArithmetic {
     static var zero: Self {
         .init(wrappedValue: .zero)
     }
-}
-
-public extension SignedValue where WrappedValue: FixedWidthInteger {
 
     /// The maximum representable integer in this type.
     ///

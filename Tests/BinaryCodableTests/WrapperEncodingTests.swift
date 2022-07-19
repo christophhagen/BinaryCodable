@@ -3,6 +3,15 @@ import BinaryCodable
 
 final class WrapperEncodingTests: XCTestCase {
 
+    func testFixedSizeWrapperInt() throws {
+        func compare(_ value: FixedSize<Int>, to expected: [UInt8]) throws {
+            try compareEncoding(FixedSize<Int>.self, value: value, to: expected)
+        }
+        try compare(123, to: [123, 0, 0, 0, 0, 0, 0, 0])
+        try compare(.max, to: [255, 255, 255, 255, 255, 255, 255, 127])
+        try compare(.min, to: [0, 0, 0, 0, 0, 0, 0, 128])
+    }
+
     func testFixedSizeWrapperInt32() throws {
         func compare(_ value: FixedSize<Int32>, to expected: [UInt8]) throws {
             try compareEncoding(FixedSize<Int32>.self, value: value, to: expected)
@@ -33,6 +42,15 @@ final class WrapperEncodingTests: XCTestCase {
     func testFixedSizeWrapperUInt64() throws {
         func compare(_ value: FixedSize<UInt64>, to expected: [UInt8]) throws {
             try compareEncoding(FixedSize<UInt64>.self, value: value, to: expected)
+        }
+        try compare(123, to: [123, 0, 0, 0, 0, 0, 0, 0])
+        try compare(.max, to: [255, 255, 255, 255, 255, 255, 255, 255])
+        try compare(.min, to: [0, 0, 0, 0, 0, 0, 0, 0])
+    }
+
+    func testFixedSizeWrapperUInt() throws {
+        func compare(_ value: FixedSize<UInt>, to expected: [UInt8]) throws {
+            try compareEncoding(FixedSize<UInt>.self, value: value, to: expected)
         }
         try compare(123, to: [123, 0, 0, 0, 0, 0, 0, 0])
         try compare(.max, to: [255, 255, 255, 255, 255, 255, 255, 255])

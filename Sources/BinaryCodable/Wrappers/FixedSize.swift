@@ -20,8 +20,8 @@ The `FixedSize` property wrapper is supported for `UInt32`, `UInt64`, `Int32`, a
 @propertyWrapper
 public struct FixedSize<WrappedValue>: ExpressibleByIntegerLiteral
 where WrappedValue: FixedSizeCompatible,
-      WrappedValue: ExpressibleByIntegerLiteral,
-      WrappedValue: Hashable {
+      WrappedValue: FixedWidthInteger,
+      WrappedValue: Codable {
 
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
 
@@ -65,11 +65,11 @@ extension FixedSize: ProtobufDecodable where WrappedValue: ProtobufDecodable {
     }
 }
 
-extension FixedSize: Equatable where WrappedValue: Equatable {
+extension FixedSize: Equatable {
 
 }
 
-extension FixedSize: Comparable where WrappedValue: Comparable {
+extension FixedSize: Comparable {
 
     public static func < (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> Bool {
         lhs.wrappedValue < rhs.wrappedValue
@@ -78,7 +78,7 @@ extension FixedSize: Comparable where WrappedValue: Comparable {
 
 extension FixedSize: Hashable { }
 
-extension FixedSize: CodablePrimitive where WrappedValue: DataTypeProvider {
+extension FixedSize: CodablePrimitive, DataTypeProvider where WrappedValue: DataTypeProvider {
 
     /**
      Encode the wrapped value to binary data compatible with the protobuf encoding.
@@ -92,9 +92,6 @@ extension FixedSize: CodablePrimitive where WrappedValue: DataTypeProvider {
         let wrappedValue = try WrappedValue(fromFixedSize: data)
         self.init(wrappedValue: wrappedValue)
     }
-}
-
-extension FixedSize: DataTypeProvider where WrappedValue: DataTypeProvider {
 
     /// The wire type of the wrapped value.
     static var dataType: DataType {
@@ -102,7 +99,7 @@ extension FixedSize: DataTypeProvider where WrappedValue: DataTypeProvider {
     }
 }
 
-extension FixedSize: Encodable where WrappedValue: Encodable {
+extension FixedSize: Encodable {
 
     /**
      Encode the wrapped value transparently to the given encoder.
@@ -115,7 +112,7 @@ extension FixedSize: Encodable where WrappedValue: Encodable {
     }
 }
 
-extension FixedSize: Decodable where WrappedValue: Decodable {
+extension FixedSize: Decodable {
     /**
      Decode a wrapped value from a decoder.
      - Parameter decoder: The decoder to use for decoding.
@@ -127,7 +124,7 @@ extension FixedSize: Decodable where WrappedValue: Decodable {
     }
 }
 
-public extension FixedSize where WrappedValue: FixedWidthInteger {
+public extension FixedSize {
 
     /// The maximum representable integer in this type.
     ///
@@ -145,5 +142,14 @@ public extension FixedSize where WrappedValue: FixedWidthInteger {
     /// exponentiation.
     static var min: Self {
         .init(wrappedValue: .min)
+    }
+
+    /**
+     The zero value.
+
+     Zero is the identity element for addition. For any value, x + .zero == x and .zero + x == x.
+     */
+    static var zero: Self {
+        .init(wrappedValue: .zero)
     }
 }
