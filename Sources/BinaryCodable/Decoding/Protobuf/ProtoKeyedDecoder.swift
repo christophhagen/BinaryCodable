@@ -51,7 +51,6 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
         content.keys.contains { $0.isEqual(to: key) }
     }
 
-
     private func getDataIfAvailable(forKey key: CodingKey) -> Data? {
         content.first(where: { $0.key.isEqual(to: key) })?.value
     }
@@ -65,6 +64,10 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
     }
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
+        if type is ProtobufOneOf.Type {
+            let node = OneOfDecodingNode(content: content, path: codingPath, info: userInfo)
+            return try T.init(from: node)
+        }
         let data = getDataIfAvailable(forKey: key)
         if let _ = type as? DecodablePrimitive.Type {
             if let ProtoType = type as? ProtobufDecodable.Type {
