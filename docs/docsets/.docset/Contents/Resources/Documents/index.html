@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html"> Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/christophhagen/BinaryCodable"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html"> Reference</a>
+        <img id="carat" src="img/carat.png" alt=""/>
+          Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Guides.html">Guides</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="binaryformat.html">BinaryFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="protobufsupport.html">ProtobufSupport</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/BinaryDecoder.html">BinaryDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryEncoder.html">BinaryEncoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/ProtobufDecoder.html">ProtobufDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/ProtobufEncoder.html">ProtobufEncoder</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/BinaryDecodingError.html">BinaryDecodingError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/BinaryEncodingError.html">BinaryEncodingError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/DataType.html">DataType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/ProtobufDecodingError.html">ProtobufDecodingError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/ProtobufEncodingError.html">ProtobufEncodingError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:Sb">Bool</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:10Foundation4DataV">Data</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable11DecodingKeyO">DecodingKey</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:Sf">Float</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Int.html">Int</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Int32.html">Int32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Int64.html">Int64</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable13IntKeyWrapperV">IntKeyWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable21MixedCodingKeyWrapperV">MixedCodingKeyWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable15ProtoKeyWrapperV">ProtoKeyWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:SS">String</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/UInt.html">UInt</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/UInt32.html">UInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/UInt64.html">UInt64</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/FixedSizeCompatible.html">FixedSizeCompatible</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols.html#/s:13BinaryCodable13ProtobufOneOfP">ProtobufOneOf</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/SignedValueCompatible.html">SignedValueCompatible</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/FixedSize.html">FixedSize</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/SignedValue.html">SignedValue</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='binarycodable' class='heading'>BinaryCodable</h1>
+
+<p><a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml"><img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" alt="Tests"></a></p>
+
+<p>This package provides convenient encoding and decoding to/from binary data for all Swift <code>Codable</code> types. It also provides limited cross-compatibility to <a href="https://developers.google.com/protocol-buffers">Google Protocol Buffers</a>.</p>
+<h2 id='use-cases' class='heading'>Use cases</h2>
+
+<p>There are only few encoders and decoders available for Swift&rsquo;s Codable format, and Apple provides a <a href="https://developer.apple.com/documentation/foundation/jsonencoder">JSONEncoder</a> and a <a href="https://developer.apple.com/documentation/foundation/propertylistencoder">PropertyListEncoder</a> for basic encoding. While these can cover some use cases (especially when interacting with Web Content through JSON), they lack encoding efficiency when designing APIs within an ecosystem. JSON, for example, is notoriously inefficient when it comes to binary data.</p>
+
+<p>One very popular alternative for binary data are Google&rsquo;s <a href="https://developers.google.com/protocol-buffers">Protocol Buffers</a>, which offer broad support across different platforms and programming languages. But they don&rsquo;t support Swift&rsquo;s <code>Codable</code> protocol, and thus require manual message definitions, the Protobuf compiler, and a lot of copying between data structures during encoding and decoding.</p>
+
+<p>So if you&rsquo;re looking for a decently efficient binary encoder in a pure Swift project, then <code>BinaryCodable</code> may be right for you. Simply make your <code>struct</code>s (or classes!) conform to <code>Codable</code>, and <code>BinaryCodable</code> does the rest!</p>
+
+<p>The <a href="#binary-format">message format</a> is similar to that of <code>Protocol Buffers</code> (with some additions to support more types). It is possible to create <a href="#protocol-buffer-compatibility">limited compatibility</a> between the two formats to exchange data with systems that don&rsquo;t support Swift.</p>
+<h2 id='installation' class='heading'>Installation</h2>
+<h3 id='swift-package-manager' class='heading'>Swift Package Manager</h3>
+
+<p>Simply include in your <code>Package.swift</code>:</p>
+<pre class="highlight swift"><code><span class="nv">dependencies</span><span class="p">:</span> <span class="p">[</span>
+    <span class="o">.</span><span class="nf">package</span><span class="p">(</span>
+        <span class="nv">name</span><span class="p">:</span> <span class="s">"BinaryCodable"</span><span class="p">,</span> 
+        <span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/christophhagen/BinaryCodable"</span><span class="p">,</span> 
+        <span class="nv">from</span><span class="p">:</span> <span class="s">"1.0.0"</span><span class="p">)</span>
+<span class="p">],</span>
+<span class="nv">targets</span><span class="p">:</span> <span class="p">[</span>
+    <span class="o">.</span><span class="nf">target</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"MyTarget"</span><span class="p">,</span> <span class="nv">dependencies</span><span class="p">:</span> <span class="p">[</span>
+        <span class="o">.</span><span class="nf">product</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"BinaryCodable"</span><span class="p">,</span> <span class="nv">package</span><span class="p">:</span> <span class="s">"BinaryCodable"</span><span class="p">)</span>
+    <span class="p">])</span>
+<span class="p">]</span>
+</code></pre>
+<h3 id='xcode-project' class='heading'>Xcode project</h3>
+
+<p>Select your <code>Project</code>, navigate to the <code>Package Dependencies</code> tab, and add <code>https://github.com/christophhagen/BinaryCodable</code> using the <code>+</code> button.</p>
+<h2 id='usage' class='heading'>Usage</h2>
+
+<p>Let&rsquo;s assume a message definition: </p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Message</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+
+    <span class="k">var</span> <span class="nv">sender</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="k">var</span> <span class="nv">isRead</span><span class="p">:</span> <span class="kt">Bool</span>
+
+    <span class="k">var</span> <span class="nv">unreadCount</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Simply import the module where you need to encode or decode a message:</p>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">BinaryCodable</span>
+</code></pre>
+<h3 id='encoding' class='heading'>Encoding</h3>
+
+<p>Construct an encoder when converting instances to binary data, and feed the message(s) into it:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">message</span><span class="p">:</span> <span class="kt">Message</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="k">let</span> <span class="nv">encoder</span> <span class="o">=</span> <span class="kt">BinaryEncoder</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre>
+
+<p>It&rsquo;s also possible to encode single values, arrays, optionals, sets, enums, dictionaries, and more, so long as they conform to <code>Codable</code>.</p>
+<h3 id='decoding' class='heading'>Decoding</h3>
+
+<p>Decoding instances from binary data works much the same way:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">BinaryDecoder</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">message</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">Message</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
+
+<p>Alternatively, the type can be inferred:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">message</span><span class="p">:</span> <span class="kt">Message</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
+<h3 id='errors' class='heading'>Errors</h3>
+
+<p>It is possible for both encoding and decoding to fail. 
+All possible errors occuring during encoding produce <code><a href="Enums/BinaryEncodingError.html">BinaryEncodingError</a></code> errors, while unsuccessful decoding produces <code><a href="Enums/BinaryDecodingError.html">BinaryDecodingError</a></code>s. 
+Both are enums with several cases describing the nature of the error. 
+See the documentation of the types to learn more about the different error conditions.</p>
+<h3 id='coding-keys' class='heading'>Coding Keys</h3>
+
+<p>The <code>Codable</code> protocol uses <a href="https://developer.apple.com/documentation/swift/codingkey"><code>CodingKey</code></a> definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.</p>
+
+<p>Similar to JSON encoding, <code>BinaryCodable</code> can embed the property names in the encoded data.</p>
+
+<p>Unlike JSON (which is human-readable), the binary representation produced by <code>BinaryCodable</code> is intended for cases when efficient encoding is important. <code>Codable</code> allows the use of integer keys for each property, which significantly increases encoding efficiency. You can specify integer keys by adding an <code>Int</code> enum conforming to the <code>CodingKey</code> protocol to the <code>Codable</code> type:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Message</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+
+    <span class="k">var</span> <span class="nv">sender</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="k">var</span> <span class="nv">isRead</span><span class="p">:</span> <span class="kt">Bool</span>
+
+    <span class="k">var</span> <span class="nv">unreadCount</span><span class="p">:</span> <span class="kt">Int</span>
+
+    <span class="c1">// Assign an integer to each property</span>
+    <span class="kd">enum</span> <span class="kt">CodingKeys</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="kt">CodingKey</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">sender</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">case</span> <span class="n">isRead</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">case</span> <span class="n">unreadCount</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>The enum must have a raw value of either <code>Int</code> or <code>String</code>, and the cases must match the property names within the type (it is possible to omit keys for properties which should not be encoded).</p>
+
+<p>Using integer keys can significantly decrease the binary size, especially for long property names. Additionally, integer keys can be useful when intending to store the binary data persistently. Changes to property names can be performed in the code without breaking the decoding of older data (although this can also be achieved with custom <code>String</code> keys).</p>
+
+<p>Notes: </p>
+
+<ul>
+<li>Small, positive integer keys produce the smallest binary sizes.</li>
+<li>The <code>0</code> integer key shouldn&rsquo;t be used, since it is also used internally when encoding <code>super</code>.</li>
+<li>Negative values for integer keys are <strong>not</strong> recommended (but possible). Since the keys are encoded as <code>Varint</code>, they are very inefficient for negative numbers.</li>
+<li>The allowed range for integer keys is from <code>-576460752303423488</code> (<code>-2^59</code>, inclusive) to <code>576460752303423487</code> (<code>2^59-1</code>, inclusive). Values outside of these bounds will cause a <code>fatalError</code> crash.</li>
+</ul>
+<h3 id='property-wrappers' class='heading'>Property wrappers</h3>
+<h4 id='fixed-size-integers' class='heading'>Fixed size integers</h4>
+
+<p>While varints are efficient for small numbers, their encoding introduces a storage and computation penalty when the integers are often large, e.g. for random numbers. <code>BinaryCodable</code> provides the <code><a href="Structs/FixedSize.html">FixedSize</a></code> wrapper, which forces integers to be encoded using their little-endian binary representations. This means that e.g. an <code>Int32</code> is always encoded as 4 byte (instead of 1-5 bytes using Varint encoding). This makes 32-bit <code><a href="Structs/FixedSize.html">FixedSize</a></code> types more efficient than <code>Varint</code> if values are often larger than <code>2^28</code> (<code>2^56</code> for 64-bit types).</p>
+
+<p>Use the property wrapper within a <code>Codable</code> definition to enforce fixed-width encoding for a property:</p>
+<pre class="highlight swift"><code> <span class="kd">struct</span> <span class="kt">MyStruct</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+
+     <span class="c1">/// Always encoded as 4 bytes</span>
+     <span class="kd">@FixedSize</span> 
+     <span class="k">var</span> <span class="nv">largeInteger</span><span class="p">:</span> <span class="kt">Int32</span>
+ <span class="p">}</span>
+</code></pre>
+
+<p>The <code><a href="Structs/FixedSize.html">FixedSize</a></code> wrapper is available to all <code>Varint</code> types: <code>Int</code>, <code>UInt</code>, <code>Int32</code>, <code>UInt32</code>, <code>Int64</code>, and <code>UInt64</code>.</p>
+
+<p>#### Other property wrappers</p>
+
+<p>There is an additional <code><a href="Structs/SignedValue.html">SignedValue</a></code> wrapper, which is only useful when encoding in <a href="ProtobufSupport.md#signed-integers">protobuf-compatible format</a>.</p>
+<h3 id='options' class='heading'>Options</h3>
+
+<p>The <code><a href="Classes/BinaryEncoder.html">BinaryEncoder</a></code> provides the <code>sortKeysDuringEncoding</code> option, which forces fields in &ldquo;keyed&rdquo; containers, such as <code>struct</code> properties (and some dictionaries), to be sorted in the binary data. This sorting is done by using either the <a href="#coding-keys">integer keys</a> (if defined), or the property names. Dictionaries with <code>Int</code> or <code>String</code> keys are also sorted. </p>
+
+<p>Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. It should therefore only be used if the binary data must be consistent across multiple invocations.</p>
+
+<p><strong>Note:</strong> The <code>sortKeysDuringEncoding</code> option does not guarantee deterministic binary data, and should be used with care. </p>
+<h3 id='protocol-buffer-compatibility' class='heading'>Protocol Buffer compatibility</h3>
+
+<p>Achieving Protocol Buffer compatibility is described in <a href="ProtobufSupport.md">ProtobufSupport.md</a>.</p>
+<h2 id='binary-format' class='heading'>Binary format</h2>
+
+<p>To learn more about the encoding format, see <a href="BinaryFormat.md">BinaryFormat.md</a>.</p>
+<h2 id='tests' class='heading'>Tests</h2>
+
+<p>The library comes with an extensive test suite, which checks that encoding works correctly for many cases. These tests can be executed using <code>swift test</code> from the package root, or when opening the package using Xcode.</p>
+<h2 id='license' class='heading'>License</h2>
+
+<p>MIT. See <a href="License.md">License.md</a></p>
+<h2 id='roadmap' class='heading'>Roadmap</h2>
+<h3 id='generate-protobuf-definitions' class='heading'>Generate protobuf definitions</h3>
+
+<p>It should be possible to generate a string containing a working Protobuf definition for any type that is determined to be Protobuf compatible.</p>
+<h3 id='speed' class='heading'>Speed</h3>
+
+<p>Increasing the speed of the encoding and decoding process is not a huge priority at the moment. 
+If you have any pointers on how to improve the performance further, feel free to contribute.</p>
+<h2 id='contributing' class='heading'>Contributing</h2>
+
+<p>Users of the library are encouraged to contribute to this repository.</p>
+<h3 id='feature-suggestions' class='heading'>Feature suggestions</h3>
+
+<p>Please file an issue with a description of the feature you&rsquo;re missing. Check other open and closed issues for similar suggestions and comment on them before creating a new issue.</p>
+<h3 id='bug-reporting' class='heading'>Bug reporting</h3>
+
+<p>File an issue with a clear description of the problem. Please include message definitions and other data where possible so that the error can be reproduced.</p>
+<h3 id='documentation' class='heading'>Documentation</h3>
+
+<p>If you would like to extend the documentation of this library, or translate the documentation into other languages, please also open an issue, and I&rsquo;ll contact you for further discussions.</p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-07-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

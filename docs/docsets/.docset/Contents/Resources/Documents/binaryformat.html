@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BinaryFormat  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="BinaryFormat  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html"> Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/christophhagen/BinaryCodable"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html"> Reference</a>
+        <img id="carat" src="img/carat.png" alt=""/>
+        BinaryFormat  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Guides.html">Guides</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="binaryformat.html">BinaryFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="protobufsupport.html">ProtobufSupport</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/BinaryDecoder.html">BinaryDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryEncoder.html">BinaryEncoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/ProtobufDecoder.html">ProtobufDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/ProtobufEncoder.html">ProtobufEncoder</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/BinaryDecodingError.html">BinaryDecodingError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/BinaryEncodingError.html">BinaryEncodingError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/DataType.html">DataType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/ProtobufDecodingError.html">ProtobufDecodingError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/ProtobufEncodingError.html">ProtobufEncodingError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:Sb">Bool</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:10Foundation4DataV">Data</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable11DecodingKeyO">DecodingKey</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:Sf">Float</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Int.html">Int</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Int32.html">Int32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Int64.html">Int64</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable13IntKeyWrapperV">IntKeyWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable21MixedCodingKeyWrapperV">MixedCodingKeyWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:13BinaryCodable15ProtoKeyWrapperV">ProtoKeyWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions.html#/s:SS">String</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/UInt.html">UInt</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/UInt32.html">UInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/UInt64.html">UInt64</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/FixedSizeCompatible.html">FixedSizeCompatible</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols.html#/s:13BinaryCodable13ProtobufOneOfP">ProtobufOneOf</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/SignedValueCompatible.html">SignedValueCompatible</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/FixedSize.html">FixedSize</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/SignedValue.html">SignedValue</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='binary-data-structure' class='heading'>Binary data structure</h1>
+
+<p><strong>Note:</strong> The <code>BinaryCodable</code> format is optimized for size, but does not go all-out to create the smallest binary sizes possible. If this is your goal, then simply using <code>Codable</code> with it&rsquo;s key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you&rsquo;re really looking into this kind of efficiency, then you probably know this already.</p>
+
+<p>The encoding format used by <code>BinaryCodable</code> is similar to Google&rsquo;s <a href="https://developers.google.com/protocol-buffers">Protocol Buffers</a> in some aspects, but provides much more flexibility regarding the different types which can be encoded, including the ability to encode <code>Optional</code>, <code>Set</code>, single values, multidimensional <code>Array</code>s, and more.</p>
+<h2 id='integer-encoding' class='heading'>Integer encoding</h2>
+
+<p>Integers are encoded with different strategies depending on their size. Smaller types, like <code>UInt8</code>, <code>Int8</code>, <code>UInt16</code>, and <code>Int16</code> are encoded using their binary representations in little-endian format.</p>
+
+<p>Larger integers, like <code>UInt32</code>, <code>Int32</code>, <code>UInt64</code>, <code>Int64</code>, <code>Int</code>, and <code>UInt</code> are (by default) encoded using variable length zig-zag encoding, similar to <a href="https://developers.google.com/protocol-buffers/docs/encoding#signed-ints">Protobuf signed integers</a>. This means that smaller values are encoded as shorter binary representations, which is useful if integer values are mostly small.
+<strong>Note:</strong> The <code>Varint</code> implementation is not equivalent to <code>Protobuf</code>, since <code>BinaryCodable</code> uses the last byte of a large integer directly, and thus encodes <code>Int.max</code> with 9 Byte instead of 10. This encoding is adapted when enforcing protobuf compatibility.</p>
+
+<p>The property wrapper <a href="#fixed-size-integers"><code><a href="Structs/FixedSize.html">FixedSize</a></code></a> forces the values to be encoded using their little-endian representations.</p>
+<h2 id='floating-point-types' class='heading'>Floating-point types</h2>
+
+<p><code>Float</code> and <code>Double</code> values are encoded using their binary representations in little-endian format.</p>
+<h2 id='strings' class='heading'>Strings</h2>
+
+<p>Swift <code>String</code> values are encoded using their <code>UTF-8</code> representations. If a string can&rsquo;t be encoded this way, then encoding fails.</p>
+<h2 id='booleans' class='heading'>Booleans</h2>
+
+<p><code>Bool</code> values are always encoded as a single byte, using <code>1</code> for <code>true</code>, and <code>0</code> for <code>false</code>.</p>
+<h2 id='arrays' class='heading'>Arrays</h2>
+
+<p>Arrays (and other sequences) are encoded by converting each item to binary data, and concatenating the results. Elements with variable length (like <code>String</code>) are prepended with their length encoded as a <a href="#integer-encoding">Varint</a>. Each encoded array has at least one byte prepended to it, in order to support optional values.</p>
+<h3 id='arrays-of-optionals' class='heading'>Arrays of Optionals</h3>
+
+<p>It is possible to encode arrays where the elements are <code>Optional</code>, e.g. <code>[Bool?]</code>. Due to constraints regarding Apple&rsquo;s implementation of <code>Encoder</code> and <code>Decoder</code>, it is not consistently possible to infer if optionals are present in unkeyed containers. <code>BinaryCodable</code> therefore encodes optionals using a different strategy: Each array binary representation is prepended with a &ldquo;nil index set&rdquo;. It first consists of the number of <code>nil</code> elements in the sequence, encoded as a <code>Varint</code>. Then follow the indices in the array where <code>nil</code> values are present, each encoded as a <code>Varint</code>. The decoder can then first parse this <code>nil</code> set, and return the appropriate value for each position where a <code>nil</code> value is encoded. This approach is fairly efficient while only few <code>nil</code> values are encoded, or while the sequence doesn&rsquo;t contain a large number of elements. For arrays that don&rsquo;t contain optionals, only a single byte (<code>0</code>) is prepended to the binary representation, to signal that there are no <code>nil</code> indices in the sequence.</p>
+<h2 id='structs' class='heading'>Structs</h2>
+
+<p>Structs are encoded using <code>Codable</code>&lsquo;s <code>KeyedEncodingContainer</code>, which uses <code>String</code> or <code>Int</code> coding keys to distinguish the properties of the types.
+By default, Swift uses the property names as <code>String</code> keys, which are used to encode each property as a key-value pair on the wire.
+The first value is a <code>Varint</code>, which contains the length of the string key, plus additional information about the data associated with the key.
+The bits 0-2 are used to signal the size value, and bit 3 of the <code>Varint</code> indicates whether the key is a string key (<code>1</code> = string, <code>0</code> = int).
+The following data types are possible:</p>
+
+<p>| Data type               | Raw value | Protobuf          | Swift types                                                                            | Description                                                             |
+| :&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;- | :&mdash;&mdash;&ndash; | :&mdash;&mdash;&mdash;&mdash;&mdash;- | :&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;- |
+| <code>variableLengthInteger</code> | <code>0</code>       | <code>varint</code>/<code>zigzag</code> | <code>Int</code>, <code>Int32</code>, <code>Int64</code>,  <code>UInt</code>, <code>UInt32</code>, <code>UInt64</code>                                   | A Base128 <code>Varint</code> using 1-9 bytes of data                              |
+| <code>eightBytes</code>            | <code>1</code>       | <code>fixed64bit</code>      | <code>Double</code>, <code><a href="Structs/FixedSize.html">FixedSize&lt;Int64&gt;</a></code>, <code><a href="Structs/FixedSize.html">FixedSize&lt;Int&gt;</a></code>, <code><a href="Structs/FixedSize.html">FixedSize&lt;UInt64&gt;</a></code>, <code><a href="Structs/FixedSize.html">FixedSize&lt;UInt&gt;</a></code> | A 64-bit float or integer in little-endian encoding.                    |
+| <code>variableLength</code>        | <code>2</code>       | <code>delimited</code>       | <code>String</code>, <code>Struct</code>, &hellip;                                                                | The length of the data encoded as a <code>Varint</code> followed by <code>length</code> bytes |
+| <code>fourBytes</code>             | <code>5</code>       | <code>fixed32bit</code>      | <code>Float</code>, <code><a href="Structs/FixedSize.html">FixedSize&lt;Int32&gt;</a></code>, <code><a href="Structs/FixedSize.html">FixedSize&lt;UInt32&gt;</a></code>                                       | A 32-bit float or integer in little-endian encoding.                    |
+| <code>byte</code>                  | <code>6</code>       | -                 | <code>Bool</code>, <code>UInt8</code>, <code>Int8</code>                                                                | A single byte storing a number or boolean                               |
+| <code>twoBytes</code>              | <code>7</code>       | -                 | <code>Int16</code>, <code>UInt16</code>                                                                      | Two bytes storing an integer using little-endian format                 |</p>
+
+<p>With the four lower bits occupied by the data type and the string key indicator, the remaining bits are left to encode the length of the string key.</p>
+
+<p>For example, a property named <code>xyz</code>  of type <code>UInt8</code> with value <code>123</code> would be encoded to the following:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Byte 0</th>
+<th style="text-align: left">Byte 1</th>
+<th style="text-align: left">Byte 2</th>
+<th style="text-align: left">Byte 3</th>
+<th style="text-align: left">Byte 4</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>0</code> <code>011</code> <code>1</code> <code>110</code></td>
+<td style="text-align: left"><code>01111000</code></td>
+<td style="text-align: left"><code>01111001</code></td>
+<td style="text-align: left"><code>01111010</code></td>
+<td style="text-align: left"><code>01111011</code></td>
+</tr>
+<tr>
+<td style="text-align: left">Length <code>3</code>, <code>String</code> key, Data type <code>byte</code></td>
+<td style="text-align: left"><code>x</code></td>
+<td style="text-align: left"><code>y</code></td>
+<td style="text-align: left"><code>z</code></td>
+<td style="text-align: left"><code>123</code></td>
+</tr>
+</tbody></table>
+<h3 id='integer-keys' class='heading'>Integer keys</h3>
+
+<p>The Swift <code>Codable</code> framework also provides the ability to specify integer keys for properties, which can significantly reduce the binary size. Integer keys can be assigned to properties by implementing custom <code>CodingKeys</code> for a type:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">MyCodable</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+
+    <span class="k">let</span> <span class="nv">xyz</span><span class="p">:</span> <span class="kt">UInt8</span>
+
+    <span class="kd">enum</span> <span class="kt">CodingKeys</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="kt">CodingKey</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">xyz</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Integer coding keys are encoded as <code>Varint</code> instead of the <code>String</code> key length. This results in the following encoding for the same example as before:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Byte 0</th>
+<th style="text-align: left">Byte 1</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>0</code> <code>010</code> <code>0</code> <code>110</code></td>
+<td style="text-align: left"><code>01111011</code></td>
+</tr>
+<tr>
+<td style="text-align: left">Integer key <code>2</code>, <code>Int</code> key, Data type <code>byte</code></td>
+<td style="text-align: left"><code>123</code></td>
+</tr>
+</tbody></table>
+
+<p>Evidently this is a significant improvement, especially for long property names. Note that while it is possible to specify any integer as the key (between 2^59 and -2^59), small, positive integers are the most efficient.</p>
+<h3 id='optional-properties' class='heading'>Optional properties</h3>
+
+<p>Any properties of structs or other keyed containers is omitted from the binary data, i.e. nothing is encoded. The absence of a key then indicates to the decoder that the value is <code>nil</code></p>
+<h2 id='codable-quirks' class='heading'>Codable quirks</h2>
+
+<p>There are some interesting details on how <code>Codable</code> treats certain types, which produce unexpected binary data. Although <code>BinaryCodable</code> decodes all these cases correctly, implementing these &ldquo;features&rdquo; may be difficult on other platforms.</p>
+<h3 id='enums-with-associated-values' class='heading'>Enums with associated values</h3>
+
+<p>Given an enum with associated values: </p>
+<pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">MyEnum</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nf">one</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nf">two</span><span class="p">(</span><span class="kt">Bool</span><span class="p">,</span> <span class="kt">Data</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>The encoding will consist of:</p>
+
+<ul>
+<li>The enum case name as a String key</li>
+<li>A keyed container with:
+
+<ul>
+<li>All associated values in the order of their definition, keyed by <code>&quot;_0&quot;</code>, <code>&quot;_1&quot;</code>, &hellip;</li>
+</ul></li>
+</ul>
+
+<p>For example, the value</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="kt">MyEnum</span><span class="o">.</span><span class="nf">one</span><span class="p">(</span><span class="s">"Some"</span><span class="p">)</span>
+</code></pre>
+
+<p>would be encoded as:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Byte 0</th>
+<th style="text-align: left">Byte 1 - 3</th>
+<th style="text-align: left">Byte 4</th>
+<th style="text-align: left">Byte 5</th>
+<th style="text-align: left">Byte 6 - 7</th>
+<th style="text-align: left">Byte 8</th>
+<th style="text-align: left">Byte 9 - 12</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>0x3A</code></td>
+<td style="text-align: left"><code>0x6F 0x6E 0x65</code></td>
+<td style="text-align: left"><code>0x08</code></td>
+<td style="text-align: left"><code>0x2A</code></td>
+<td style="text-align: left"><code>0x5F 0x30</code></td>
+<td style="text-align: left"><code>0x04</code></td>
+<td style="text-align: left"><code>0x53 0x6E 0x64 0x08</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>String</code> key (Len 3),  <code>VarLen</code></td>
+<td style="text-align: left"><code>one</code></td>
+<td style="text-align: left">Length <code>8</code></td>
+<td style="text-align: left">String key (Len 2)</td>
+<td style="text-align: left"><code>_0</code></td>
+<td style="text-align: left">Length <code>4</code></td>
+<td style="text-align: left"><code>Some</code></td>
+</tr>
+</tbody></table>
+
+<p>Let&rsquo;s use the same example with integer keys:</p>
+<pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">MyEnum</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nf">one</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nf">two</span><span class="p">(</span><span class="kt">Bool</span><span class="p">,</span> <span class="kt">UInt8</span><span class="p">)</span>
+
+    <span class="kd">enum</span> <span class="kt">CodingKeys</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="kt">CodingKey</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">one</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">case</span> <span class="n">two</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Then, the value</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="kt">MyEnum</span><span class="o">.</span><span class="nf">two</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="mi">123</span><span class="p">)</span>
+</code></pre>
+
+<p>would be encoded as:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Byte 0</th>
+<th style="text-align: left">Byte 1</th>
+<th style="text-align: left">Byte 2</th>
+<th style="text-align: left">Byte 3 - 4</th>
+<th style="text-align: left">Byte 5</th>
+<th style="text-align: left">Byte 6</th>
+<th style="text-align: left">Byte 7 - 8</th>
+<th style="text-align: left">Byte 9</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>0x22</code></td>
+<td style="text-align: left"><code>0x08</code></td>
+<td style="text-align: left"><code>0x2E</code></td>
+<td style="text-align: left"><code>0x5F 0x30</code></td>
+<td style="text-align: left"><code>0x01</code></td>
+<td style="text-align: left"><code>0x2E</code></td>
+<td style="text-align: left"><code>0x5F 0x31</code></td>
+<td style="text-align: left"><code>0x7B</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>Int</code> key (2),  <code>VarLen</code></td>
+<td style="text-align: left">Length <code>8</code></td>
+<td style="text-align: left">String key (Len 2), <code>Byte</code></td>
+<td style="text-align: left"><code>_0</code></td>
+<td style="text-align: left"><code>Bool(true)</code></td>
+<td style="text-align: left">String key (Len 2), <code>Byte</code></td>
+<td style="text-align: left"><code>_1</code></td>
+<td style="text-align: left"><code>UInt8(123)</code></td>
+</tr>
+</tbody></table>
+
+<p>Note: Since the associated values are encoded in a keyed container, there order in the binary data may be different, unless the <code>sortKeysDuringEncoding</code> option is set to <code>true</code>.</p>
+<h3 id='special-dictionaries' class='heading'>Special dictionaries</h3>
+
+<p>Most dictionaries are treated as <code>Unkeyed Containers</code> by <code>Codable</code>, and each key value pair is encoded by first encoding the key, followed by the value, thus creating the  flat structure:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Key 1</th>
+<th style="text-align: left">Value 1</th>
+<th style="text-align: left">Key 2</th>
+<th style="text-align: left">Value 2</th>
+<th style="text-align: left">Key 3</th>
+<th style="text-align: left">Value 3</th>
+</tr>
+</thead><tbody>
+</tbody></table>
+<h4 id='dictionaries-with-integer-keys' class='heading'>Dictionaries with Integer keys</h4>
+
+<p>For all dictionaries, which use <code>Int</code> as the key, e.g. <code>[Int: String]</code>, <code>[Int: Int]</code>, or generally <code>[Int: ...]</code>, the encoding is done using a <code>Keyed</code> container, where each dictionary value is encoded using a <code>CodingKey</code> with an integer value. This results in a structure more resembling <a href="#structs">struct encoding</a> with <a href="#integer-keys">integer keys</a>:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Byte(s)</th>
+<th style="text-align: left">Byte(s)</th>
+<th style="text-align: left">Byte(s)</th>
+<th style="text-align: left">Byte(s)</th>
+<th style="text-align: left">Byte(s)</th>
+<th style="text-align: left">Byte(s)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>Int</code> Key(Key 1), Data type</td>
+<td style="text-align: left">Value 1</td>
+<td style="text-align: left"><code>Int</code> Key(Key 2), Data type</td>
+<td style="text-align: left">Value 2</td>
+<td style="text-align: left"><code>Int</code> Key(Key 3), Data type</td>
+<td style="text-align: left">Value 3</td>
+</tr>
+</tbody></table>
+
+<p>For example, the following works:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">MyStruct</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">a</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">let</span> <span class="nv">b</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">let</span> <span class="nv">c</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="c1">// Encode a dictionary</span>
+<span class="k">let</span> <span class="nv">input</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"a"</span> <span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s">"b"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">"c"</span><span class="p">:</span> <span class="o">-</span><span class="mi">123456</span><span class="p">]</span>
+<span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">BinaryEncoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+
+<span class="c1">// Decode as struct</span>
+<span class="k">let</span> <span class="nv">decoded</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">BinaryDecoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">MyStruct</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
+
+<p>It also works the other way round:</p>
+<pre class="highlight swift"><code><span class="c1">// Encode struct</span>
+<span class="k">let</span> <span class="nv">input</span> <span class="o">=</span> <span class="kt">MyStruct</span><span class="p">(</span><span class="nv">a</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="nv">b</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">c</span><span class="p">:</span> <span class="o">-</span><span class="mi">123456</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">BinaryEncoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+
+<span class="c1">// Decode as dictionary</span>
+<span class="k">let</span> <span class="nv">decoded</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Int</span><span class="p">]</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">BinaryDecoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
+
+<p>Note that this only works for dictionaries with concrete <code>Encodable</code> values, e.g. <code>[String: Encodable]</code> won&rsquo;t work.</p>
+<h4 id='dictionaries-with-string-keys' class='heading'>Dictionaries with String keys</h4>
+
+<p>For dictionaries with <code>String</code> keys (<code>[String: ...]</code>), the process is similar to the above, except with <code>CodingKey</code>s having the <code>stringValue</code> of the key. There is another weird exception though: Whenever a <code>String</code> can be represented by an integer (i.e. when <code>String(key) != nil</code>), then the corresponding <code>CodingKey</code> will have its <code>integerValue</code> also set. This means that for dictionaries with integer keys, there may be a mixture of integer and string keys present in the binary data, depending on the input values. But don&rsquo;t worry, <code>BinaryCodable</code> will also handle these cases correctly.</p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-07-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
