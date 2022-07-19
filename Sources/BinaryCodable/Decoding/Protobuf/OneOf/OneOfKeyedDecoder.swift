@@ -1,6 +1,15 @@
 import Foundation
 
-class OneOfKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtocol where Key: CodingKey {
+/**
+ A keyed decoder specifically to decode an enum of type `ProtobufOneOf`.
+
+ The decoder only allows a call to `nestedContainer(keyedBy:forKey:)`
+ to decode the associated value of the `OneOf`, all other access will fail with an error.
+
+ The decoder receives all key-value pairs from the parent node (passed through `OneOfDecodingNode`),
+ in order to select the appropriate data required to decode the enum (`OneOf` types share the field values with the enclosing message).
+ */
+final class OneOfKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtocol where Key: CodingKey {
 
     private let content: [DecodingKey: Data]
 
@@ -24,37 +33,34 @@ class OneOfKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
         content.keys.contains { $0.isEqual(to: key) }
     }
 
-    private func getDataIfAvailable(forKey key: CodingKey) -> Data? {
-        content.first(where: { $0.key.isEqual(to: key) })?.value
-    }
-
-    func getData(forKey key: CodingKey) -> Data {
-        getDataIfAvailable(forKey: key) ?? Data()
-    }
-
     func decodeNil(forKey key: Key) throws -> Bool {
-        !contains(key)
+        throw ProtobufDecodingError.invalidAccess(
+            "Unexpected call to `decodeNil(forKey:)` while decoding `ProtobufOneOf` enum")
     }
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
-        throw ProtobufDecodingError.unsupportedType("Unexpected decode while decoding OneOf")
+        throw ProtobufDecodingError.invalidAccess(
+            "Unexpected call to `decode(_,forKey)` while decoding `ProtobufOneOf` enum")
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        let data = getData(forKey: key)
+        let data = content.first(where: { $0.key.isEqual(to: key) })?.value ?? Data()
         let container = OneOfAssociatedValuesDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
-        throw ProtobufDecodingError.unsupportedType("Unexpected nested unkeyed container while decoding OneOf")
+        throw ProtobufDecodingError.invalidAccess(
+            "Unexpected call to `nestedUnkeyedContainer(forKey:)` while decoding `ProtobufOneOf` enum")
     }
 
     func superDecoder() throws -> Decoder {
-        throw ProtobufDecodingError.superNotSupported
+        throw ProtobufDecodingError.invalidAccess(
+            "Unexpected call to `superDecoder()` while decoding `ProtobufOneOf` enum")
     }
 
     func superDecoder(forKey key: Key) throws -> Decoder {
-        throw ProtobufDecodingError.superNotSupported
+        throw ProtobufDecodingError.invalidAccess(
+            "Unexpected call to `superDecoder(forKey:)` while decoding `ProtobufOneOf` enum")
     }
 }

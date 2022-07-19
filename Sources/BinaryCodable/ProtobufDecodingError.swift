@@ -19,6 +19,13 @@ public enum ProtobufDecodingError: Error {
      */
     case unsupportedType(String)
 
+    /**
+     A decoding feature was accessed which is not supported for protobuf encoding.
+
+     The associated value contains a textual description of the invalid access.
+     */
+    case invalidAccess(String)
+
 }
 
 extension ProtobufDecodingError {
