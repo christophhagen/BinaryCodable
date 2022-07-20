@@ -2,29 +2,49 @@ import Foundation
 
 /**
  The largest value (inclusive) for a valid integer coding key.
+ 
+ The value is an integer with all but the first 5 MSB set to `1`.
 
- The value is:
+ On 64 bit systems, the value is:
 
  Hex: `0x07FFFFFFFFFFFFFF`
 
  Decimal: `576460752303423487`
 
  Mathmatically: `2^59-1`
+ 
+ On 32 bit systems, the value is:
+ 
+ Hex: `0x07FFFFFF`
+
+ Decimal: `134217727`
+
+ Mathmatically: `2^27-1`
  */
-private let intKeyUpperBound = Int(bitPattern: 0x07FFFFFFFFFFFFFF)
+private let intKeyUpperBound = Int(bitPattern: ~UInt(0) >> 5)
 
 /**
  The smallest value (inclusive) for a valid integer coding key.
+ 
+ The value is an integer with only the first 5 MSB set to `1`.
 
- The value is:
+ On 64 bit systems, the value is:
 
  Hex: `0xF800000000000000`
 
  Decimal: `-576460752303423488`
 
  Mathmatically: `-2^59`
+ 
+ On 32 bit systems, the value is:
+ 
+ Hex: `0xF8000000`
+
+ Decimal: `-134217728`
+
+ Mathmatically: `-2^27`
  */
-private let intKeyLowerBound = Int(bitPattern: 0xF800000000000000)
+private let intKeyLowerBound = Int(bitPattern: 0xF8 << (UInt.bitWidth - 8))
 
 
 protocol CodingKeyWrapper {
