@@ -68,7 +68,7 @@ struct MixedCodingKeyWrapper: CodingKeyWrapper {
         if let int = codingKey.intValue {
             // Check that integer key is in valid range
             if int > intKeyUpperBound || int < intKeyLowerBound {
-                fatalError("Integer key \(int) is out of range for coding key \(codingKey.stringValue)")
+                fatalError("Integer key \(int) is out of range [\(intKeyLowerBound)...\(intKeyUpperBound)] for coding key \(codingKey.stringValue)")
             }
         }
         self.intValue = codingKey.intValue
