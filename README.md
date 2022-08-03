@@ -1,6 +1,7 @@
-# BinaryCodable
-
-<p>
+<p align="center">
+    <img src="assets/logo.png" width="500" max-width="90%" alt="BinaryCodable" />
+</p>
+<p align="center">
     <img src="https://img.shields.io/badge/Swift-5.6-orange.svg" />
     <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml">
         <img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" />
