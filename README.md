@@ -1,7 +1,15 @@
-# BinaryCodable
-
-[![Tests](https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg)](https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml)
-[![Docs](https://github.com/christophhagen/BinaryCodable/blob/master/docs/badge.svg)](https://christophhagen.de/projects/software/codable/docs/index.html)
+<p align="center">
+    <img src="assets/logo.png" width="500" max-width="90%" alt="BinaryCodable" />
+</p>
+<p align="center">
+    <img src="https://img.shields.io/badge/Swift-5.6-orange.svg" />
+    <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml">
+        <img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" />
+    </a>
+    <a href="https://christophhagen.de/projects/software/codable/docs/index.html">
+        <img src="https://github.com/christophhagen/BinaryCodable/blob/master/docs/badge.svg" />
+    </a>
+</p>
 
 This package provides convenient encoding and decoding to/from binary data for all Swift `Codable` types. It also provides limited cross-compatibility to [Google Protocol Buffers](https://developers.google.com/protocol-buffers).
 
