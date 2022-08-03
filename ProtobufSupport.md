@@ -84,7 +84,7 @@ The general structure of the messages is very similar, with the proto field numb
 
 ### Assigning integer keys
 
-The assignment of integer keys follow the same [rules](https://developers.google.com/protocol-buffers/docs/proto3#assigning_field_numbers) as for field numbers, just written out as an `enum` with `RawValue == Int` on the type conforming to `CodingKey`. The smallest field number you can specify is `1`, and the largest is `2<sup>29</sup> - 1`, or `536,870,911`. Codable types without (or with invalid) integer keys can't be encoded using `ProtobufEncoder` and will throw an error.
+The assignment of integer keys follow the same [rules](https://developers.google.com/protocol-buffers/docs/proto3#assigning_field_numbers) as for field numbers, just written out as an `enum` with `RawValue == Int` on the type conforming to `CodingKey`. The smallest field number you can specify is `1`, and the largest is `2^29 - 1`, or `536,870,911`. Codable types without (or with invalid) integer keys can't be encoded using `ProtobufEncoder` and will throw an error.
 
 ### Scalar value types
 
