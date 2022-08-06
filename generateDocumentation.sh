@@ -5,8 +5,8 @@ jazzy
 # Copy the documentation badge so that it can be found using the relative link in the readme
 mkdir -p docs/docs
 cp docs/badge.svg docs/docs/badge.svg
-# Copy the remaining badges
+# Copy the remaining badges and logo
 mkdir -p docs/assets
-cp assets/*.svg docs/assets/
+cp assets/* docs/assets/
 
 echo 'Generation complete'
