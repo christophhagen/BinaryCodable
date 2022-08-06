@@ -7,7 +7,7 @@
     <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml">
         <img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" />
     </a>
-    <a href="https://christophhagen.de/projects/software/codable/docs/index.html">
+    <a href="https://christophhagen.de/docs/BinaryCodable/index.html">
         <img src="docs/badge.svg" />
     </a>
 </p>
