@@ -30,6 +30,30 @@ public final class BinaryDecoder {
     public var userInfo = [CodingUserInfoKey : Any]()
 
     /**
+     Assumes that unkeyed containers are encoded using a set of indices for `nil` values.
+
+     Refer to the ``prependNilIndexSetForUnkeyedContainers`` property of `BinaryEncoder`
+     for more information about the binary data format in both cases.
+
+     - Note: This option defaults to `true`
+     - Note: To decode successfully, the encoder must use the same setting for `prependNilIndexSetForUnkeyedContainers`.
+     */
+    public var containsNilIndexSetForUnkeyedContainers: Bool = true
+
+    /**
+     The info for decoding.
+
+     Combines the info data provided by the user with the internal keys of the decoding options.
+     */
+    private var fullInfo: [CodingUserInfoKey : Any] {
+        var info = userInfo
+        if containsNilIndexSetForUnkeyedContainers {
+            info[CodingOption.prependNilIndicesForUnkeyedContainers.infoKey] = true
+        }
+        return info
+    }
+
+    /**
      Create a new binary encoder.
      - Note: A single decoder can be used to decode multiple messages.
      */
@@ -45,7 +69,7 @@ public final class BinaryDecoder {
      - Throws: Errors of type `BinaryDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        let root = DecodingNode(data: data, top: true, path: [], info: userInfo)
+        let root = DecodingNode(data: data, top: true, path: [], info: fullInfo)
         do {
             return try type.init(from: root)
         } catch {

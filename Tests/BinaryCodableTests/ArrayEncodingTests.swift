@@ -203,4 +203,25 @@ final class ArrayEncodingTests: XCTestCase {
         try compare(data, to: expected)
         try compare(Data(), to: [0])
     }
+
+    private func compareWithoutIndexSet<T>(_ input: [T], bytes: [UInt8]) throws where T: Codable, T: Equatable {
+        let encoder = BinaryEncoder()
+        encoder.prependNilIndexSetForUnkeyedContainers = false
+        let decoder = BinaryDecoder()
+        decoder.containsNilIndexSetForUnkeyedContainers = false
+
+        let encoded = try encoder.encode(input)
+        XCTAssertEqual(encoded.bytes, bytes)
+        let decoded = try decoder.decode([T].self, from: encoded)
+        XCTAssertEqual(input, decoded)
+    }
+
+    func testEncodingWithoutNilSet() throws {
+        try compareWithoutIndexSet([1,2,3], bytes: [1, 2, 1, 4, 1, 6])
+    }
+
+    func testEncodingOptionalsWithoutNilSet() throws {
+        let input = [1, nil, 2, nil, 3]
+        try compareWithoutIndexSet(input, bytes: [1, 2, 0, 1, 4, 0, 1, 6])
+    }
 }

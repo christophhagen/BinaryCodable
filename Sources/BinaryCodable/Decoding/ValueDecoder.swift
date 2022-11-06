@@ -2,13 +2,13 @@ import Foundation
 
 final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
 
-    let data: DataDecoder
+    let data: ByteStreamProvider
 
     private let isAtTopLevel: Bool
 
     private let isNil: Bool
 
-    init(data: DataDecoder, isNil: Bool, top: Bool = false, path: [CodingKey], info: UserInfo) {
+    init(data: ByteStreamProvider, isNil: Bool, top: Bool = false, path: [CodingKey], info: UserInfo) {
         self.data = data
         self.isNil = isNil
         self.isAtTopLevel = top
@@ -23,7 +23,7 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
         if let Primitive = type as? DecodablePrimitive.Type {
             let data: Data
             if Primitive.dataType == .variableLength, isAtTopLevel {
-                data = self.data.getAllData()
+                data = try self.data.getAllData()
             } else {
                 data = try self.data.getData(for: Primitive.dataType)
             }

@@ -1,6 +1,6 @@
 import Foundation
 
-final class DataDecoder {
+final class DataDecoder: ByteStreamProvider {
 
     let data: Data
 
@@ -31,45 +31,10 @@ final class DataDecoder {
         return data[index..<newIndex]
     }
 
-    func getVarint() throws -> Int {
-        let data = try getDataOfVarint()
-        return try .init(fromVarint: data)
-    }
-
-    func getDataOfVarint() throws -> Data {
-        let start = index
-        for _ in 0...7 {
-            guard index < data.endIndex else {
-                throw BinaryDecodingError.prematureEndOfData
-            }
-            let byte = data[index]
-            index += 1
-            if byte & 0x80 == 0 {
-                return data[start..<index]
-            }
+    func lookAtCurrentByte() -> UInt8? {
+        guard hasMoreBytes else {
+            return nil
         }
-        guard index < data.endIndex else {
-            throw BinaryDecodingError.prematureEndOfData
-        }
-        index += 1
-        return data[start..<index]
-    }
-
-    func getData(for dataType: DataType) throws -> Data {
-        switch dataType {
-        case .variableLengthInteger:
-            return try getDataOfVarint()
-        case .byte:
-            return try getBytes(1)
-        case .twoBytes:
-            return try getBytes(2)
-        case .variableLength:
-            let count = try getVarint()
-            return try getBytes(count)
-        case .fourBytes:
-            return try getBytes(4)
-        case .eightBytes:
-            return try getBytes(8)
-        }
+        return data[index]
     }
 }

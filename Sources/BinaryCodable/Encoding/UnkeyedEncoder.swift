@@ -71,8 +71,28 @@ extension UnkeyedEncoder: EncodingContainer {
         content.map { $0.dataWithLengthInformationIfRequired }.joinedData
     }
 
+    /**
+     Encode the elements without a prepended index set.
+
+     Adds a `0` for `nil` elements, and a `1` before non-nil elements.
+     */
+    private var dataWithoutIndexSet: Data {
+        var contentIndex = 0
+        return (0..<count).map { index -> Data in
+            if nilIndices.contains(index) {
+                return Data([0])
+            }
+            defer { contentIndex += 1 }
+            return [1] + content[contentIndex].dataWithLengthInformationIfRequired
+        }.joinedData
+    }
+
     var data: Data {
-        nilIndicesData + contentData
+        if prependNilIndexSetForUnkeyedContainers {
+            return nilIndicesData + contentData
+        } else {
+            return dataWithoutIndexSet
+        }
     }
     
     var dataType: DataType {

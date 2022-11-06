@@ -2,9 +2,9 @@ import Foundation
 
 final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
 
-    let data: DataDecoder
+    let data: ByteStreamProvider
 
-    init(data: DataDecoder, path: [CodingKey], info: UserInfo) {
+    init(data: ByteStreamProvider, path: [CodingKey], info: UserInfo) {
         self.data = data
         super.init(path: path, info: info)
     }

@@ -2,20 +2,24 @@ import Foundation
 
 final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
-    private let decoder: DataDecoder
+    private let decoder: ByteStreamProvider
 
     private let nilIndices: Set<Int>
 
     init(data: Data, path: [CodingKey], info: UserInfo) throws {
         let decoder = DataDecoder(data: data)
         self.decoder = decoder
-        let nilIndicesCount = try decoder.getVarint()
-        guard nilIndicesCount >= 0 else {
-            throw BinaryDecodingError.invalidDataSize
+        if info.has(.prependNilIndicesForUnkeyedContainers) {
+            let nilIndicesCount = try decoder.getVarint()
+            guard nilIndicesCount >= 0 else {
+                throw BinaryDecodingError.invalidDataSize
+            }
+            self.nilIndices = try (0..<nilIndicesCount)
+                .map { _ in try decoder.getVarint() }
+                .reduce(into: []) { $0.insert($1) }
+        } else {
+            self.nilIndices = []
         }
-        self.nilIndices = try (0..<nilIndicesCount)
-            .map { _ in try decoder.getVarint() }
-            .reduce(into: []) { $0.insert($1) }
         super.init(path: path, info: info)
     }
 
@@ -27,13 +31,33 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
         !nextValueIsNil && !decoder.hasMoreBytes
     }
 
-    var currentIndex: Int = 0
+    private(set) var currentIndex: Int = 0
 
     private var nextValueIsNil: Bool {
-        nilIndices.contains(currentIndex)
+        if prependNilIndexSetForUnkeyedContainers {
+            return nilIndices.contains(currentIndex)
+        }
+        return nextByteIndicatesNilValue
+    }
+
+    private var nextByteIndicatesNilValue: Bool {
+        guard let byte = decoder.lookAtCurrentByte() else {
+            return false
+        }
+        return byte == 0
     }
 
     func decodeNil() throws -> Bool {
+        guard prependNilIndexSetForUnkeyedContainers else {
+            // TODO: Should the decoder advance after the nil indicator byte?
+            if nextByteIndicatesNilValue {
+                // Skip the already checked nil indicator byte
+                _ = try decoder.getByte()
+                return true
+            } else {
+                return false
+            }
+        }
         guard nilIndices.contains(currentIndex) else {
             return false
         }
@@ -43,12 +67,17 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         defer { currentIndex += 1 }
+        let isNil = nextValueIsNil
+        if !prependNilIndexSetForUnkeyedContainers {
+            // Skip the already checked nil indicator byte
+            _ = try decoder.getByte()
+        }
         if let Primitive = type as? DecodablePrimitive.Type {
             let dataType = Primitive.dataType
             let data = try decoder.getData(for: dataType)
             return try Primitive.init(decodeFrom: data) as! T
         }
-        let node = DecodingNode(decoder: decoder, isNil: nextValueIsNil, path: codingPath, info: userInfo)
+        let node = DecodingNode(decoder: decoder, isNil: isNil, path: codingPath, info: userInfo)
         return try T.init(from: node)
     }
 

@@ -15,7 +15,7 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
         super.init(path: path, info: info)
     }
 
-    init(decoder: DataDecoder, isNil: Bool = false, path: [CodingKey], info: UserInfo) {
+    init(decoder: ByteStreamProvider, isNil: Bool = false, path: [CodingKey], info: UserInfo) {
         self.storage = .decoder(decoder)
         self.isNil = isNil
         self.isAtTopLevel = false
