@@ -40,11 +40,9 @@ extension DataDecodingBuffer: BinaryStreamProvider {
     func getBytes(_ count: Int) throws -> Data {
         let newIndex = index + count
         guard newIndex <= buffer.endIndex else {
-            print("Wanted \(count) bytes, only has \(unusedBytes)")
             throw BinaryDecodingError.prematureEndOfData
         }
         defer { index = newIndex }
-        print("Supplying \(count) bytes")
         return buffer[index..<newIndex]
     }
 
