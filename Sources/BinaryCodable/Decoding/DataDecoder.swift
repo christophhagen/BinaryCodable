@@ -1,6 +1,6 @@
 import Foundation
 
-final class DataDecoder: ByteStreamProvider {
+final class DataDecoder: BinaryStreamProvider {
 
     let data: Data
 
@@ -29,12 +29,5 @@ final class DataDecoder: ByteStreamProvider {
         }
         defer { index = newIndex }
         return data[index..<newIndex]
-    }
-
-    func lookAtCurrentByte() -> UInt8? {
-        guard hasMoreBytes else {
-            return nil
-        }
-        return data[index]
     }
 }

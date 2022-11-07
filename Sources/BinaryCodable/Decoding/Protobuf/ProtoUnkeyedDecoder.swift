@@ -2,7 +2,7 @@ import Foundation
 
 final class ProtoUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
-    private let decoder: ByteStreamProvider
+    private let decoder: BinaryStreamProvider
 
     init(data: Data, path: [CodingKey], info: UserInfo) throws {
         self.decoder = DataDecoder(data: data)

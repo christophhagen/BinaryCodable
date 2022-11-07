@@ -2,7 +2,7 @@ import Foundation
 
 enum Storage {
     case data(Data)
-    case decoder(ByteStreamProvider)
+    case decoder(BinaryStreamProvider)
 
     func useAsData() throws -> Data {
         switch self {
@@ -13,7 +13,7 @@ enum Storage {
         }
     }
 
-    func useAsDecoder() -> ByteStreamProvider {
+    func useAsDecoder() -> BinaryStreamProvider {
         switch self {
         case .data(let data):
             return DataDecoder(data: data)

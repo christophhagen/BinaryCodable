@@ -78,6 +78,23 @@ public final class BinaryDecoder {
     }
 
     /**
+     Decode a type from a data stream.
+
+     This function is the pendant to `encodeForStream()` on ``BinaryEncoder``, and decodes a type from a data stream.
+     The additional length information added to the stream is used to correctly decode each element.
+     - Note: This function is not exposed publicly to keep the API easy to understand.
+     Advanced features like stream decoding are handled by ``BinaryStreamDecoder``.
+     */
+    func decode<T>(_ type: T.Type = T.self, fromStream provider: BinaryStreamProvider) throws -> T where T: Decodable {
+        let root = DecodingNode(decoder: provider, path: [], info: fullInfo)
+        do {
+            return try type.init(from: root)
+        } catch {
+            throw BinaryDecodingError(wrapping: error)
+        }
+    }
+
+    /**
      Decode a single value from binary data using a default decoder.
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance

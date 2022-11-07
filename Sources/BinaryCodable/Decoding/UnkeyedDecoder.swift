@@ -2,7 +2,7 @@ import Foundation
 
 final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
-    private let decoder: ByteStreamProvider
+    private let decoder: BinaryStreamProvider
 
     private let nilIndices: Set<Int>
 
@@ -33,6 +33,8 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
     private(set) var currentIndex: Int = 0
 
+    private var decodedNextByteAsNil: Bool?
+
     private var nextValueIsNil: Bool {
         if prependNilIndexSetForUnkeyedContainers {
             return nilIndices.contains(currentIndex)
@@ -41,18 +43,22 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     }
 
     private var nextByteIndicatesNilValue: Bool {
-        guard let byte = decoder.lookAtCurrentByte() else {
+        if let decodedNextByteAsNil {
+            return decodedNextByteAsNil
+        }
+        guard let byte = try? decoder.getByte() else {
             return false
         }
-        return byte == 0
+        let isNil = byte == 0
+        decodedNextByteAsNil = isNil
+        return isNil
     }
 
     func decodeNil() throws -> Bool {
         guard prependNilIndexSetForUnkeyedContainers else {
-            // TODO: Should the decoder advance after the nil indicator byte?
             if nextByteIndicatesNilValue {
-                // Skip the already checked nil indicator byte
-                _ = try decoder.getByte()
+                // Remove the information about the next nil value
+                decodedNextByteAsNil = nil
                 return true
             } else {
                 return false
@@ -69,8 +75,8 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
         defer { currentIndex += 1 }
         let isNil = nextValueIsNil
         if !prependNilIndexSetForUnkeyedContainers {
-            // Skip the already checked nil indicator byte
-            _ = try decoder.getByte()
+            // Remove the information about the next nil value
+            decodedNextByteAsNil = nil
         }
         if let Primitive = type as? DecodablePrimitive.Type {
             let dataType = Primitive.dataType

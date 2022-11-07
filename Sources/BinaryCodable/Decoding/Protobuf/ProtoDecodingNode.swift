@@ -9,7 +9,7 @@ class ProtoDecodingNode: AbstractDecodingNode, Decoder {
         super.init(path: path, info: info)
     }
 
-    init(decoder: ByteStreamProvider, path: [CodingKey], info: UserInfo) {
+    init(decoder: BinaryStreamProvider, path: [CodingKey], info: UserInfo) {
         self.storage = .decoder(decoder)
         super.init(path: path, info: info)
     }
