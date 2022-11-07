@@ -106,6 +106,29 @@ public final class BinaryEncoder {
     }
 
     /**
+     Encodes a value to binary data for use in a data stream.
+
+     This function differs from 'normal'  encoding since additional length information is embedded into the binary data.
+     This information is used when decoding values from a data stream.
+
+     - Note: This function is not exposed publicly to keep the API easy to understand.
+     Advanced features like stream encoding are handled by ``BinaryStreamEncoder``.
+     */
+    func encodeForStream(_ value: Encodable) throws -> Data {
+        let root = EncodingNode(path: [], info: fullInfo)
+        do {
+            try value.encode(to: root)
+        } catch {
+            throw BinaryEncodingError(wrapping: error)
+        }
+        if root.isNil {
+            return Data()
+        } else {
+            return root.dataWithLengthInformationIfRequired
+        }
+    }
+
+    /**
      Encode a single value to binary data using a default encoder.
      - Parameter value: The value to encode
      - Returns: The encoded data
