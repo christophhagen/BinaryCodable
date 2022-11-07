@@ -43,8 +43,8 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     }
 
     private var nextByteIndicatesNilValue: Bool {
-        if let decodedNextByteAsNil {
-            return decodedNextByteAsNil
+        if let isNil = decodedNextByteAsNil {
+            return isNil
         }
         guard let byte = try? decoder.getByte() else {
             return false
