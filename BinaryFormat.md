@@ -1,6 +1,8 @@
 # Binary data structure
 
-**Note:** The `BinaryCodable` format is optimized for size, but does not go all-out to create the smallest binary sizes possible. If this is your goal, then simply using `Codable` with it's key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you're really looking into this kind of efficiency, then you probably know this already.
+**Note:** The `BinaryCodable` format is optimized for size, but does not go all-out to create the smallest binary sizes possible. 
+The binary format, while being efficient, needs to serve as a general-purpose encoding, which will never be as efficient than a custom format optimized for a very specific use case.
+If this is your goal, then simply using `Codable` with it's key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you're really looking into this kind of efficiency, then you probably know this already.
 
 The encoding format used by `BinaryCodable` is similar to Google's [Protocol Buffers](https://developers.google.com/protocol-buffers) in some aspects, but provides much more flexibility regarding the different types which can be encoded, including the ability to encode `Optional`, `Set`, single values, multidimensional `Array`s, and more.
 
@@ -31,7 +33,15 @@ Arrays (and other sequences) are encoded by converting each item to binary data,
 
 ### Arrays of Optionals
 
-It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]`. Due to constraints regarding Apple's implementation of `Encoder` and `Decoder`, it is not consistently possible to infer if optionals are present in unkeyed containers. `BinaryCodable` therefore encodes optionals using a different strategy: Each array binary representation is prepended with a "nil index set". It first consists of the number of `nil` elements in the sequence, encoded as a `Varint`. Then follow the indices in the array where `nil` values are present, each encoded as a `Varint`. The decoder can then first parse this `nil` set, and return the appropriate value for each position where a `nil` value is encoded. This approach is fairly efficient while only few `nil` values are encoded, or while the sequence doesn't contain a large number of elements. For arrays that don't contain optionals, only a single byte (`0`) is prepended to the binary representation, to signal that there are no `nil` indices in the sequence.
+It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]`. Due to constraints regarding Apple's implementation of `Encoder` and `Decoder`, it is not consistently possible to infer if optionals are present in unkeyed containers. `BinaryCodable` therefore encodes optionals using a different strategy: Each array binary representation is prepended with a "nil index set". It first consists of the number of `nil` elements in the sequence, encoded as a `Varint`. Then follow the indices in the array where `nil` values are present, each encoded as a `Varint`. The decoder can then first parse this `nil` set, and return the appropriate value for each position where a `nil` value is encoded. This approach is fairly efficient while only few `nil` values are encoded, or while the sequence doesn't contain a large number of elements.
+For arrays that don't contain optionals, only a single byte (`0`) is prepended to the binary representation, to signal that there are no `nil` indices in the sequence.
+
+If the `prependNilIndexSetForUnkeyedContainers` is set to `false`, then this behaviour is changed.
+The encoder then omits the *nil index set*, and instead adds a single byte `0x01` before each non-nil element, and a single `0x00` byte to signal `nil`.
+
+- Note: One benefit of this option is that top-level sequences can be joined using their binary data, where `encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])`.
+
+More efficient ways could be devised to handle arrays of optionals, like specifying the number of `nil` or non-nil elements following one another, but the increased encoding and decoding complexity don't justify these gains in communication efficiency.
 
 ## Structs
 

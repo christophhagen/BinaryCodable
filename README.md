@@ -162,11 +162,27 @@ While varints are efficient for small numbers, their encoding introduces a stora
 
 ### Options
 
+#### Sorting keys
+
 The `BinaryEncoder` provides the `sortKeysDuringEncoding` option, which forces fields in "keyed" containers, such as `struct` properties (and some dictionaries), to be sorted in the binary data. This sorting is done by using either the [integer keys](#coding-keys) (if defined), or the property names. Dictionaries with `Int` or `String` keys are also sorted. 
 
 Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. It should therefore only be used if the binary data must be consistent across multiple invocations.
 
-**Note:** The `sortKeysDuringEncoding` option does not guarantee deterministic binary data, and should be used with care. 
+**Note:** The `sortKeysDuringEncoding` option does not *neccessarily* guarantee deterministic binary data, and should be used with care.
+
+#### Encoding optionals in arrays
+
+Sequences of `Optional` values (like arrays, sets, ...) are normally encoded using a *nil index set*. 
+The index of each `nil` element in the sequence is recorded, and only non-nil values are encoded. 
+The indices of `nil` elements are then prepended to the data as an array of integers.
+During decoding, this index set is checked to place `nil` values between the non-nil elements at the appropriate indices.
+
+This encoding scheme is usually more efficient than, e.g. indicating for each element whether the value is non-optional using an additional byte.
+There can be specific cases where `nil index sets` become less efficient, e.g. when storing very large arrays of mostly `nil` values.
+
+In these cases, the encoder option `prependNilIndexSetForUnkeyedContainers` can be set to `false`, causing the encoder to omit the nil index set in favour of an additional byte before each element.
+The decoder must then have `containsNilIndexSetForUnkeyedContainers` set to `false`, so that the data can be successfully decoded.
+
 
 ### Protocol Buffer compatibility
 
