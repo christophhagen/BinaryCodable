@@ -38,7 +38,7 @@ final class BinaryStreamBuffer {
         index = buffer.startIndex
     }
 
-    func discardBufferData() {
+    func discardUsedBufferData() {
         buffer = Data()
         index = buffer.startIndex
     }

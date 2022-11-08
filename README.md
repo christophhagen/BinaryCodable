@@ -225,6 +225,30 @@ print(decoded2) // [2,3]
 
 The decoder has an internal buffer, so incomplete data can be inserted into the decoder as it becomes available. The output of `decode(_ data:)` will be empty until the next complete element is processed.
 
+### File encoding and decoding 
+
+Writing data streams to files is a common use case, so the library also provides wrappers around `BinaryStreamEncoder` and `BinaryStreamDecoder` to perform these tasks.
+The `BinaryFileEncoder` can be used to sequentially write elements to a file:
+
+```swift
+let encoder = BinaryFileEncoder<DataElement>(fileAt: url)
+try encoder.write(element1)
+try encoder.write(element2)
+...
+try encoder.close() // Close the file
+```
+
+Elements will always be appended to the end of file, so existing files can be updated with additional data.
+
+Decoding works in a similar way, except with a callback to handle each element as it is decoded:
+```swift
+let decoder = BinaryFileDecoder<DataElement>(fileAt: url)
+try decoder.read { element in
+    // Process each element
+}
+```
+
+There is also the possibility to read all elements at once using `readAll()`, or to read only one element at a time (`readElement()`).
 
 ### Protocol Buffer compatibility
 
