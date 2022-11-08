@@ -56,6 +56,18 @@
                 <a href="Classes/BinaryEncoder.html">BinaryEncoder</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/BinaryFileDecoder.html">BinaryFileDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryFileEncoder.html">BinaryFileEncoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryStreamDecoder.html">BinaryStreamDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/ProtobufDecoder.html">ProtobufDecoder</a>
               </li>
               <li class="nav-group-task">
@@ -163,7 +175,9 @@
             
             <h1 id='binary-data-structure' class='heading'>Binary data structure</h1>
 
-<p><strong>Note:</strong> The <code>BinaryCodable</code> format is optimized for size, but does not go all-out to create the smallest binary sizes possible. If this is your goal, then simply using <code>Codable</code> with it&rsquo;s key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you&rsquo;re really looking into this kind of efficiency, then you probably know this already.</p>
+<p><strong>Note:</strong> The <code>BinaryCodable</code> format is optimized for size, but does not go all-out to create the smallest binary sizes possible. 
+The binary format, while being efficient, needs to serve as a general-purpose encoding, which will never be as efficient than a custom format optimized for a very specific use case.
+If this is your goal, then simply using <code>Codable</code> with it&rsquo;s key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you&rsquo;re really looking into this kind of efficiency, then you probably know this already.</p>
 
 <p>The encoding format used by <code>BinaryCodable</code> is similar to Google&rsquo;s <a href="https://developers.google.com/protocol-buffers">Protocol Buffers</a> in some aspects, but provides much more flexibility regarding the different types which can be encoded, including the ability to encode <code>Optional</code>, <code>Set</code>, single values, multidimensional <code>Array</code>s, and more.</p>
 <h2 id='integer-encoding' class='heading'>Integer encoding</h2>
@@ -188,7 +202,18 @@
 <p>Arrays (and other sequences) are encoded by converting each item to binary data, and concatenating the results. Elements with variable length (like <code>String</code>) are prepended with their length encoded as a <a href="#integer-encoding">Varint</a>. Each encoded array has at least one byte prepended to it, in order to support optional values.</p>
 <h3 id='arrays-of-optionals' class='heading'>Arrays of Optionals</h3>
 
-<p>It is possible to encode arrays where the elements are <code>Optional</code>, e.g. <code>[Bool?]</code>. Due to constraints regarding Apple&rsquo;s implementation of <code>Encoder</code> and <code>Decoder</code>, it is not consistently possible to infer if optionals are present in unkeyed containers. <code>BinaryCodable</code> therefore encodes optionals using a different strategy: Each array binary representation is prepended with a &ldquo;nil index set&rdquo;. It first consists of the number of <code>nil</code> elements in the sequence, encoded as a <code>Varint</code>. Then follow the indices in the array where <code>nil</code> values are present, each encoded as a <code>Varint</code>. The decoder can then first parse this <code>nil</code> set, and return the appropriate value for each position where a <code>nil</code> value is encoded. This approach is fairly efficient while only few <code>nil</code> values are encoded, or while the sequence doesn&rsquo;t contain a large number of elements. For arrays that don&rsquo;t contain optionals, only a single byte (<code>0</code>) is prepended to the binary representation, to signal that there are no <code>nil</code> indices in the sequence.</p>
+<p>It is possible to encode arrays where the elements are <code>Optional</code>, e.g. <code>[Bool?]</code>. Due to constraints regarding Apple&rsquo;s implementation of <code>Encoder</code> and <code>Decoder</code>, it is not consistently possible to infer if optionals are present in unkeyed containers. <code>BinaryCodable</code> therefore encodes optionals using a different strategy: Each array binary representation is prepended with a &ldquo;nil index set&rdquo;. It first consists of the number of <code>nil</code> elements in the sequence, encoded as a <code>Varint</code>. Then follow the indices in the array where <code>nil</code> values are present, each encoded as a <code>Varint</code>. The decoder can then first parse this <code>nil</code> set, and return the appropriate value for each position where a <code>nil</code> value is encoded. This approach is fairly efficient while only few <code>nil</code> values are encoded, or while the sequence doesn&rsquo;t contain a large number of elements.
+For arrays that don&rsquo;t contain optionals, only a single byte (<code>0</code>) is prepended to the binary representation, to signal that there are no <code>nil</code> indices in the sequence.</p>
+
+<p>If the <code>prependNilIndexSetForUnkeyedContainers</code> is set to <code>false</code>, then this behaviour is changed.
+The encoder then omits the <em>nil index set</em>, and instead adds a single byte <code>0x01</code> before each non-nil element, and a single <code>0x00</code> byte to signal <code>nil</code>.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    One benefit of this option is that top-level sequences can be joined using their binary data, where <code>encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])</code>.
+
+</div>
+
+<p>More efficient ways could be devised to handle arrays of optionals, like specifying the number of <code>nil</code> or non-nil elements following one another, but the increased encoding and decoding complexity don&rsquo;t justify these gains in communication efficiency.</p>
 <h2 id='structs' class='heading'>Structs</h2>
 
 <p>Structs are encoded using <code>Codable</code>&lsquo;s <code>KeyedEncodingContainer</code>, which uses <code>String</code> or <code>Int</code> coding keys to distinguish the properties of the types.
@@ -449,11 +474,27 @@ The following data types are possible:</p>
 <h4 id='dictionaries-with-string-keys' class='heading'>Dictionaries with String keys</h4>
 
 <p>For dictionaries with <code>String</code> keys (<code>[String: ...]</code>), the process is similar to the above, except with <code>CodingKey</code>s having the <code>stringValue</code> of the key. There is another weird exception though: Whenever a <code>String</code> can be represented by an integer (i.e. when <code>String(key) != nil</code>), then the corresponding <code>CodingKey</code> will have its <code>integerValue</code> also set. This means that for dictionaries with integer keys, there may be a mixture of integer and string keys present in the binary data, depending on the input values. But don&rsquo;t worry, <code>BinaryCodable</code> will also handle these cases correctly.</p>
+<h2 id='stream-encoding' class='heading'>Stream encoding</h2>
+
+<p>The encoding for data streams is only differs from standard encoding in two key aspects.</p>
+<h3 id='added-length-information' class='heading'>Added length information</h3>
+
+<p>Each top-level element is encoded as if it is part of an unkeyed container (which it essentially is), meaning that each element has the necessary length information prepended to determine it&rsquo;s size.
+Only types with data type <code>variable length</code> have their length prepended using <a href="#integer-encoding">varint</a> encoding.
+This concerns <code>String</code> and <code>Data</code>, as well as complex types like structs and arrays, among others.</p>
+<h3 id='optionals' class='heading'>Optionals</h3>
+
+<p>Normally, <code>Optional</code> values in unkeyed containers are tracked using <a href="#arrays-of-optionals">nil index sets</a>, which is prepended to the list of non-optionals.
+This approach is not possible for streams, requiring additional information for each element in the stream.
+A single byte is prepended to each <code>Optional</code> element, where binary <code>0x01</code> is used to indicate a non-optional value, and <code>0x00</code> is used to signal an optional value. 
+<code>nil</code> values have no additional data, so each is encoded using one byte.</p>
+
+<p>This encoding of optionals is similar to the <a href="#arrays-of-optionals">encoding of sequences of optionals</a> when not using the default option.</p>
 
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-08-06)</p>
+          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-11-08)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>

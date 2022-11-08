@@ -57,6 +57,18 @@
                 <a href="Classes/BinaryEncoder.html">BinaryEncoder</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/BinaryFileDecoder.html">BinaryFileDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryFileEncoder.html">BinaryFileEncoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryStreamDecoder.html">BinaryStreamDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/ProtobufDecoder.html">ProtobufDecoder</a>
               </li>
               <li class="nav-group-task">
@@ -259,6 +271,187 @@
                 <li class="item">
                   <div>
                     <code>
+                    <a name="/s:13BinaryCodable0A11FileDecoderC"></a>
+                    <a name="//apple_ref/swift/Class/BinaryFileDecoder" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A11FileDecoderC">BinaryFileDecoder</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Read elements from a binary file.</p>
+
+<p>The decoder allows reading individual elements from a file without loading all file data to memory all at once.
+This decreases memory usage, which is especially useful for large files.
+Elements can also be read all at once, and corrupted files can be read until the first decoding error occurs.</p>
+
+<p>The class internally uses <code><a href="Classes/BinaryStreamDecoder.html">BinaryStreamDecoder</a></code> to encode the individual elements,
+which can also be used independently to decode the data for more complex operations.</p>
+
+<p><strong>Handling corrupted data</strong></p>
+
+<p>The binary format does not necessarily allow detection of data corruption, and various errors can occur
+as the result of added, changed, or missing bytes. Additional measures should be applied if there is an
+increased risk of data corruption.</p>
+
+<p>As an example, consider the simple encoding of a <code>String</code> inside a <code>struct</code>, which consists of a <code>key</code>
+followed by the length of the string in bytes, and the string content. The length of the string is encoded using
+variable length encoding, so a single bit flip (in the MSB of the length byte) could result in a very large <code>length</code> being decoded,
+causing the decoder to wait for a very large number of bytes to decode the string. This simple error would cause much
+data to be skipped. At the same time, it is not possible to determine <em>with certainty</em> where the error occured.</p>
+
+<p>The library does therefore only provide hints about the decoding errors likely occuring from non-conformance to the binary format
+or version incompatibility, which are not necessarily the <em>true</em> causes of the failures when data corruption is present.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    This class is compatible with <code><a href="Classes/BinaryFileEncoder.html">BinaryFileEncoder</a></code> and <code><a href="Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a></code>,
+but not with the outputs of <code><a href="Classes/BinaryEncoder.html">BinaryEncoder</a></code>.
+
+</div>
+
+                        <a href="Classes/BinaryFileDecoder.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">BinaryFileDecoder</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Element</span> <span class="p">:</span> <span class="kt">Decodable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A11FileEncoderC"></a>
+                    <a name="//apple_ref/swift/Class/BinaryFileEncoder" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A11FileEncoderC">BinaryFileEncoder</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Encode a stream of elements to a binary file.</p>
+
+<p>This class complements <code><a href="Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a></code> to directly write encoded elements to a file.</p>
+
+                        <a href="Classes/BinaryFileEncoder.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">BinaryFileEncoder</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Element</span> <span class="p">:</span> <span class="kt">Encodable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A13StreamDecoderC"></a>
+                    <a name="//apple_ref/swift/Class/BinaryStreamDecoder" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A13StreamDecoderC">BinaryStreamDecoder</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Decode elements from a byte stream.</p>
+
+<p>Stream decoding can be used when either the data is not regularly available completely (e.g. when loading data over a network connection),
+or when the binary data should not be loaded into memory all at once (e.g. when parsing a file).</p>
+
+<p>Each stream decoder handles only elements of a single type.
+The elements are handed to a handler passed to the decoder upon initialization.
+The byte stream is managed by a provider also specified on object creation.
+The decoder can then attempt to read elements by reading bytes from the provider, until a complete element can be decoded.
+Buffering is handled internally, freeing the stream provider from this responsibility.
+Each completely decoded element is immediatelly passed to handler for further processing.</p>
+
+                        <a href="Classes/BinaryStreamDecoder.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">BinaryStreamDecoder</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Element</span> <span class="p">:</span> <span class="kt">Decodable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A13StreamEncoderC"></a>
+                    <a name="//apple_ref/swift/Class/BinaryStreamEncoder" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A13StreamEncoderC">BinaryStreamEncoder</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Encode elements sequentially into a binary data stream.</p>
+
+<p>A stream encoder is used to encode individual elements of the same type to a continuous binary stream,
+which can be decoded sequentially.</p>
+
+<p>The encoding behaviour is different to <code><a href="Classes/BinaryEncoder.html">BinaryEncoder</a></code>, where the full data must be present to successfully decode.
+Additional information is embedded into the stream to facilitate this behaviour.
+The binary data produced by a stream encoder is not compatible with <code><a href="Classes/BinaryDecoder.html">BinaryDecoder</a></code> and can only be decoded using
+<code><a href="Classes/BinaryStreamDecoder.html">BinaryStreamDecoder</a></code>.</p>
+
+<p>The special data format of an encoded stream also allows joining sequences of encoded data, where:
+<code>encode([a,b]) + encode([c,d]) == encode([a,b,c,d])</code> and <code>decode(encode([a]) + encode([b])) == [a,b]</code></p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">encoder</span> <span class="o">=</span> <span class="kt">BinaryStreamEncoder</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">encoded1</span> <span class="o">=</span> <span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">BinaryStreamDecoder</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">decoded1</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="n">encoded1</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">decoded1</span><span class="p">)</span> <span class="c1">// [1]</span>
+
+<span class="k">let</span> <span class="nv">encoded2</span> <span class="o">=</span> <span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="k">let</span> <span class="nv">decoded2</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="n">encoded2</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">decoded2</span><span class="p">)</span> <span class="c1">// [2,3]</span>
+</code></pre>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    Stream decoders always work on a single type, because no type information is encoded into the data.
+
+</div>
+
+                        <a href="Classes/BinaryStreamEncoder.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">BinaryStreamEncoder</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Element</span> <span class="p">:</span> <span class="kt">Encodable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
                     <a name="/s:13BinaryCodable15ProtobufDecoderC"></a>
                     <a name="//apple_ref/swift/Class/ProtobufDecoder" class="dashAnchor"></a>
                     <a class="token" href="#/s:13BinaryCodable15ProtobufDecoderC">ProtobufDecoder</a>
@@ -355,7 +548,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-08-06)</p>
+          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-11-08)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>

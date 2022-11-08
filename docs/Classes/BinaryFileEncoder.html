@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>ProtobufDecoder Class Reference</title>
+    <title>BinaryFileEncoder Class Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -13,8 +13,8 @@
     <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
-    <a name="//apple_ref/swift/Class/ProtobufDecoder" class="dashAnchor"></a>
-    <a title="ProtobufDecoder Class Reference"></a>
+    <a name="//apple_ref/swift/Class/BinaryFileEncoder" class="dashAnchor"></a>
+    <a title="BinaryFileEncoder Class Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html"> Docs</a> (100% documented)</p>
@@ -30,7 +30,7 @@
       <p id="breadcrumbs">
         <a href="../index.html"> Reference</a>
         <img id="carat" src="../img/carat.png" alt=""/>
-        ProtobufDecoder Class Reference
+        BinaryFileEncoder Class Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -173,37 +173,17 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>ProtobufDecoder</h1>
+            <h1>BinaryFileEncoder</h1>
               <div class="declaration">
                 <div class="language">
                   
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">ProtobufDecoder</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">BinaryFileEncoder</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Element</span> <span class="p">:</span> <span class="kt">Encodable</span></code></pre>
 
                 </div>
               </div>
-            <p>An encoder to convert protobuf binary data back to <code>Codable</code> objects.</p>
+            <p>Encode a stream of elements to a binary file.</p>
 
-<p>Decoding unsupported data types causes <code>BinaryDecodingError.notProtobufCompatible</code> errors.</p>
-
-<p>To decode from data, instantiate a decoder and specify the type:</p>
-<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">BinaryDecoder</span><span class="p">()</span>
-<span class="k">let</span> <span class="nv">message</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">Message</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
-</code></pre>
-
-<p>Alternatively, the type can be inferred from context:</p>
-<pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Message</span> <span class="p">{</span>
-    <span class="k">try</span> <span class="kt">BinaryDecoder</span><span class="p">()</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre>
-
-<p>There are also convenience functions to directly decode a single instance:</p>
-<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">message</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">BinaryDecoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">Message</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
-</code></pre>
-<div class="aside aside-note">
-    <p class="aside-title">Note</p>
-    A single decoder can be used to decode multiple messages.
-
-</div>
+<p>This class complements <code><a href="../Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a></code> to directly write encoded elements to a file.</p>
 
           </section>
           <section class="section task-group-section">
@@ -212,9 +192,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:13BinaryCodable15ProtobufDecoderC8userInfoSDys010CodingUserF3KeyVypGvp"></a>
-                    <a name="//apple_ref/swift/Property/userInfo" class="dashAnchor"></a>
-                    <a class="token" href="#/s:13BinaryCodable15ProtobufDecoderC8userInfoSDys010CodingUserF3KeyVypGvp">userInfo</a>
+                    <a name="/s:13BinaryCodable0A11FileEncoderC6fileAt7encoderACyxG10Foundation3URLV_AA0aD0CtKcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(fileAt:encoder:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A11FileEncoderC6fileAt7encoderACyxG10Foundation3URLV_AA0aD0CtKcfc">init(fileAt:<wbr>encoder:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -222,71 +202,15 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Any contextual information set by the user for decoding.</p>
-
-<p>This dictionary is passed to all containers during the decoding process.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">userInfo</span><span class="p">:</span> <span class="p">[</span><span class="kt">CodingUserInfoKey</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:13BinaryCodable15ProtobufDecoderCACycfc"></a>
-                    <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:13BinaryCodable15ProtobufDecoderCACycfc">init()</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Create a new binary encoder.</p>
+                        <p>Create a new file encoder.</p>
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
-    A single decoder can be used to decode multiple messages.
+    The file will be created, if it does not exist.
+If it exists, then the new elements will be appended to the end of the file.
 
-</div>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">()</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:13BinaryCodable15ProtobufDecoderC6decode_4fromxxm_10Foundation4DataVtKSeRzlF"></a>
-                    <a name="//apple_ref/swift/Method/decode(_:from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:13BinaryCodable15ProtobufDecoderC6decode_4fromxxm_10Foundation4DataVtKSeRzlF">decode(_:<wbr>from:<wbr>)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Decode a type from binary data.</p>
-<div class="aside aside-throws">
+</div><div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    Errors of type <code><a href="../Enums/BinaryDecodingError.html">BinaryDecodingError</a></code> or <code><a href="../Enums/ProtobufDecodingError.html">ProtobufDecodingError</a></code>
+    Throws an error if the file could not be accessed or created.
 
 </div>
 
@@ -295,7 +219,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">decode</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">type</span><span class="p">:</span> <span class="kt">T</span><span class="o">.</span><span class="k">Type</span> <span class="o">=</span> <span class="kt">T</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span> <span class="k">where</span> <span class="kt">T</span> <span class="p">:</span> <span class="kt">Decodable</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">fileAt</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">,</span> <span class="nv">encoder</span><span class="p">:</span> <span class="kt"><a href="../Classes/BinaryEncoder.html">BinaryEncoder</a></span> <span class="o">=</span> <span class="o">.</span><span class="nf">init</span><span class="p">())</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -306,33 +230,29 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>type</em>
+                                <em>url</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The type to decode.</p>
+                                  <p>The url to the file.</p>
                                 </div>
                               </td>
                             </tr>
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>encoder</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The binary data which encodes the instance</p>
+                                  <p>The encoder to use for each element.</p>
                                 </div>
                               </td>
                             </tr>
                           </tbody>
                         </table>
-                      </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>The decoded instance</p>
                       </div>
                     </section>
                   </div>
@@ -340,9 +260,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:13BinaryCodable15ProtobufDecoderC6decode_4fromxxm_10Foundation4DataVtKSeRzlFZ"></a>
-                    <a name="//apple_ref/swift/Method/decode(_:from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:13BinaryCodable15ProtobufDecoderC6decode_4fromxxm_10Foundation4DataVtKSeRzlFZ">decode(_:<wbr>from:<wbr>)</a>
+                    <a name="/s:13BinaryCodable0A11FileEncoderC5closeyyKF"></a>
+                    <a name="//apple_ref/swift/Method/close()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A11FileEncoderC5closeyyKF">close()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -350,10 +270,15 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Decode a single value from binary data using a default decoder.</p>
-<div class="aside aside-throws">
+                        <p>Close the file.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    After closing the file, the encoder can no longer write elements, which will result in an error or an exception.
+
+</div><div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    Errors of type <code><a href="../Enums/BinaryDecodingError.html">BinaryDecodingError</a></code> or <code><a href="../Enums/ProtobufDecodingError.html">ProtobufDecodingError</a></code>
+    Currently throws a ObjC-style <code>Exception</code>, not an <code>Error</code>, even on modern systems.
+This is a bug in the Foundation framework.
 
 </div>
 
@@ -362,7 +287,43 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="n">decode</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">type</span><span class="p">:</span> <span class="kt">T</span><span class="o">.</span><span class="k">Type</span> <span class="o">=</span> <span class="kt">T</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span> <span class="k">where</span> <span class="kt">T</span> <span class="p">:</span> <span class="kt">Decodable</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">close</span><span class="p">()</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A11FileEncoderC5writeyyxKF"></a>
+                    <a name="//apple_ref/swift/Method/write(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A11FileEncoderC5writeyyxKF">write(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Write a single element to the file.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    This function will throw an error or exception if the file handle has already been closed.
+
+</div><div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    Errors of type <code><a href="../Enums/BinaryEncodingError.html">BinaryEncodingError</a></code>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">_</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -373,33 +334,70 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>type</em>
+                                <em>element</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The type to decode.</p>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>data</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The binary data which encodes the instance</p>
+                                  <p>The element to encode.</p>
                                 </div>
                               </td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A11FileEncoderC5write10contentsOfyqd___tK7ElementQyd__RszSTRd__lF"></a>
+                    <a name="//apple_ref/swift/Method/write(contentsOf:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A11FileEncoderC5write10contentsOfyqd___tK7ElementQyd__RszSTRd__lF">write(contentsOf:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Write a sequence of elements to the file.</p>
+
+<p>This is a convenience function calling <code>write(_ element:)</code> for each element of the sequence in order.</p>
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    Errors of type <code><a href="../Enums/BinaryEncodingError.html">BinaryEncodingError</a></code>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">write</span><span class="o">&lt;</span><span class="kt">S</span><span class="o">&gt;</span><span class="p">(</span><span class="n">contentsOf</span> <span class="nv">sequence</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span> <span class="k">throws</span> <span class="k">where</span> <span class="kt">Element</span> <span class="o">==</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">S</span> <span class="p">:</span> <span class="kt">Sequence</span></code></pre>
+
+                        </div>
+                      </div>
                       <div>
-                        <h4>Return Value</h4>
-                        <p>The decoded instance</p>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>sequence</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The sequence to encode</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>

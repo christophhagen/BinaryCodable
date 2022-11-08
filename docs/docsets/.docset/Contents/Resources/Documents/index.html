@@ -56,6 +56,18 @@
                 <a href="Classes/BinaryEncoder.html">BinaryEncoder</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/BinaryFileDecoder.html">BinaryFileDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryFileEncoder.html">BinaryFileEncoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryStreamDecoder.html">BinaryStreamDecoder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/ProtobufDecoder.html">ProtobufDecoder</a>
               </li>
               <li class="nav-group-task">
@@ -171,7 +183,7 @@
     <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml">
         <img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" />
     </a>
-    <a href="https://christophhagen.de/projects/software/codable/docs/index.html">
+    <a href="https://christophhagen.de/docs/BinaryCodable/index.html">
         <img src="docs/badge.svg" />
     </a>
 </p>
@@ -247,6 +259,17 @@
 All possible errors occuring during encoding produce <code><a href="Enums/BinaryEncodingError.html">BinaryEncodingError</a></code> errors, while unsuccessful decoding produces <code><a href="Enums/BinaryDecodingError.html">BinaryDecodingError</a></code>s. 
 Both are enums with several cases describing the nature of the error. 
 See the documentation of the types to learn more about the different error conditions.</p>
+<h4 id='handling-corrupted-data' class='heading'>Handling corrupted data</h4>
+
+<p>The <a href="BinaryFormat.md">binary format</a> provides no provisions to detect data corruption, and various errors can occur as the result of added, changed, or missing bytes and bits. 
+Additional external measures (checksums, error-correcting codes, &hellip;) should be applied if there is an increased risk of data corruption.</p>
+
+<p>As an example, consider the simple encoding of a <code>String</code> inside a <code>struct</code>, which consists of a <code>key</code> followed by the length of the string in bytes, and the string content.
+The length of the string is encoded using variable-length encoding, so a single bit flip (in the MSB of the length byte) could result in a very large <code>length</code> being decoded, causing the decoder to wait for a very large number of bytes to decode the string. 
+This simple error would cause much data to be skipped, potentially corrupting the data stream indefinitely.
+At the same time, it is not possible to determine <em>with certainty</em> where the error occured, making error recovery difficult without additional information about boundaries between elements.</p>
+
+<p>The decoding errors provided by the library are therefore only hints about error likely occuring from non-conformance to the binary format or version incompatibility, which are not necessarily the <em>true</em> causes of the failures when data corruption is present.</p>
 <h3 id='coding-keys' class='heading'>Coding Keys</h3>
 
 <p>The <code>Codable</code> protocol uses <a href="https://developer.apple.com/documentation/swift/codingkey"><code>CodingKey</code></a> definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.</p>
@@ -303,12 +326,71 @@ See the documentation of the types to learn more about the different error condi
 
 <p>There is an additional <code><a href="Structs/SignedValue.html">SignedValue</a></code> wrapper, which is only useful when encoding in <a href="ProtobufSupport.md#signed-integers">protobuf-compatible format</a>.</p>
 <h3 id='options' class='heading'>Options</h3>
+<h4 id='sorting-keys' class='heading'>Sorting keys</h4>
 
 <p>The <code><a href="Classes/BinaryEncoder.html">BinaryEncoder</a></code> provides the <code>sortKeysDuringEncoding</code> option, which forces fields in &ldquo;keyed&rdquo; containers, such as <code>struct</code> properties (and some dictionaries), to be sorted in the binary data. This sorting is done by using either the <a href="#coding-keys">integer keys</a> (if defined), or the property names. Dictionaries with <code>Int</code> or <code>String</code> keys are also sorted. </p>
 
 <p>Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. It should therefore only be used if the binary data must be consistent across multiple invocations.</p>
 
-<p><strong>Note:</strong> The <code>sortKeysDuringEncoding</code> option does not guarantee deterministic binary data, and should be used with care. </p>
+<p><strong>Note:</strong> The <code>sortKeysDuringEncoding</code> option does not <em>neccessarily</em> guarantee deterministic binary data, and should be used with care.</p>
+<h4 id='encoding-optionals-in-arrays' class='heading'>Encoding optionals in arrays</h4>
+
+<p>Sequences of <code>Optional</code> values (like arrays, sets, &hellip;) are normally encoded using a <em>nil index set</em>. 
+The index of each <code>nil</code> element in the sequence is recorded, and only non-nil values are encoded. 
+The indices of <code>nil</code> elements are then prepended to the data as an array of integers.
+During decoding, this index set is checked to place <code>nil</code> values between the non-nil elements at the appropriate indices.</p>
+
+<p>This encoding scheme is usually more efficient than, e.g. indicating for each element whether the value is non-optional using an additional byte.
+There can be specific cases where <code>nil index sets</code> become less efficient, e.g. when storing very large arrays of mostly <code>nil</code> values.</p>
+
+<p>In these cases, the encoder option <code>prependNilIndexSetForUnkeyedContainers</code> can be set to <code>false</code>, causing the encoder to omit the nil index set in favour of an additional byte before each element.
+The decoder must then have <code>containsNilIndexSetForUnkeyedContainers</code> set to <code>false</code>, so that the data can be successfully decoded.</p>
+<h3 id='stream-encoding-and-decoding' class='heading'>Stream encoding and decoding</h3>
+
+<p>The library provides the option to perform encoding and decoding of continuous streams, such as when writing sequences of elements to a file, or when transmitting data over a network.
+This functionality can be used through <code><a href="Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a></code> and <code><a href="Classes/BinaryStreamDecoder.html">BinaryStreamDecoder</a></code>, causing the encoder to embed additional information into the data to allow continuous decoding (mostly length information).
+Encoding and decoding is always done with sequences of one specific type, since multiple types in one stream could not be distinguished from one another.</p>
+
+<p>Encoding of a stream works similarly to normal encoding:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">encoder</span> <span class="o">=</span> <span class="kt">BinaryStreamEncoder</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">chunk1</span> <span class="o">=</span> <span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">chunk2</span> <span class="o">=</span> <span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="o">...</span>
+
+<span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">chunk1</span> <span class="o">+</span> <span class="n">chunk2</span> <span class="o">+</span> <span class="o">...</span>
+</code></pre>
+
+<p>Decoding of the individual chunks, with the decoder returning all elements which can be decoded using the currently available data.</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">BinaryStreamDecoder</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">decoded1</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="n">chunk1</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">decoded1</span><span class="p">)</span> <span class="c1">// [1]</span>
+
+<span class="k">let</span> <span class="nv">decoded2</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="n">chunk2</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">decoded2</span><span class="p">)</span> <span class="c1">// [2,3]</span>
+</code></pre>
+
+<p>The decoder has an internal buffer, so incomplete data can be inserted into the decoder as it becomes available. The output of <code>decode(_ data:)</code> will be empty until the next complete element is processed.</p>
+<h3 id='file-encoding-and-decoding' class='heading'>File encoding and decoding</h3>
+
+<p>Writing data streams to files is a common use case, so the library also provides wrappers around <code><a href="Classes/BinaryStreamEncoder.html">BinaryStreamEncoder</a></code> and <code><a href="Classes/BinaryStreamDecoder.html">BinaryStreamDecoder</a></code> to perform these tasks.
+The <code><a href="Classes/BinaryFileEncoder.html">BinaryFileEncoder</a></code> can be used to sequentially write elements to a file:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">encoder</span> <span class="o">=</span> <span class="kt">BinaryFileEncoder</span><span class="o">&lt;</span><span class="kt">DataElement</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">fileAt</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+<span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="n">element1</span><span class="p">)</span>
+<span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="n">element2</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">close</span><span class="p">()</span> <span class="c1">// Close the file</span>
+</code></pre>
+
+<p>Elements will always be appended to the end of file, so existing files can be updated with additional data.</p>
+
+<p>Decoding works in a similar way, except with a callback to handle each element as it is decoded:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">BinaryFileDecoder</span><span class="o">&lt;</span><span class="kt">DataElement</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">fileAt</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+<span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="n">read</span> <span class="p">{</span> <span class="n">element</span> <span class="k">in</span>
+    <span class="c1">// Process each element</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>There is also the possibility to read all elements at once using <code>readAll()</code>, or to read only one element at a time (<code>readElement()</code>).</p>
 <h3 id='protocol-buffer-compatibility' class='heading'>Protocol Buffer compatibility</h3>
 
 <p>Achieving Protocol Buffer compatibility is described in <a href="ProtobufSupport.md">ProtobufSupport.md</a>.</p>
@@ -345,7 +427,7 @@ If you have any pointers on how to improve the performance further, feel free to
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-08-06)</p>
+          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-11-08)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>
