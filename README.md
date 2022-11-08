@@ -24,6 +24,10 @@ So if you're looking for a decently efficient binary encoder in a pure Swift pro
 
 The [message format](#binary-format) is similar to that of `Protocol Buffers` (with some additions to support more types). It is possible to create [limited compatibility](#protocol-buffer-compatibility) between the two formats to exchange data with systems that don't support Swift.
 
+### Alternatives
+
+The approach using [Protocol Buffers](https://developers.google.com/protocol-buffers) mentioned above could be an option, but if you're looking for a `Codable`-compatible alternative, be sure to check out [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding), which is also available on other platforms. It appears to have nearly the same encoding efficiency as `BinaryCodable`. You may also want to have a look at [PotentCodables](https://github.com/outfoxx/PotentCodables).
+
 ## Installation
 
 ### Swift Package Manager
