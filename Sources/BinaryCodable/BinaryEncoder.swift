@@ -46,6 +46,8 @@ public final class BinaryEncoder {
      Using an index set is generally more efficient, expect for large sequences with many `nil` values.
      An index set is encoded using first the number of elements, and then each element, all encoded as var-ints.
 
+     One benefit of this option is that top-level sequences can be joined using their binary data, where `encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])`.
+
      - Note: This option defaults to `true`
      - Note: To decode successfully, the decoder must use the same setting for `containsNilIndexSetForUnkeyedContainers`.
      */

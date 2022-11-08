@@ -37,8 +37,8 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
     /**
      Read elements from the stream until no more bytes are available.
 
-     This function performs multiple calls to ``readNext()``, until no more elements can be decoded.
-
+     - Parameter returnElementsBeforeError: If set to `true`,
+     then all successfully decoded elements will be returned if an error occurs. Defaults to `false`
      - Throws: Decoding errors of type ``BinaryDecodingError``.
      */
     public func decode(_ data: Data, returnElementsBeforeError: Bool = false) throws -> [Element] {
@@ -61,7 +61,7 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
         return results
     }
 
-    private func decodeElement() throws -> Element? {
+    public func decodeElement() throws -> Element? {
         do {
             let element = try decodeNextElement()
             // Remove the buffered data since element was correctly decoded

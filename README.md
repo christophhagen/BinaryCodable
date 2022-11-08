@@ -103,6 +103,18 @@ All possible errors occuring during encoding produce `BinaryEncodingError` error
 Both are enums with several cases describing the nature of the error. 
 See the documentation of the types to learn more about the different error conditions.
 
+#### Handling corrupted data
+
+The [binary format](BinaryFormat.md) provides no provisions to detect data corruption, and various errors can occur as the result of added, changed, or missing bytes and bits. 
+Additional external measures (checksums, error-correcting codes, ...) should be applied if there is an increased risk of data corruption.
+
+As an example, consider the simple encoding of a `String` inside a `struct`, which consists of a `key` followed by the length of the string in bytes, and the string content.
+The length of the string is encoded using variable-length encoding, so a single bit flip (in the MSB of the length byte) could result in a very large `length` being decoded, causing the decoder to wait for a very large number of bytes to decode the string. 
+This simple error would cause much data to be skipped, potentially corrupting the data stream indefinitely.
+At the same time, it is not possible to determine *with certainty* where the error occured, making error recovery difficult without additional information about boundaries between elements.
+
+The decoding errors provided by the library are therefore only hints about error likely occuring from non-conformance to the binary format or version incompatibility, which are not necessarily the *true* causes of the failures when data corruption is present.
+
 ### Coding Keys
 
 The `Codable` protocol uses [`CodingKey`](https://developer.apple.com/documentation/swift/codingkey) definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.
@@ -162,11 +174,81 @@ While varints are efficient for small numbers, their encoding introduces a stora
 
 ### Options
 
+#### Sorting keys
+
 The `BinaryEncoder` provides the `sortKeysDuringEncoding` option, which forces fields in "keyed" containers, such as `struct` properties (and some dictionaries), to be sorted in the binary data. This sorting is done by using either the [integer keys](#coding-keys) (if defined), or the property names. Dictionaries with `Int` or `String` keys are also sorted. 
 
 Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. It should therefore only be used if the binary data must be consistent across multiple invocations.
 
-**Note:** The `sortKeysDuringEncoding` option does not guarantee deterministic binary data, and should be used with care. 
+**Note:** The `sortKeysDuringEncoding` option does not *neccessarily* guarantee deterministic binary data, and should be used with care.
+
+#### Encoding optionals in arrays
+
+Sequences of `Optional` values (like arrays, sets, ...) are normally encoded using a *nil index set*. 
+The index of each `nil` element in the sequence is recorded, and only non-nil values are encoded. 
+The indices of `nil` elements are then prepended to the data as an array of integers.
+During decoding, this index set is checked to place `nil` values between the non-nil elements at the appropriate indices.
+
+This encoding scheme is usually more efficient than, e.g. indicating for each element whether the value is non-optional using an additional byte.
+There can be specific cases where `nil index sets` become less efficient, e.g. when storing very large arrays of mostly `nil` values.
+
+In these cases, the encoder option `prependNilIndexSetForUnkeyedContainers` can be set to `false`, causing the encoder to omit the nil index set in favour of an additional byte before each element.
+The decoder must then have `containsNilIndexSetForUnkeyedContainers` set to `false`, so that the data can be successfully decoded.
+
+### Stream encoding and decoding
+
+The library provides the option to perform encoding and decoding of continuous streams, such as when writing sequences of elements to a file, or when transmitting data over a network.
+This functionality can be used through `BinaryStreamEncoder` and `BinaryStreamDecoder`, causing the encoder to embed additional information into the data to allow continuous decoding (mostly length information).
+Encoding and decoding is always done with sequences of one specific type, since multiple types in one stream could not be distinguished from one another.
+
+Encoding of a stream works similarly to normal encoding:
+
+```swift
+let encoder = BinaryStreamEncoder<Int>()
+let chunk1 = try encoder.encode(1)
+let chunk2 = try encoder.encode(contentsOf: [2,3])
+...
+
+let data = chunk1 + chunk2 + ...
+```
+
+Decoding of the individual chunks, with the decoder returning all elements which can be decoded using the currently available data.
+
+```swift
+let decoder = BinaryStreamDecoder<Int>()
+let decoded1 = try decoder.decode(chunk1)
+print(decoded1) // [1]
+
+let decoded2 = try decoder.decode(chunk2)
+print(decoded2) // [2,3]
+```
+
+The decoder has an internal buffer, so incomplete data can be inserted into the decoder as it becomes available. The output of `decode(_ data:)` will be empty until the next complete element is processed.
+
+### File encoding and decoding 
+
+Writing data streams to files is a common use case, so the library also provides wrappers around `BinaryStreamEncoder` and `BinaryStreamDecoder` to perform these tasks.
+The `BinaryFileEncoder` can be used to sequentially write elements to a file:
+
+```swift
+let encoder = BinaryFileEncoder<DataElement>(fileAt: url)
+try encoder.write(element1)
+try encoder.write(element2)
+...
+try encoder.close() // Close the file
+```
+
+Elements will always be appended to the end of file, so existing files can be updated with additional data.
+
+Decoding works in a similar way, except with a callback to handle each element as it is decoded:
+```swift
+let decoder = BinaryFileDecoder<DataElement>(fileAt: url)
+try decoder.read { element in
+    // Process each element
+}
+```
+
+There is also the possibility to read all elements at once using `readAll()`, or to read only one element at a time (`readElement()`).
 
 ### Protocol Buffer compatibility
 
