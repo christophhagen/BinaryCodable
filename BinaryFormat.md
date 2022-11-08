@@ -206,3 +206,21 @@ Note that this only works for dictionaries with concrete `Encodable` values, e.g
 
 For dictionaries with `String` keys (`[String: ...]`), the process is similar to the above, except with `CodingKey`s having the `stringValue` of the key. There is another weird exception though: Whenever a `String` can be represented by an integer (i.e. when `String(key) != nil`), then the corresponding `CodingKey` will have its `integerValue` also set. This means that for dictionaries with integer keys, there may be a mixture of integer and string keys present in the binary data, depending on the input values. But don't worry, `BinaryCodable` will also handle these cases correctly.
 
+## Stream encoding
+
+The encoding for data streams is only differs from standard encoding in two key aspects.
+
+### Added length information
+
+Each top-level element is encoded as if it is part of an unkeyed container (which it essentially is), meaning that each element has the necessary length information prepended to determine it's size.
+Only types with data type `variable length` have their length prepended using [varint](#integer-encoding) encoding.
+This concerns `String` and `Data`, as well as complex types like structs and arrays, among others.
+
+### Optionals
+
+Normally, `Optional` values in unkeyed containers are tracked using [nil index sets](#arrays-of-optionals), which is prepended to the list of non-optionals.
+This approach is not possible for streams, requiring additional information for each element in the stream.
+A single byte is prepended to each `Optional` element, where binary `0x01` is used to indicate a non-optional value, and `0x00` is used to signal an optional value. 
+`nil` values have no additional data, so each is encoded using one byte.
+
+This encoding of optionals is similar to the [encoding of sequences of optionals](#arrays-of-optionals) when not using the default option.

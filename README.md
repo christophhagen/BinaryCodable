@@ -183,6 +183,36 @@ There can be specific cases where `nil index sets` become less efficient, e.g. w
 In these cases, the encoder option `prependNilIndexSetForUnkeyedContainers` can be set to `false`, causing the encoder to omit the nil index set in favour of an additional byte before each element.
 The decoder must then have `containsNilIndexSetForUnkeyedContainers` set to `false`, so that the data can be successfully decoded.
 
+### Stream encoding and decoding
+
+The library provides the option to perform encoding and decoding of continuous streams, such as when writing sequences of elements to a file, or when transmitting data over a network.
+This functionality can be used through `BinaryStreamEncoder` and `BinaryStreamDecoder`, causing the encoder to embed additional information into the data to allow continuous decoding (mostly length information).
+Encoding and decoding is always done with sequences of one specific type, since multiple types in one stream could not be distinguished from one another.
+
+Encoding of a stream works similarly to normal encoding:
+
+```swift
+let encoder = BinaryStreamEncoder<Int>()
+let chunk1 = try encoder.encode(1)
+let chunk2 = try encoder.encode(contentsOf: [2,3])
+...
+
+let data = chunk1 + chunk2 + ...
+```
+
+Decoding of the individual chunks, with the decoder returning all elements which can be decoded using the currently available data.
+
+```swift
+let decoder = BinaryStreamDecoder<Int>()
+let decoded1 = try decoder.decode(chunk1)
+print(decoded1) // [1]
+
+let decoded2 = try decoder.decode(chunk2)
+print(decoded2) // [2,3]
+```
+
+The decoder has an internal buffer, so incomplete data can be inserted into the decoder as it becomes available. The output of `decode(_ data:)` will be empty until the next complete element is processed.
+
 
 ### Protocol Buffer compatibility
 
