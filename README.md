@@ -103,6 +103,18 @@ All possible errors occuring during encoding produce `BinaryEncodingError` error
 Both are enums with several cases describing the nature of the error. 
 See the documentation of the types to learn more about the different error conditions.
 
+#### Handling corrupted data
+
+The [binary format](BinaryFormat.md) provides no provisions to detect data corruption, and various errors can occur as the result of added, changed, or missing bytes and bits. 
+Additional external measures (checksums, error-correcting codes, ...) should be applied if there is an increased risk of data corruption.
+
+As an example, consider the simple encoding of a `String` inside a `struct`, which consists of a `key` followed by the length of the string in bytes, and the string content.
+The length of the string is encoded using variable-length encoding, so a single bit flip (in the MSB of the length byte) could result in a very large `length` being decoded, causing the decoder to wait for a very large number of bytes to decode the string. 
+This simple error would cause much data to be skipped, potentially corrupting the data stream indefinitely.
+At the same time, it is not possible to determine *with certainty* where the error occured, making error recovery difficult without additional information about boundaries between elements.
+
+The decoding errors provided by the library are therefore only hints about error likely occuring from non-conformance to the binary format or version incompatibility, which are not necessarily the *true* causes of the failures when data corruption is present.
+
 ### Coding Keys
 
 The `Codable` protocol uses [`CodingKey`](https://developer.apple.com/documentation/swift/codingkey) definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.
