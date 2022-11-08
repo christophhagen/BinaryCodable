@@ -13,11 +13,12 @@ private struct Test: Codable, Equatable, CustomStringConvertible {
 final class FileDecodingTests: XCTestCase {
 
     private let fileUrl: URL = {
+        /*
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
             return FileManager.default.temporaryDirectory.appending(path: "file", directoryHint: .notDirectory)
-        } else {
-            return FileManager.default.temporaryDirectory.appendingPathComponent("file")
         }
+         */
+        return FileManager.default.temporaryDirectory.appendingPathComponent("file")
     }()
 
     override func setUp() {
