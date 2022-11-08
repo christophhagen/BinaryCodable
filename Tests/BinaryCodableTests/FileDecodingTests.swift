@@ -27,11 +27,12 @@ final class FileDecodingTests: XCTestCase {
     }
 
     var hasFile: Bool {
+        /*
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
             return FileManager.default.fileExists(atPath: fileUrl.path())
-        } else {
-            return FileManager.default.fileExists(atPath: fileUrl.path)
         }
+         */
+        return FileManager.default.fileExists(atPath: fileUrl.path)
     }
 
     override func tearDown() {

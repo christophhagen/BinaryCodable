@@ -83,11 +83,12 @@ public final class BinaryFileEncoder<Element> where Element: Encodable {
 private extension URL {
 
     var exists: Bool {
+        /*
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
             return FileManager.default.fileExists(atPath: path())
-        } else {
-            return FileManager.default.fileExists(atPath: path)
         }
+         */
+        return FileManager.default.fileExists(atPath: path)
     }
 
     func createEmptyFile() throws {
