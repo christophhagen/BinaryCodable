@@ -80,9 +80,9 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
      - Parameter elementHandler: The closure to handle each element as it is decoded.
      - Throws: Decoding errors of type ``BinaryDecodingError``.
      */
-    public func read(_ elementHandler: (Element) -> Void) throws {
+    public func read(_ elementHandler: (Element) throws -> Void) throws {
         while let element = try readElement() {
-            elementHandler(element)
+            try elementHandler(element)
         }
     }
 
