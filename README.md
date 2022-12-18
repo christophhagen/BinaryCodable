@@ -26,7 +26,17 @@ The [message format](#binary-format) is similar to that of `Protocol Buffers` (w
 
 ### Alternatives
 
-The approach using [Protocol Buffers](https://developers.google.com/protocol-buffers) mentioned above could be an option, but if you're looking for a `Codable`-compatible alternative, be sure to check out [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding), which is also available on other platforms. It appears to have nearly the same encoding efficiency as `BinaryCodable`. You may also want to have a look at [PotentCodables](https://github.com/outfoxx/PotentCodables).
+#### [Protocol Buffers](https://developers.google.com/protocol-buffers)
+Already mentioned above
+
+#### [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
+If you're looking for a `Codable`-compatible alternative which is also available on other platforms, with a well-defined [spec](https://cbor.io). It appears to have nearly the same encoding efficiency as `BinaryCodable`. 
+
+#### [PotentCodables](https://github.com/outfoxx/PotentCodables)
+Also offers CBOR encoding, plus a bunch of other things related to `Codable`.
+
+#### [Swift BSON](https://github.com/mongodb/swift-bson)
+Encoding according to the [BSON specification](https://bsonspec.org). Less efficient binary represenation than Protocol Buffers and `BinaryCodable`, but mature. Used for MongoDB.
 
 ## Installation
 
