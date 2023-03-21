@@ -45,7 +45,12 @@ extension EncodingNode: EncodingContainer {
     }
 
     func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
-        container!.encodeWithKey(key)
+        guard !isNil, let container else {
+            // Explicitly check for nil to prevent error with unwrapping
+            // when not using `encodeNil(forKey:)` for custom encoders
+            return Data()
+        }
+        return container.encodeWithKey(key)
     }
 
     var isEmpty: Bool {
