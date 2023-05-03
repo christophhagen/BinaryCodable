@@ -15,19 +15,15 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     
     func encodeNil(forKey key: Key) throws {
         // Nothing to do, nil is ommited for keyed containers
-        print("Encode nil")
     }
     
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         let container: EncodingContainer
         if value is AnyOptional {
-            print("Encode optional")
             container = try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
         } else if let primitive = value as? EncodablePrimitive {
-            print("Encode primitive")
             container = try wrapError(path: codingPath) { try EncodedPrimitive(primitive: primitive) }
         } else {
-            print("Encode complex")
             let node = EncodingNode(
                 path: codingPath,
                 info: userInfo,

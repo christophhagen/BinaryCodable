@@ -55,21 +55,17 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     }
 
     func decodeNil(forKey key: Key) throws -> Bool {
-        print("KeyedDecoder.decodeNil(\(!contains(key)))")
-        return !contains(key)
+        !contains(key)
     }
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
         let data = try getData(forKey: key)
         if type is AnyOptional.Type {
-            print("KeyedDecoder.decode optional \(data)")
             let node = DecodingNode(data: data, isOptional: true, path: codingPath, info: userInfo)
             return try T.init(from: node)
         } else if let Primitive = type as? DecodablePrimitive.Type {
-            print("KeyedDecoder.decode primitive")
             return try Primitive.init(decodeFrom: data) as! T
         } else {
-            print("KeyedDecoder.decode complex")
             let node = DecodingNode(data: data, path: codingPath, info: userInfo)
             return try T.init(from: node)
         }
