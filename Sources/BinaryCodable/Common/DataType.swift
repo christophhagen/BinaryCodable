@@ -69,12 +69,13 @@ public enum DataType: Int {
      The integer tag includes both the integer field key (or string key length) and the data type,
      where the data type is encoded in the three LSB.
      - Parameter value: The raw tag value.
-     - Throws: `BinaryDecodingError.unknownDataType()`, if the data type is unknown (3 or 4)
+     - Throws: `DecodingError.dataCorrupted()`, if the data type is unknown (3 or 4)
      */
-    init(decodeFrom value: Int) throws {
+    init(decodeFrom value: Int, path: [CodingKey]) throws {
         let rawDataType = value & 0x7
         guard let dataType = DataType(rawValue: rawDataType) else {
-            throw BinaryDecodingError.unknownDataType(rawDataType)
+            let context = DecodingError.Context(codingPath: path, debugDescription: "Unknown data type \(rawDataType)")
+            throw DecodingError.dataCorrupted(context)
         }
         self = dataType
     }

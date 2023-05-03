@@ -55,9 +55,10 @@ final class SequenceEncoderTests: XCTestCase {
     }
 
     func testDecodingError() throws {
-        struct Test: Codable, Equatable {
+        struct Test: Codable, Equatable, CustomStringConvertible {
             let a: Int
             let b: String
+            var description: String { "\(a),\(b)"}
         }
         let input = [Test(a: 1, b: "Some"), Test(a: 2, b: "Text"), Test(a: 3, b: "More")]
 
@@ -66,13 +67,14 @@ final class SequenceEncoderTests: XCTestCase {
         let encoder = BinaryStreamEncoder<Test>(encoder: enc)
         var data = try encoder.encode(contentsOf: input)
         // Add invalid byte
-        data.insert(123, at: 14)
+        data.insert(123, at: 15)
         let decoder = BinaryStreamDecoder<Test>()
 
         do {
             let decoded = try decoder.decode(data)
+            XCTAssertEqual(decoded, input)
             XCTFail("Should not be able to decode \(decoded)")
-        } catch is BinaryDecodingError {
+        } catch is DecodingError {
 
         }
     }

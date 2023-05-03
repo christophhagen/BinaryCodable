@@ -13,8 +13,8 @@ extension UInt: EncodablePrimitive {
 
 extension UInt: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
-        try self.init(fromVarint: data)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        try self.init(fromVarint: data, path: path)
     }
 }
 
@@ -28,10 +28,10 @@ extension UInt: FixedSizeCompatible {
         "fixed64"
     }
 
-    public init(fromFixedSize data: Data) throws {
-        let intValue = try UInt64(fromFixedSize: data)
+    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
+        let intValue = try UInt64(fromFixedSize: data, path: path)
         guard let value = UInt(exactly: intValue) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
@@ -47,10 +47,10 @@ extension UInt: VariableLengthCodable {
         UInt64(self).variableLengthEncoding
     }
     
-    init(fromVarint data: Data) throws {
-        let intValue = try UInt64(fromVarint: data)
+    init(fromVarint data: Data, path: [CodingKey]) throws {
+        let intValue = try UInt64(fromVarint: data, path: path)
         guard let value = UInt(exactly: intValue) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
@@ -67,8 +67,8 @@ extension UInt: ProtobufEncodable {
 
 extension UInt: ProtobufDecodable {
 
-    init(fromProtobuf data: Data) throws {
-        try self.init(fromVarint: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        try self.init(fromVarint: data, path: path)
     }
 
 }

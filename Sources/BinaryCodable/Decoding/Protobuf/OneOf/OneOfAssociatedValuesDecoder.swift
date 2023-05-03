@@ -34,7 +34,7 @@ final class OneOfAssociatedValuesDecoder<Key>: AbstractDecodingNode, KeyedDecodi
         if let _ = type as? DecodablePrimitive.Type {
             if let ProtoType = type as? ProtobufDecodable.Type {
                 if !data.isEmpty {
-                    return try ProtoType.init(fromProtobuf: data) as! T
+                    return try ProtoType.init(fromProtobuf: data, path: codingPath + [key]) as! T
                 } else {
                     return ProtoType.zero as! T
                 }

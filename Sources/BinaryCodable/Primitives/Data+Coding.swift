@@ -13,7 +13,7 @@ extension Data: EncodablePrimitive {
 
 extension Data: DecodablePrimitive {
 
-    init(decodeFrom data: Data) {
+    init(decodeFrom data: Data, path: [CodingKey]) {
         self = Data(data)
     }
 }

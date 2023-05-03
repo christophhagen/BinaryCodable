@@ -14,7 +14,7 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
 
     func decodeNil() -> Bool {
         do {
-            let byte = try data.getByte()
+            let byte = try data.getByte(path: codingPath)
             return byte == 0
         } catch {
             return false
@@ -30,9 +30,9 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
             if Primitive.dataType == .variableLength, !isOptional, let d = self.data as? DataDecoder {
                 data = d.getAllData()
             } else {
-                data = try self.data.getData(for: Primitive.dataType)
+                data = try self.data.getData(for: Primitive.dataType, path: codingPath)
             }
-            return try Primitive.init(decodeFrom: data) as! T
+            return try Primitive.init(decodeFrom: data, path: codingPath) as! T
         } else {
             let node = DecodingNode(decoder: data, path: codingPath, info: userInfo)
             return try T.init(from: node)

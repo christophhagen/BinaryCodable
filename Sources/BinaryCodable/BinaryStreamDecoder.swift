@@ -39,7 +39,7 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
 
      - Parameter returnElementsBeforeError: If set to `true`,
      then all successfully decoded elements will be returned if an error occurs. Defaults to `false`
-     - Throws: Decoding errors of type ``BinaryDecodingError``.
+     - Throws: Decoding errors of type ``DecodingError``.
      */
     public func decode(_ data: Data, returnElementsBeforeError: Bool = false) throws -> [Element] {
         buffer.addToBuffer(data)
@@ -67,14 +67,16 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
             // Remove the buffered data since element was correctly decoded
             buffer.discardUsedBufferData()
             return element
-        } catch BinaryDecodingError.prematureEndOfData {
-            // Insufficient data for now, reuse buffered bytes next time
-            buffer.resetToBeginOfBuffer()
-            return nil
         } catch {
-            // Remove the buffered data since element was correctly decoded
-            buffer.discardUsedBufferData()
-            throw error
+            if buffer.didExceedBuffer {
+                // Insufficient data for now, reuse buffered bytes next time
+                buffer.resetToBeginOfBuffer()
+                return nil
+            } else {
+                // Remove the buffered data since element was correctly decoded
+                buffer.discardUsedBufferData()
+                throw error
+            }
         }
     }
 }

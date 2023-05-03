@@ -13,8 +13,8 @@ extension UInt32: EncodablePrimitive {
 
 extension UInt32: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
-        try self.init(fromVarint: data)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        try self.init(fromVarint: data, path: path)
     }
 }
 
@@ -24,10 +24,10 @@ extension UInt32: VariableLengthCodable {
         UInt64(self).variableLengthEncoding
     }
     
-    init(fromVarint data: Data) throws {
-        let intValue = try UInt64(fromVarint: data)
+    init(fromVarint data: Data, path: [CodingKey]) throws {
+        let intValue = try UInt64(fromVarint: data, path: path)
         guard let value = UInt32(exactly: intValue) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
@@ -43,9 +43,9 @@ extension UInt32: FixedSizeCompatible {
         "fixed32"
     }
 
-    public init(fromFixedSize data: Data) throws {
+    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
         guard data.count == MemoryLayout<UInt32>.size else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         self.init(littleEndian: read(data: data, into: UInt32.zero))
     }
@@ -55,19 +55,22 @@ extension UInt32: FixedSizeCompatible {
     }
 }
 
-extension UInt32: ProtobufCodable {
+extension UInt32: ProtobufEncodable {
 
     func protobufData() -> Data {
         UInt64(self).protobufData()
     }
 
-    init(fromProtobuf data: Data) throws {
-        let intValue = try UInt64.init(fromProtobuf: data)
+    var protoType: String { "uint32" }
+}
+
+extension UInt32: ProtobufDecodable {
+
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        let intValue = try UInt64.init(fromProtobuf: data, path: path)
         guard let value = UInt32(exactly: intValue) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
-
-    var protoType: String { "uint32" }
 }

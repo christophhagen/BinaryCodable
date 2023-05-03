@@ -13,8 +13,8 @@ extension Int: EncodablePrimitive {
 
 extension Int: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
-        try self.init(fromZigZag: data)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        try self.init(fromZigZag: data, path: path)
     }
 }
 
@@ -24,10 +24,10 @@ extension Int: VariableLengthCodable {
         Int64(self).variableLengthEncoding
     }
     
-    init(fromVarint data: Data) throws {
-        let intValue = try Int64(fromVarint: data)
+    init(fromVarint data: Data, path: [CodingKey]) throws {
+        let intValue = try Int64(fromVarint: data, path: path)
         guard let value = Int(exactly: intValue) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
@@ -43,10 +43,10 @@ extension Int: FixedSizeCompatible {
         "sfixed64"
     }
 
-    public init(fromFixedSize data: Data) throws {
-        let signed = try Int64(fromFixedSize: data)
+    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
+        let signed = try Int64(fromFixedSize: data, path: path)
         guard let value = Int(exactly: signed) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
@@ -78,10 +78,10 @@ extension Int: ZigZagCodable {
         Int64(self).zigZagEncoded
     }
 
-    init(fromZigZag data: Data) throws {
-        let raw = try Int64(fromZigZag: data)
+    init(fromZigZag data: Data, path: [CodingKey]) throws {
+        let raw = try Int64(fromZigZag: data, path: path)
         guard let value = Int(exactly: raw) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
@@ -98,7 +98,7 @@ extension Int: ProtobufEncodable {
 
 extension Int: ProtobufDecodable {
 
-    init(fromProtobuf data: Data) throws {
-        try self.init(fromVarint: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        try self.init(fromVarint: data, path: path)
     }
 }

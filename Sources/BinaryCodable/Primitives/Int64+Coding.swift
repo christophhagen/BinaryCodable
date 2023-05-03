@@ -13,8 +13,8 @@ extension Int64: EncodablePrimitive {
 
 extension Int64: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
-        try self.init(fromZigZag: data)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        try self.init(fromZigZag: data, path: path)
     }
 }
 
@@ -24,8 +24,8 @@ extension Int64: VariableLengthCodable {
         UInt64(bitPattern: self).variableLengthEncoding
     }
     
-    init(fromVarint data: Data) throws {
-        let value = try UInt64(fromVarint: data)
+    init(fromVarint data: Data, path: [CodingKey]) throws {
+        let value = try UInt64(fromVarint: data, path: path)
         self = Int64(bitPattern: value)
     }
 }
@@ -51,8 +51,8 @@ extension Int64: ZigZagEncodable {
 
 extension Int64: ZigZagDecodable {
     
-    init(fromZigZag data: Data) throws {
-        let unsigned = try UInt64(fromVarint: data)
+    init(fromZigZag data: Data, path: [CodingKey]) throws {
+        let unsigned = try UInt64(fromVarint: data, path: path)
         
         // Check the last bit to get sign
         if unsigned & 1 > 0 {
@@ -75,9 +75,9 @@ extension Int64: FixedSizeCompatible {
         "sfixed64"
     }
 
-    public init(fromFixedSize data: Data) throws {
+    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
         guard data.count == MemoryLayout<UInt64>.size else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         let value = UInt64(littleEndian: read(data: data, into: UInt64.zero))
         self.init(bitPattern: value)
@@ -107,8 +107,8 @@ extension Int64: ProtobufEncodable {
 
 extension Int64: ProtobufDecodable {
 
-    init(fromProtobuf data: Data) throws {
-        try self.init(fromVarint: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        try self.init(fromVarint: data, path: path)
     }
 
 }

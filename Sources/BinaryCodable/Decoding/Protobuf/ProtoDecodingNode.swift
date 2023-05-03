@@ -15,12 +15,12 @@ class ProtoDecodingNode: AbstractDecodingNode, Decoder {
     }
 
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
-        let container = try ProtoKeyedDecoder<Key>(data: storage.useAsData(), path: codingPath, info: userInfo)
+        let container = try ProtoKeyedDecoder<Key>(data: storage.useAsData(path: codingPath), path: codingPath, info: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        return try ProtoUnkeyedDecoder(data: storage.useAsData(), path: codingPath, info: userInfo)
+        return try ProtoUnkeyedDecoder(data: storage.useAsData(path: codingPath), path: codingPath, info: userInfo)
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {

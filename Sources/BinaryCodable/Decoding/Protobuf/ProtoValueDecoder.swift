@@ -25,7 +25,7 @@ final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContaine
         guard self.data.hasMoreBytes else {
             return ProtoType.zero as! T
         }
-        let data = try self.data.getData(for: Primitive.dataType)
-        return try ProtoType.init(fromProtobuf: data) as! T
+        let data = try self.data.getData(for: Primitive.dataType, path: codingPath)
+        return try ProtoType.init(fromProtobuf: data, path: codingPath) as! T
     }
 }

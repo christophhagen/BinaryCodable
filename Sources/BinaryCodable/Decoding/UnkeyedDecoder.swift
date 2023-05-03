@@ -10,12 +10,12 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
         let decoder = DataDecoder(data: data)
         self.decoder = decoder
         if info.has(.prependNilIndicesForUnkeyedContainers) {
-            let nilIndicesCount = try decoder.getVarint()
+            let nilIndicesCount = try decoder.getVarint(path: path)
             guard nilIndicesCount >= 0 else {
-                throw BinaryDecodingError.invalidDataSize
+                throw DecodingError.invalidDataSize(path)
             }
             self.nilIndices = try (0..<nilIndicesCount)
-                .map { _ in try decoder.getVarint() }
+                .map { _ in try decoder.getVarint(path: path) }
                 .reduce(into: []) { $0.insert($1) }
         } else {
             self.nilIndices = []
@@ -55,8 +55,8 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
             return try T.init(from: node)
         } else if let Primitive = type as? DecodablePrimitive.Type {
             let dataType = Primitive.dataType
-            let data = try decoder.getData(for: dataType)
-            return try Primitive.init(decodeFrom: data) as! T
+            let data = try decoder.getData(for: dataType, path: codingPath)
+            return try Primitive.init(decodeFrom: data, path: codingPath) as! T
         } else {
             let node = DecodingNode(decoder: decoder, path: codingPath, info: userInfo)
             return try T.init(from: node)
@@ -65,19 +65,27 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
         currentIndex += 1
-        let data = try decoder.getData(for: .variableLength)
+        let data = try decoder.getData(for: .variableLength, path: codingPath)
         let container = try KeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
         currentIndex += 1
-        let data = try decoder.getData(for: .variableLength)
+        let data = try decoder.getData(for: .variableLength, path: codingPath)
         return try UnkeyedDecoder(data: data, path: codingPath, info: userInfo)
     }
 
     func superDecoder() throws -> Decoder {
         currentIndex += 1
         return DecodingNode(decoder: decoder, path: codingPath, info: userInfo)
+    }
+
+    private func wrapError<T>(_ block: () throws -> T) throws -> T {
+        do {
+            return try block()
+        } catch DecodingError.dataCorrupted(let context) {
+            throw DecodingError.dataCorruptedError(in: self, debugDescription: context.debugDescription)
+        }
     }
 }

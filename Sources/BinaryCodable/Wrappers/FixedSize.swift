@@ -59,8 +59,8 @@ extension FixedSize: ProtobufDecodable where WrappedValue: ProtobufDecodable {
         .init(wrappedValue: .zero)
     }
 
-    init(fromProtobuf data: Data) throws {
-        let value = try WrappedValue(fromFixedSize: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        let value = try WrappedValue(fromFixedSize: data, path: path)
         self.init(wrappedValue: value)
     }
 }
@@ -88,8 +88,8 @@ extension FixedSize: CodablePrimitive, DataTypeProvider where WrappedValue: Data
         wrappedValue.fixedSizeEncoded
     }
 
-    init(decodeFrom data: Data) throws {
-        let wrappedValue = try WrappedValue(fromFixedSize: data)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        let wrappedValue = try WrappedValue(fromFixedSize: data, path: path)
         self.init(wrappedValue: wrappedValue)
     }
 

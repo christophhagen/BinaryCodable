@@ -27,9 +27,9 @@ final class ProtoUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer 
         defer { currentIndex += 1 }
         if let Primitive = type as? DecodablePrimitive.Type {
             let dataType = Primitive.dataType
-            let data = try decoder.getData(for: dataType)
+            let data = try decoder.getData(for: dataType, path: codingPath)
             if let ProtoType = type as? ProtobufDecodable.Type {
-                return try ProtoType.init(fromProtobuf: data) as! T
+                return try ProtoType.init(fromProtobuf: data, path: codingPath) as! T
             }
             throw ProtobufDecodingError.unsupported(type: type)
         }
@@ -39,14 +39,14 @@ final class ProtoUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer 
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
         currentIndex += 1
-        let data = try decoder.getData(for: .variableLength)
+        let data = try decoder.getData(for: .variableLength, path: codingPath)
         let container = try ProtoKeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
         currentIndex += 1
-        let data = try decoder.getData(for: .variableLength)
+        let data = try decoder.getData(for: .variableLength, path: codingPath)
         return try ProtoUnkeyedDecoder(data: data, path: codingPath, info: userInfo)
     }
 

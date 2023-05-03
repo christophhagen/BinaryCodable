@@ -8,15 +8,15 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
         let decoder = DataDecoder(data: data)
         var content = [DecodingKey: [Data]]()
         while decoder.hasMoreBytes {
-            let (key, dataType) = try DecodingKey.decode(from: decoder)
+            let (key, dataType) = try DecodingKey.decode(from: decoder, path: path)
 
-            let data = try decoder.getData(for: dataType)
+            let data = try decoder.getData(for: dataType, path: path)
 
             guard content[key] != nil else {
                 content[key] = [data]
                 continue
             }
-            throw BinaryDecodingError.multipleValuesForKey
+            throw DecodingError.multipleValuesForKey(path, key)
         }
         self.content = content.mapValues { parts in
             guard parts.count > 1 else {
@@ -49,7 +49,8 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
 
     private func getData(forKey key: CodingKey) throws -> Data {
         guard let data = content.first(where: { $0.key.isEqual(to: key) })?.value else {
-            throw BinaryDecodingError.missingDataForKey(key)
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Key not found")
+            throw DecodingError.keyNotFound(key, context)
         }
         return data
     }
@@ -64,7 +65,7 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
             let node = DecodingNode(data: data, isOptional: true, path: codingPath, info: userInfo)
             return try T.init(from: node)
         } else if let Primitive = type as? DecodablePrimitive.Type {
-            return try Primitive.init(decodeFrom: data) as! T
+            return try Primitive.init(decodeFrom: data, path: codingPath + [key]) as! T
         } else {
             let node = DecodingNode(data: data, path: codingPath, info: userInfo)
             return try T.init(from: node)

@@ -13,9 +13,9 @@ extension Double: EncodablePrimitive {
 
 extension Double: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
         guard data.count == MemoryLayout<UInt64>.size else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         let value = UInt64(bigEndian: read(data: data, into: UInt64.zero))
         self.init(bitPattern: value)
@@ -33,7 +33,7 @@ extension Double: ProtobufEncodable {
 
 extension Double: ProtobufDecodable {
 
-    init(fromProtobuf data: Data) throws {
-        try self.init(decodeFrom: data.swapped)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        try self.init(decodeFrom: data.swapped, path: path)
     }
 }

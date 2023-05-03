@@ -46,14 +46,14 @@ final class BinaryStreamBuffer {
 
 extension BinaryStreamBuffer: BinaryStreamProvider {
 
-    func getBytes(_ count: Int) throws -> Data {
+    func getBytes(_ count: Int, path: [CodingKey]) throws -> Data {
         let bufferedBytes = getBufferedBytes(count)
         let remaining = count - bufferedBytes.count
         guard remaining > 0 else {
             index += count
             return bufferedBytes
         }
-        let remainingBytes = try data.getBytes(remaining)
+        let remainingBytes = try data.getBytes(remaining, path: path)
         addToBuffer(remainingBytes)
         return bufferedBytes + remainingBytes
     }

@@ -8,9 +8,9 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
         let decoder = DataDecoder(data: data)
         var content = [DecodingKey: [Data]]()
         while decoder.hasMoreBytes {
-            let (key, dataType) = try DecodingKey.decodeProto(from: decoder)
+            let (key, dataType) = try DecodingKey.decodeProto(from: decoder, path: path)
 
-            let data = try decoder.getData(for: dataType)
+            let data = try decoder.getData(for: dataType, path: path)
 
             guard content[key] != nil else {
                 content[key] = [data]
@@ -72,7 +72,7 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
         if let _ = type as? DecodablePrimitive.Type {
             if let ProtoType = type as? ProtobufDecodable.Type {
                 if let data = data {
-                    return try ProtoType.init(fromProtobuf: data) as! T
+                    return try ProtoType.init(fromProtobuf: data, path: codingPath + [key]) as! T
                 } else {
                     return ProtoType.zero as! T
                 }

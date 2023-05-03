@@ -4,5 +4,5 @@ protocol VariableLengthCodable {
     
     var variableLengthEncoding: Data { get }
     
-    init(fromVarint data: Data) throws
+    init(fromVarint data: Data, path: [CodingKey]) throws
 }

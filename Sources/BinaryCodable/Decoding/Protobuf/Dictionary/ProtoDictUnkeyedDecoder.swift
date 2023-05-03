@@ -8,21 +8,21 @@ final class ProtoDictUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContai
         let decoder = DataDecoder(data: data)
         var elements = [(dataType: DataType, data: Data)]()
         while decoder.hasMoreBytes {
-            let pairData = try decoder.getData(for: .variableLength)
+            let pairData = try decoder.getData(for: .variableLength, path: path)
             let pairDecoder = DataDecoder(data: pairData)
 
-            let (keyField, keyDataType) = try DecodingKey.decodeProto(from: pairDecoder)
+            let (keyField, keyDataType) = try DecodingKey.decodeProto(from: pairDecoder, path: path)
             guard case .intKey(1) = keyField else {
                 throw ProtobufDecodingError.unexpectedDictionaryKey
             }
-            let keyData = try pairDecoder.getData(for: keyDataType)
+            let keyData = try pairDecoder.getData(for: keyDataType, path: path)
             elements.append((dataType: keyDataType, data: keyData))
 
-            let (valueField, valueDataType) = try DecodingKey.decodeProto(from: pairDecoder)
+            let (valueField, valueDataType) = try DecodingKey.decodeProto(from: pairDecoder, path: path)
             guard case .intKey(2) = valueField else {
                 throw ProtobufDecodingError.unexpectedDictionaryKey
             }
-            let valueData = try pairDecoder.getData(for: valueDataType)
+            let valueData = try pairDecoder.getData(for: valueDataType, path: path)
             elements.append((dataType: valueDataType, data: valueData))
         }
         self.elements = elements
@@ -63,7 +63,7 @@ final class ProtoDictUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContai
                 throw ProtobufDecodingError.unexpectedDictionaryKey
             }
             if let ProtoType = type as? ProtobufDecodable.Type {
-                return try ProtoType.init(fromProtobuf: element.data) as! T
+                return try ProtoType.init(fromProtobuf: element.data, path: codingPath) as! T
             }
             throw ProtobufDecodingError.unsupported(type: type)
         }

@@ -13,7 +13,7 @@ protocol ProtobufEncodable {
 
 protocol ProtobufDecodable {
 
-    init(fromProtobuf data: Data) throws
+    init(fromProtobuf data: Data, path: [CodingKey]) throws
 
     static var zero: Self { get }
 
@@ -34,7 +34,7 @@ extension ProtobufEncodable where Self: EncodablePrimitive {
 
 extension ProtobufDecodable where Self: DecodablePrimitive {
 
-    init(fromProtobuf data: Data) throws {
-        try self.init(decodeFrom: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        try self.init(decodeFrom: data, path: path)
     }
 }

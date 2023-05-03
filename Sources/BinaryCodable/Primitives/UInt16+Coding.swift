@@ -13,9 +13,9 @@ extension UInt16: EncodablePrimitive {
 
 extension UInt16: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
         guard data.count == MemoryLayout<UInt16>.size else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         self.init(littleEndian: read(data: data, into: UInt16.zero))
     }

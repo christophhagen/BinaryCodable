@@ -78,7 +78,7 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
      Read all elements in the file, and handle each element using a closure.
 
      - Parameter elementHandler: The closure to handle each element as it is decoded.
-     - Throws: Decoding errors of type ``BinaryDecodingError``.
+     - Throws: Decoding errors of type ``DecodingError``.
      */
     public func read(_ elementHandler: (Element) throws -> Void) throws {
         while let element = try readElement() {
@@ -89,7 +89,7 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
     /**
      Read all elements at once.
      - Returns: The elements decoded from the file.
-     - Throws: Errors of type ``BinaryDecodingError``
+     - Throws: Errors of type ``DecodingError``
      */
     public func readAll() throws -> [Element] {
         var result = [Element]()
@@ -117,7 +117,7 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
     /**
      Read a single elements from the current position in the file.
      - Returns: The element decoded from the file, or `nil`, if no more data is available.
-     - Throws: Errors of type ``BinaryDecodingError``
+     - Throws: Errors of type ``DecodingError``
      */
     public func readElement() throws -> Element? {
         guard buffer.hasMoreBytes else {
@@ -147,7 +147,7 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
     }
 
     private func decodeOptional() throws -> Element {
-        guard try buffer.getByte() > 0 else {
+        guard try buffer.getByte(path: []) > 0 else {
             return try decoder.decode(from: Data())
         }
         return try decodeNonOptional()
@@ -156,16 +156,16 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
 
 extension FileHandle: BinaryStreamProvider {
 
-    func getBytes(_ count: Int) throws -> Data {
+    func getBytes(_ count: Int, path: [CodingKey]) throws -> Data {
         guard #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) else {
             let data = readData(ofLength: count)
             guard data.count == count else {
-                throw BinaryDecodingError.prematureEndOfData
+                throw DecodingError.prematureEndOfData(path)
             }
             return data
         }
         guard let data = try read(upToCount: count) else {
-            throw BinaryDecodingError.prematureEndOfData
+            throw DecodingError.prematureEndOfData(path)
         }
         return data
     }

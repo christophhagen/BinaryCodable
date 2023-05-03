@@ -6,30 +6,30 @@ final class ProtoDictKeyedDecoder<Key>: ProtoKeyedDecoder<Key> where Key: Coding
         let decoder = DataDecoder(data: data)
         var content = [DecodingKey: [Data]]()
         while decoder.hasMoreBytes {
-            let pairData = try decoder.getData(for: .variableLength)
+            let pairData = try decoder.getData(for: .variableLength, path: path)
             let pairDecoder = DataDecoder(data: pairData)
-            let (keyField, keyDataType) = try DecodingKey.decodeProto(from: pairDecoder)
+            let (keyField, keyDataType) = try DecodingKey.decodeProto(from: pairDecoder, path: path)
             guard case .intKey(1) = keyField else {
                 throw ProtobufDecodingError.unexpectedDictionaryKey
             }
-            let keyData = try pairDecoder.getData(for: keyDataType)
+            let keyData = try pairDecoder.getData(for: keyDataType, path: path)
             let key: DecodingKey
             switch keyDataType {
             case .variableLengthInteger:
-                let value = try Int(decodeFrom: keyData)
+                let value = try Int(decodeFrom: keyData, path: path)
                 key = .intKey(value)
             case .variableLength:
-                let value = try String(decodeFrom: keyData)
+                let value = try String(decodeFrom: keyData, path: path)
                 key = .stringKey(value)
             default:
                 throw ProtobufDecodingError.unexpectedDictionaryKey
             }
 
-            let (valueField, valueDataType) = try DecodingKey.decodeProto(from: pairDecoder)
+            let (valueField, valueDataType) = try DecodingKey.decodeProto(from: pairDecoder, path: path)
             guard case .intKey(2) = valueField else {
                 throw ProtobufDecodingError.unexpectedDictionaryKey
             }
-            let valueData = try pairDecoder.getData(for: valueDataType)
+            let valueData = try pairDecoder.getData(for: valueDataType, path: path)
             guard content[key] != nil else {
                 content[key] = [valueData]
                 continue

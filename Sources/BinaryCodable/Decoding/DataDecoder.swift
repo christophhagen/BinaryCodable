@@ -19,13 +19,10 @@ final class DataDecoder: BinaryStreamProvider {
         data
     }
 
-    func getBytes(_ count: Int) throws -> Data {
-        guard count >= 0 else {
-            throw BinaryDecodingError.invalidDataSize
-        }
+    func getBytes(_ count: Int, path: [CodingKey]) throws -> Data {
         let newIndex = index + count
         guard newIndex <= data.endIndex else {
-            throw BinaryDecodingError.prematureEndOfData
+            throw DecodingError.prematureEndOfData(path)
         }
         defer { index = newIndex }
         return data[index..<newIndex]

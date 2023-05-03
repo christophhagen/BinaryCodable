@@ -13,20 +13,8 @@ extension Int32: EncodablePrimitive {
 
 extension Int32: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
-        try self.init(fromZigZag: data)
-    }
-}
-
-extension Int32: VariableLengthCodable {
-    
-    var variableLengthEncoding: Data {
-        UInt32(bitPattern: self).variableLengthEncoding
-    }
-    
-    init(fromVarint data: Data) throws {
-        let value = try UInt32(fromVarint: data)
-        self = Int32(bitPattern: value)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        try self.init(fromZigZag: data, path: path)
     }
 }
 
@@ -45,10 +33,10 @@ extension Int32: ZigZagCodable {
         Int64(self).zigZagEncoded
     }
 
-    init(fromZigZag data: Data) throws {
-        let raw = try Int64(fromZigZag: data)
+    init(fromZigZag data: Data, path: [CodingKey]) throws {
+        let raw = try Int64(fromZigZag: data, path: path)
         guard let value = Int32(exactly: raw) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }
@@ -64,9 +52,9 @@ extension Int32: FixedSizeCompatible {
         "sfixed32"
     }
 
-    public init(fromFixedSize data: Data) throws {
+    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
         guard data.count == MemoryLayout<UInt32>.size else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         let value = UInt32(littleEndian: read(data: data, into: UInt32.zero))
         self.init(bitPattern: value)
@@ -91,10 +79,10 @@ extension Int32: ProtobufCodable {
         Int64(self).protobufData()
     }
 
-    init(fromProtobuf data: Data) throws {
-        let intValue = try Int64(fromProtobuf: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        let intValue = try Int64(fromProtobuf: data, path: path)
         guard let value = Int32(exactly: intValue) else {
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = value
     }

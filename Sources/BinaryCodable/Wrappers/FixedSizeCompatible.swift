@@ -15,9 +15,9 @@ public protocol FixedSizeCompatible {
     /**
      Decode the value from binary data.
      - Parameter data: The binary data of the correct size for the type.
-     - Throws: `BinaryDecodingError`
+     - Throws: `DecodingError`
      */
-    init(fromFixedSize data: Data) throws
+    init(fromFixedSize data: Data, path: [CodingKey]) throws
 }
 
 extension FixedSizeCompatible {

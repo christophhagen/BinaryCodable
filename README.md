@@ -113,8 +113,8 @@ let message: Message = try decoder.decode(from: data)
 ### Errors
 
 It is possible for both encoding and decoding to fail. 
-All possible errors occuring during encoding produce `BinaryEncodingError` errors, while unsuccessful decoding produces `BinaryDecodingError`s. 
-Both are enums with several cases describing the nature of the error. 
+All possible errors occuring during encoding produce `EncodingError` errors, while unsuccessful decoding produces `DecodingError`s. 
+Both are the default Errors provided by Swift, supplied with information describing the nature of the error. 
 See the documentation of the types to learn more about the different error conditions.
 
 #### Handling corrupted data

@@ -3,7 +3,7 @@ import Foundation
 /**
  An encoder to convert protobuf binary data back to `Codable` objects.
 
- Decoding unsupported data types causes `BinaryDecodingError.notProtobufCompatible` errors.
+ Decoding unsupported data types causes `DecodingError` or `ProtobufDecodingError` errors.
 
  To decode from data, instantiate a decoder and specify the type:
  ```
@@ -44,7 +44,7 @@ public final class ProtobufDecoder {
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance
      - Returns: The decoded instance
-     - Throws: Errors of type `BinaryDecodingError` or `ProtobufDecodingError`
+     - Throws: Errors of type `DecodingError` or `ProtobufDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         let root = ProtoDecodingNode(data: data, path: [], info: userInfo)
@@ -56,7 +56,7 @@ public final class ProtobufDecoder {
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance
      - Returns: The decoded instance
-     - Throws: Errors of type `BinaryDecodingError` or `ProtobufDecodingError`
+     - Throws: Errors of type `DecodingError` or `ProtobufDecodingError`
      */
     public static func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         try ProtobufDecoder().decode(type, from: data)

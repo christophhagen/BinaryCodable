@@ -66,15 +66,11 @@ public final class BinaryDecoder {
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance
      - Returns: The decoded instance
-     - Throws: Errors of type `BinaryDecodingError`
+     - Throws: Errors of type `DecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         let root = DecodingNode(data: data, path: [], info: fullInfo)
-        do {
-            return try type.init(from: root)
-        } catch {
-            throw BinaryDecodingError(wrapping: error)
-        }
+        return try type.init(from: root)
     }
 
     /**
@@ -87,11 +83,7 @@ public final class BinaryDecoder {
      */
     func decode<T>(_ type: T.Type = T.self, fromStream provider: BinaryStreamProvider) throws -> T where T: Decodable {
         let root = DecodingNode(decoder: provider, path: [], info: fullInfo)
-        do {
-            return try type.init(from: root)
-        } catch {
-            throw BinaryDecodingError(wrapping: error)
-        }
+        return try type.init(from: root)
     }
 
     /**
@@ -99,7 +91,7 @@ public final class BinaryDecoder {
      - Parameter type: The type to decode.
      - Parameter data: The binary data which encodes the instance
      - Returns: The decoded instance
-     - Throws: Errors of type `BinaryDecodingError`
+     - Throws: Errors of type `DecodingError`
      */
     public static func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         try BinaryDecoder().decode(type, from: data)

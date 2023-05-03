@@ -200,7 +200,7 @@ final class EnumEncodingTests: XCTestCase {
         do {
             _ = try decoder.decode(Test.self, from: Data([1]))
             XCTFail("Enum decoding should fail for unknown case")
-        } catch BinaryDecodingError.dataCorrupted(_) {
+        } catch DecodingError.dataCorrupted(_) {
             // Correct error
         }
     }

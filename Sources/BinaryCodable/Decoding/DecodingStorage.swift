@@ -4,12 +4,12 @@ enum Storage {
     case data(Data)
     case decoder(BinaryStreamProvider)
 
-    func useAsData() throws -> Data {
+    func useAsData(path: [CodingKey]) throws -> Data {
         switch self {
         case .data(let data):
             return data
         case .decoder(let decoder):
-            return try decoder.getData(for: .variableLength)
+            return try decoder.getData(for: .variableLength, path: path)
         }
     }
 

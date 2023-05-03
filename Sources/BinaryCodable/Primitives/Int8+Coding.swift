@@ -13,9 +13,9 @@ extension Int8: EncodablePrimitive {
 
 extension Int8: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
         guard data.count == 1 else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         self.init(bitPattern: data[data.startIndex])
     }

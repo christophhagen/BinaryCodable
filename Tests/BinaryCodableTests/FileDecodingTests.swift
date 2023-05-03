@@ -120,7 +120,7 @@ final class FileDecodingTests: XCTestCase {
             defer { try? decoder.close() }
             let decoded = try decoder.readAll()
             XCTFail("Decoding should fail, but got \(decoded)")
-        } catch is BinaryDecodingError {
+        } catch DecodingError.dataCorrupted {
 
         }
 

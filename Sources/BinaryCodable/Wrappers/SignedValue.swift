@@ -73,8 +73,8 @@ extension SignedValue: CodablePrimitive, DataTypeProvider where WrappedValue: Zi
         wrappedValue.zigZagEncoded
     }
 
-    init(decodeFrom data: Data) throws {
-        let wrappedValue = try WrappedValue(fromZigZag: data)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        let wrappedValue = try WrappedValue(fromZigZag: data, path: path)
         self.init(wrappedValue: wrappedValue)
     }
 
@@ -145,8 +145,8 @@ extension SignedValue: ProtobufCodable where WrappedValue: ZigZagCodable, Wrappe
         wrappedValue.zigZagEncoded
     }
 
-    init(fromProtobuf data: Data) throws {
-        let value = try WrappedValue(fromZigZag: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        let value = try WrappedValue(fromZigZag: data, path: path)
         self.init(wrappedValue: value)
     }
 

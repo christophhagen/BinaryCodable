@@ -13,9 +13,9 @@ extension Bool: EncodablePrimitive {
 
 extension Bool: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
         guard data.count == 1 else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         self = data[data.startIndex] > 0
     }

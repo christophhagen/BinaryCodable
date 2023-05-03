@@ -13,8 +13,8 @@ extension UInt64: EncodablePrimitive {
 
 extension UInt64: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
-        try self.init(fromVarint: data)
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
+        try self.init(fromVarint: data, path: path)
     }
 }
 
@@ -53,13 +53,13 @@ extension UInt64: VariableLengthCodable {
         return result
     }
     
-    init(fromVarint data: Data) throws {
+    init(fromVarint data: Data, path: [CodingKey]) throws {
         var result: UInt64 = 0
         
         // There are always 7 usable bits per byte, for 8 bytes
         for byteIndex in 0..<8 {
             guard data.startIndex + byteIndex < data.endIndex else {
-                throw BinaryDecodingError.prematureEndOfData
+                throw DecodingError.prematureEndOfData(path)
             }
             let nextByte = UInt64(data[data.startIndex + byteIndex])
             // Insert the last 7 bit of the byte at the end
@@ -71,7 +71,7 @@ extension UInt64: VariableLengthCodable {
             }
         }
         guard data.startIndex + 8 < data.endIndex else {
-            throw BinaryDecodingError.prematureEndOfData
+            throw DecodingError.prematureEndOfData(path)
         }
         // The 9th byte has no next-byte bit, so all 8 bits are used
         let nextByte = UInt64(data[data.startIndex + 8])
@@ -90,9 +90,9 @@ extension UInt64: FixedSizeCompatible {
         "fixed64"
     }
 
-    public init(fromFixedSize data: Data) throws {
+    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
         guard data.count == MemoryLayout<UInt64>.size else {
-            throw BinaryDecodingError.invalidDataSize
+            throw DecodingError.invalidDataSize(path)
         }
         self.init(littleEndian: read(data: data, into: UInt64.zero))
     }
@@ -142,12 +142,12 @@ extension UInt64: ZigZagDecodable {
      `ProtobufDecodingError.missingData`
      - Returns: The decoded value.
      */
-    init(fromZigZag data: Data) throws {
+    init(fromZigZag data: Data, path: [CodingKey]) throws {
         var result: UInt64 = 0
 
         for byteIndex in 0...8 {
             guard data.startIndex + byteIndex < data.endIndex else {
-                throw BinaryDecodingError.prematureEndOfData
+                throw DecodingError.prematureEndOfData(path)
             }
             let nextByte = UInt64(data[data.startIndex + byteIndex])
             // Insert the last 7 bit of the byte at the end
@@ -160,7 +160,7 @@ extension UInt64: ZigZagDecodable {
         }
         // If we're here, the 9th byte had the MSB set
         guard data.startIndex + 9 < data.endIndex else {
-            throw BinaryDecodingError.prematureEndOfData
+            throw DecodingError.prematureEndOfData(path)
         }
         let nextByte = data[data.startIndex + 9]
         switch nextByte {
@@ -170,7 +170,7 @@ extension UInt64: ZigZagDecodable {
             result += 1 << 63
         default:
             // Only 0x01 and 0x00 are valid for the 10th byte, or the UInt64 would overflow
-            throw BinaryDecodingError.variableLengthEncodedIntegerOutOfRange
+            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
         }
         self = result
     }
@@ -187,7 +187,7 @@ extension UInt64: ProtobufEncodable {
 
 extension UInt64: ProtobufDecodable {
 
-    init(fromProtobuf data: Data) throws {
-        try self.init(fromVarint: data)
+    init(fromProtobuf data: Data, path: [CodingKey]) throws {
+        try self.init(fromVarint: data, path: path)
     }
 }

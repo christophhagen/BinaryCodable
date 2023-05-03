@@ -16,9 +16,10 @@ extension String: EncodablePrimitive {
 
 extension String: DecodablePrimitive {
 
-    init(decodeFrom data: Data) throws {
+    init(decodeFrom data: Data, path: [CodingKey]) throws {
         guard let value = String(data: data, encoding: .utf8) else {
-            throw BinaryDecodingError.invalidString
+            let context = DecodingError.Context(codingPath: path, debugDescription: "Invalid string")
+            throw DecodingError.dataCorrupted(context)
         }
         self = value
     }

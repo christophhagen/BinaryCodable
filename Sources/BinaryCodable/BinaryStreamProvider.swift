@@ -17,7 +17,7 @@ protocol BinaryStreamProvider {
 
      The data should be provided in a best-effort manner, if they are available.
      If insufficient bytes are available, e.g. if network data is still in transit,
-     then a ``BinaryDecodingError`` of type ``prematureEndOfData`` should be thrown.
+     then a ``DecodingError`` of type `dataCorrupted` should be thrown.
      This signals to the decoder that not all data is available,
      so that decoding can continue once more data is available.
      - Note: There is no need to buffer incoming data until an element is successfully decoded.
@@ -26,7 +26,7 @@ protocol BinaryStreamProvider {
      - Parameter count: The number of bytes to provide as the result.
      - Returns: The next `count` bytes in the data stream.
      */
-    func getBytes(_ count: Int) throws -> Data
+    func getBytes(_ count: Int, path: [CodingKey]) throws -> Data
 
     /**
      Indicate if there are any bytes to read for the decoder.
@@ -44,45 +44,48 @@ protocol BinaryStreamProvider {
 
 extension BinaryStreamProvider {
 
-    func getByte() throws -> UInt8 {
-        let data = try getBytes(1)
+    func getByte(path: [CodingKey]) throws -> UInt8 {
+        let data = try getBytes(1, path: path)
         return data[data.startIndex]
     }
 
-    func getDataOfVarint() throws -> Data {
+    func getDataOfVarint(path: [CodingKey]) throws -> Data {
         var result = [UInt8]()
         for _ in 0...7 {
-            let byte = try getByte()
+            let byte = try getByte(path: path)
             result.append(byte)
             if byte & 0x80 == 0 {
                 return Data(result)
             }
         }
-        let byte = try getByte()
+        let byte = try getByte(path: path)
         result.append(byte)
         return Data(result)
     }
 
-    func getVarint() throws -> Int {
-        let data = try getDataOfVarint()
-        return try .init(fromVarint: data)
+    func getVarint(path: [CodingKey]) throws -> Int {
+        let data = try getDataOfVarint(path: path)
+        return try .init(fromVarint: data, path: path)
     }
 
-    func getData(for dataType: DataType) throws -> Data {
+    func getData(for dataType: DataType, path: [CodingKey]) throws -> Data {
         switch dataType {
         case .variableLengthInteger:
-            return try getDataOfVarint()
+            return try getDataOfVarint(path: path)
         case .byte:
-            return try getBytes(1)
+            return try getBytes(1, path: path)
         case .twoBytes:
-            return try getBytes(2)
+            return try getBytes(2, path: path)
         case .variableLength:
-            let count = try getVarint()
-            return try getBytes(count)
+            let count = try getVarint(path: path)
+            guard count >= 0 else {
+                throw DecodingError.invalidDataSize(path)
+            }
+            return try getBytes(count, path: path)
         case .fourBytes:
-            return try getBytes(4)
+            return try getBytes(4, path: path)
         case .eightBytes:
-            return try getBytes(8)
+            return try getBytes(8, path: path)
         }
     }
 }

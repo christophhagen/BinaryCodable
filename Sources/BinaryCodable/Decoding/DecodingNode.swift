@@ -19,12 +19,12 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
     }
 
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
-        let container = try KeyedDecoder<Key>(data: storage.useAsData(), path: codingPath, info: userInfo)
+        let container = try KeyedDecoder<Key>(data: storage.useAsData(path: codingPath), path: codingPath, info: userInfo)
         return KeyedDecodingContainer(container)
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        return try UnkeyedDecoder(data: storage.useAsData(), path: codingPath, info: userInfo)
+        return try UnkeyedDecoder(data: storage.useAsData(path: codingPath), path: codingPath, info: userInfo)
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {
