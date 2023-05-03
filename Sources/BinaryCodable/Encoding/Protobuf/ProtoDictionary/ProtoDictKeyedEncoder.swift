@@ -2,9 +2,9 @@ import Foundation
 
 final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProtocol where Key: CodingKey {
 
-    private var content = [NonNilEncodingContainer]()
+    private var content = [EncodingContainer]()
 
-    func assign(_ value: NonNilEncodingContainer, to key: NonNilEncodingContainer) {
+    func assign(_ value: EncodingContainer, to key: EncodingContainer) {
         let pair = ProtoDictPair(key: key, value: value)
         content.append(pair)
     }
@@ -14,11 +14,11 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
     }
 
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
-        let container: NonNilEncodingContainer
+        let container: EncodingContainer
         if let primitive = value as? EncodablePrimitive {
             container = try EncodedPrimitive(protobuf: primitive)
         } else {
-            container = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
+            container = try ProtoEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         }
         let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
         assign(container, to: wrapped)
@@ -27,7 +27,7 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         do {
             let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
-            let container = ProtoKeyedEncoder<NestedKey>(path: codingPath + [key], info: userInfo)
+            let container = ProtoKeyedEncoder<NestedKey>(path: codingPath + [key], info: userInfo, optional: false)
             assign(container, to: wrapped)
             return KeyedEncodingContainer(container)
         } catch {
@@ -42,7 +42,7 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         do {
             let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
-            let container = ProtoUnkeyedEncoder(path: codingPath + [key], info: userInfo)
+            let container = ProtoUnkeyedEncoder(path: codingPath + [key], info: userInfo, optional: false)
             assign(container, to: wrapped)
             return container
         } catch {
@@ -64,7 +64,7 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
 }
 
 
-extension ProtoDictKeyedEncoder: NonNilEncodingContainer {
+extension ProtoDictKeyedEncoder: EncodingContainer {
 
     func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
         content

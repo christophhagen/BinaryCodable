@@ -13,6 +13,8 @@ struct IntKeyWrapper: CodingKeyWrapper {
 
     private let intValue: Int
 
+    var stringValue: String { "\(intValue)" }
+
     static func checkFieldBounds(_ field: Int) throws {
         if field < protoFieldLowerBound || field > protoFieldUpperBound {
             throw ProtobufEncodingError.integerKeyOutOfRange(field)

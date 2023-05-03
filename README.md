@@ -198,16 +198,14 @@ Sorting the binary data does not influence decoding, but introduces a computatio
 
 #### Encoding optionals in arrays
 
-Sequences of `Optional` values (like arrays, sets, ...) are normally encoded using a *nil index set*. 
+Sequences of `Optional` values (like arrays, sets, ...) are normally encoded one additional byte to indicate following value (`0x01`) or a `nil` value (`0x00`).
+This works well for all compiler-generated conformances to `Codable`.
+For custom implementations of `func encode(to: Encoder)` and `init(from: Decoder)`, the `encodeNil()` is *not* supported on `UnkeyedEncodingContainer`s.
+If you must use this option, then it's necessary to enable the `prependNilIndexSetForUnkeyedContainers` option on both `BinaryEncoder` and `BinaryDecoder`.
+Optional values are then encoded using a *nil index set*. 
 The index of each `nil` element in the sequence is recorded, and only non-nil values are encoded. 
 The indices of `nil` elements are then prepended to the data as an array of integers.
 During decoding, this index set is checked to place `nil` values between the non-nil elements at the appropriate indices.
-
-This encoding scheme is usually more efficient than, e.g. indicating for each element whether the value is non-optional using an additional byte.
-There can be specific cases where `nil index sets` become less efficient, e.g. when storing very large arrays of mostly `nil` values.
-
-In these cases, the encoder option `prependNilIndexSetForUnkeyedContainers` can be set to `false`, causing the encoder to omit the nil index set in favour of an additional byte before each element.
-The decoder must then have `containsNilIndexSetForUnkeyedContainers` set to `false`, so that the data can be successfully decoded.
 
 ### Stream encoding and decoding
 

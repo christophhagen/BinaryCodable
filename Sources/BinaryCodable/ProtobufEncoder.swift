@@ -45,7 +45,7 @@ public final class ProtobufEncoder {
      - Throws: Errors of type `BinaryEncodingError` or `ProtobufEncodingError`
      */
     public func encode<T>(_ value: T) throws -> Data where T: Encodable {
-        let root = ProtoEncodingNode(path: [], info: userInfo)
+        let root = ProtoEncodingNode(path: [], info: userInfo, optional: false)
         try value.encode(to: root)
         return root.data
     }

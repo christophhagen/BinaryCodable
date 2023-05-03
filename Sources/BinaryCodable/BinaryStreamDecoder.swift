@@ -63,7 +63,7 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
 
     public func decodeElement() throws -> Element? {
         do {
-            let element = try decodeNextElement()
+            let element: Element = try decoder.decode(fromStream: buffer)
             // Remove the buffered data since element was correctly decoded
             buffer.discardUsedBufferData()
             return element
@@ -76,24 +76,5 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
             buffer.discardUsedBufferData()
             throw error
         }
-    }
-
-    private func decodeNextElement() throws -> Element {
-        if Element.self is AnyOptional.Type {
-            return try decodeOptional()
-        } else {
-            return try decodeNonOptional()
-        }
-    }
-
-    private func decodeNonOptional() throws -> Element {
-        return try decoder.decode(fromStream: buffer)
-    }
-
-    private func decodeOptional() throws -> Element {
-        guard try buffer.getByte() > 0 else {
-            return try decoder.decode(from: Data())
-        }
-        return try decodeNonOptional()
     }
 }

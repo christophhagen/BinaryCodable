@@ -51,7 +51,7 @@ public final class BinaryEncoder {
      - Note: This option defaults to `true`
      - Note: To decode successfully, the decoder must use the same setting for `containsNilIndexSetForUnkeyedContainers`.
      */
-    public var prependNilIndexSetForUnkeyedContainers: Bool = true
+    public var prependNilIndexSetForUnkeyedContainers: Bool = false
 
     /**
      Any contextual information set by the user for encoding.
@@ -94,17 +94,14 @@ public final class BinaryEncoder {
      - Throws: Errors of type `BinaryEncodingError`
      */
     public func encode(_ value: Encodable) throws -> Data {
-        let root = EncodingNode(path: [], info: fullInfo)
+        let isOptional = value is AnyOptional
+        let root = EncodingNode(path: [], info: fullInfo, optional: isOptional)
         do {
             try value.encode(to: root)
         } catch {
             throw BinaryEncodingError(wrapping: error)
         }
-        if root.isNil {
-            return Data()
-        } else {
-            return root.data
-        }
+        return root.data
     }
 
     /**
@@ -117,17 +114,14 @@ public final class BinaryEncoder {
      Advanced features like stream encoding are handled by ``BinaryStreamEncoder``.
      */
     func encodeForStream(_ value: Encodable) throws -> Data {
-        let root = EncodingNode(path: [], info: fullInfo)
+        let isOptional = value is AnyOptional
+        let root = EncodingNode(path: [], info: fullInfo, optional: isOptional)
         do {
             try value.encode(to: root)
         } catch {
             throw BinaryEncodingError(wrapping: error)
         }
-        if root.isNil {
-            return Data()
-        } else {
-            return root.dataWithLengthInformationIfRequired
-        }
+        return root.dataWithLengthInformationIfRequired
     }
 
     /**

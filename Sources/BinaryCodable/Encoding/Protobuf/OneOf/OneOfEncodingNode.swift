@@ -16,7 +16,7 @@ final class OneOfEncodingNode: AbstractEncodingNode, Encoder {
         guard self.container == nil else {
             fatalError("Multiple calls to `container<>(keyedBy:)` while encoding a `ProtobufOneOf` type")
         }
-        let container = OneOfKeyedEncoder<Key>(path: codingPath, info: userInfo)
+        let container = OneOfKeyedEncoder<Key>(path: codingPath, info: userInfo, optional: false)
         self.container = container
         return KeyedEncodingContainer(container)
     }
@@ -33,7 +33,7 @@ final class OneOfEncodingNode: AbstractEncodingNode, Encoder {
             path: codingPath, info: userInfo)
     }
 
-    func encoding<T>(_ value: T) throws -> (key: IntKeyWrapper, value: NonNilEncodingContainer) where T: Encodable {
+    func encoding<T>(_ value: T) throws -> (key: IntKeyWrapper, value: EncodingContainer) where T: Encodable {
         try value.encode(to: self)
         guard let container = container else {
             throw ProtobufEncodingError.noContainersAccessed

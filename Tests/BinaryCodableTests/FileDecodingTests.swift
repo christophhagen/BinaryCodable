@@ -119,8 +119,7 @@ final class FileDecodingTests: XCTestCase {
             let decoder = try BinaryFileDecoder<Test>(fileAt: fileUrl)
             defer { try? decoder.close() }
             let decoded = try decoder.readAll()
-            print(decoded)
-            XCTFail("Decoding should fail")
+            XCTFail("Decoding should fail, but got \(decoded)")
         } catch is BinaryDecodingError {
 
         }

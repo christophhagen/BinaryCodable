@@ -14,16 +14,16 @@ class EncodingNode: AbstractEncodingNode, Encoder {
     }
     
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        let container = wrap { KeyedEncoder<Key>(path: codingPath, info: userInfo) }
+        let container = wrap { KeyedEncoder<Key>(path: codingPath, info: userInfo, optional: containsOptional) }
         return KeyedEncodingContainer(container)
     }
     
     func unkeyedContainer() -> UnkeyedEncodingContainer {
-        wrap { UnkeyedEncoder(path: codingPath, info: userInfo) }
+        wrap { UnkeyedEncoder(path: codingPath, info: userInfo, optional: containsOptional) }
     }
     
     func singleValueContainer() -> SingleValueEncodingContainer {
-        wrap { ValueEncoder(path: codingPath, info: userInfo) }
+        wrap { ValueEncoder(path: codingPath, info: userInfo, optional: containsOptional) }
     }
 
     func encoding<T>(_ value: T) throws -> EncodingNode where T: Encodable {
@@ -34,10 +34,12 @@ class EncodingNode: AbstractEncodingNode, Encoder {
 
 extension EncodingNode: EncodingContainer {
 
-    var isNil: Bool { container?.isNil ?? true }
-    
     var data: Data {
         container!.data
+    }
+
+    var dataWithLengthInformationIfRequired: Data {
+        container!.dataWithLengthInformationIfRequired
     }
     
     var dataType: DataType {
@@ -45,7 +47,7 @@ extension EncodingNode: EncodingContainer {
     }
 
     func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
-        guard !isNil, let container else {
+        guard let container else {
             // Explicitly check for nil to prevent error with unwrapping
             // when not using `encodeNil(forKey:)` for custom encoders
             return Data()

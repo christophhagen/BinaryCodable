@@ -17,4 +17,11 @@ class AbstractEncodingNode: AbstractNode {
     var sortKeysDuringEncoding: Bool {
         userInfo.has(.sortKeys)
     }
+    
+    let containsOptional: Bool
+
+    init(path: [CodingKey], info: UserInfo, optional: Bool) {
+        self.containsOptional = optional
+        super.init(path: path, info: info)
+    }
 }

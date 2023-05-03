@@ -2,12 +2,12 @@ import Foundation
 
 struct ProtoDictPair {
 
-    let key: NonNilEncodingContainer
+    let key: EncodingContainer
 
-    let value: NonNilEncodingContainer
+    let value: EncodingContainer
 }
 
-extension ProtoDictPair: NonNilEncodingContainer {
+extension ProtoDictPair: EncodingContainer {
 
     var data: Data {
         key.encodeWithKey(try! IntKeyWrapper(value: 1))

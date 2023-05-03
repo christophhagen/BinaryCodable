@@ -5,7 +5,7 @@ import Foundation
  */
 protocol OneOfKeyedContainer {
     
-    func getContent() throws -> (key: IntKeyWrapper, value: NonNilEncodingContainer)
+    func getContent() throws -> (key: IntKeyWrapper, value: EncodingContainer)
 }
 
 /**
@@ -31,7 +31,7 @@ final class OneOfKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         do {
             let wrapped = try IntKeyWrapper(key)
-            let container = OneOfAssociatedValuesEncoder<NestedKey>(path: codingPath + [key], info: userInfo)
+            let container = OneOfAssociatedValuesEncoder<NestedKey>(path: codingPath + [key], info: userInfo, optional: false)
             content = (wrapped, container)
             return KeyedEncodingContainer(container)
         } catch {
@@ -64,7 +64,7 @@ final class OneOfKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
 
 extension OneOfKeyedEncoder: OneOfKeyedContainer {
     
-    func getContent() throws -> (key: IntKeyWrapper, value: NonNilEncodingContainer) {
+    func getContent() throws -> (key: IntKeyWrapper, value: EncodingContainer) {
         guard let content = content else {
             throw ProtobufEncodingError.noContainersAccessed
         }

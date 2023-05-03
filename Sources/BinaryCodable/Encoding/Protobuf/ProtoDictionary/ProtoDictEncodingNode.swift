@@ -3,11 +3,11 @@ import Foundation
 final class ProtoDictEncodingNode: ProtoEncodingNode {
 
     override func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        let container = wrap { ProtoDictKeyedEncoder<Key>(path: codingPath, info: userInfo) }
+        let container = wrap { ProtoDictKeyedEncoder<Key>(path: codingPath, info: userInfo, optional: false) }
         return KeyedEncodingContainer(container)
     }
 
     override func unkeyedContainer() -> UnkeyedEncodingContainer {
-        wrap { ProtoDictUnkeyedEncoder(path: codingPath, info: userInfo) }
+        wrap { ProtoDictUnkeyedEncoder(path: codingPath, info: userInfo, optional: false) }
     }
 }

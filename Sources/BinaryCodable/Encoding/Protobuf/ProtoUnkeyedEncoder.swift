@@ -6,10 +6,10 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
         content.count
     }
 
-    private var content = [NonNilEncodingContainer]()
+    private var content = [EncodingContainer]()
 
     @discardableResult
-    private func assign<T>(_ encoded: () throws -> T) rethrows -> T where T: NonNilEncodingContainer {
+    private func assign<T>(_ encoded: () throws -> T) rethrows -> T where T: EncodingContainer {
         let value = try encoded()
         content.append(value)
         return value
@@ -39,31 +39,31 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
             }
             return
         }
-        let node = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
+        let node = try ProtoEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         assign { node }
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         let container = assign {
-            ProtoKeyedEncoder<NestedKey>(path: codingPath, info: userInfo)
+            ProtoKeyedEncoder<NestedKey>(path: codingPath, info: userInfo, optional: false)
         }
         return KeyedEncodingContainer(container)
     }
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
         assign {
-            ProtoUnkeyedEncoder(path: codingPath, info: userInfo)
+            ProtoUnkeyedEncoder(path: codingPath, info: userInfo, optional: false)
         }
     }
 
     func superEncoder() -> Encoder {
         assign {
-            ProtoEncodingNode(path: codingPath, info: userInfo)
+            ProtoEncodingNode(path: codingPath, info: userInfo, optional: false)
         }
     }
 }
 
-extension ProtoUnkeyedEncoder: NonNilEncodingContainer {
+extension ProtoUnkeyedEncoder: EncodingContainer {
 
     private var packedProtoData: Data {
         let data = self.data

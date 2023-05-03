@@ -126,6 +126,6 @@ final class KeyedEncodingTests: XCTestCase {
         let value: [UInt : UInt8] = [123: 123, 124: 124]
         let part1: [UInt8] = [123, 123]
         let part2: [UInt8] = [124, 124]
-        try compare(value, possibleResults: [[0] + part1 + part2, [0] + part2 + part1])
+        try compare(value, possibleResults: [part1 + part2, part2 + part1])
     }
 }

@@ -38,7 +38,7 @@ public final class BinaryDecoder {
      - Note: This option defaults to `true`
      - Note: To decode successfully, the encoder must use the same setting for `prependNilIndexSetForUnkeyedContainers`.
      */
-    public var containsNilIndexSetForUnkeyedContainers: Bool = true
+    public var containsNilIndexSetForUnkeyedContainers: Bool = false
 
     /**
      The info for decoding.
@@ -69,7 +69,7 @@ public final class BinaryDecoder {
      - Throws: Errors of type `BinaryDecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        let root = DecodingNode(data: data, top: true, path: [], info: fullInfo)
+        let root = DecodingNode(data: data, path: [], info: fullInfo)
         do {
             return try type.init(from: root)
         } catch {

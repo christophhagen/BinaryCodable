@@ -11,12 +11,12 @@ class ProtoThrowingNode: AbstractEncodingNode, Encoder {
 
     init(error: ProtobufEncodingError, path: [CodingKey], info: UserInfo) {
         self.error = error
-        super.init(path: path, info: info)
+        super.init(path: path, info: info, optional: false)
     }
 
     init(from node: ProtoThrowingNode) {
         self.error = node.error
-        super.init(path: node.codingPath, info: node.userInfo)
+        super.init(path: node.codingPath, info: node.userInfo, optional: false)
     }
 
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {

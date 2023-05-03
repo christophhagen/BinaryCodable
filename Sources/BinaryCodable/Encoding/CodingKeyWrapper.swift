@@ -50,6 +50,8 @@ private let intKeyLowerBound = Int(bitPattern: 0xF8 << (UInt.bitWidth - 8))
 protocol CodingKeyWrapper {
 
     func encode(for dataType: DataType) -> Data
+
+    var stringValue: String { get }
 }
 
 /**
@@ -59,7 +61,7 @@ struct MixedCodingKeyWrapper: CodingKeyWrapper {
     
     private let intValue: Int?
 
-    private let stringValue: String
+    let stringValue: String
 
     /**
      Create a wrapper around a coding key.

@@ -65,14 +65,7 @@ public final class BinaryStreamEncoder<Element> where Element: Encodable {
      - Throws: Errors of type ``BinaryEncodingError``
      */
     public func encode(_ element: Element) throws -> Data {
-        guard let optional = element as? AnyOptional else {
-            return try encoder.encodeForStream(element)
-        }
-        guard optional.isNil else {
-            let data = try encoder.encodeForStream(element)
-            return Data([1]) + data
-        }
-        return Data([0])
+        try encoder.encodeForStream(element)
     }
 
     /**

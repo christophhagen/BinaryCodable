@@ -29,17 +29,27 @@ Swift `String` values are encoded using their `UTF-8` representations. If a stri
 
 ## Arrays
 
-Arrays (and other sequences) are encoded by converting each item to binary data, and concatenating the results. Elements with variable length (like `String`) are prepended with their length encoded as a [Varint](#integer-encoding). Each encoded array has at least one byte prepended to it, in order to support optional values.
+Arrays (and other sequences) are encoded by converting each item to binary data, and concatenating the results. Elements with variable length (like `String`) are prepended with their length encoded as a [Varint](#integer-encoding).
 
 ### Arrays of Optionals
 
-It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]`. Due to constraints regarding Apple's implementation of `Encoder` and `Decoder`, it is not consistently possible to infer if optionals are present in unkeyed containers. `BinaryCodable` therefore encodes optionals using a different strategy: Each array binary representation is prepended with a "nil index set". It first consists of the number of `nil` elements in the sequence, encoded as a `Varint`. Then follow the indices in the array where `nil` values are present, each encoded as a `Varint`. The decoder can then first parse this `nil` set, and return the appropriate value for each position where a `nil` value is encoded. This approach is fairly efficient while only few `nil` values are encoded, or while the sequence doesn't contain a large number of elements.
+It is possible to encode arrays where the elements are `Optional`, e.g. `[Bool?]`. 
+For all types with compiler-generated `Codable` conformance, an optional is prepended with one byte (`1` for the `.some()` case, `0` for `nil`).
+If the optional has a value, then the encoded data follows the `1` byte.
+If `nil` is encoded, then no additional data is added.
+This means that an array of `[Bool?]` with the values `[true, nil, false]` is encoded as `[1, 1, 0, 1, 0]`.
+
+- Note: One benefit of this encoding is that top-level sequences can be joined using their binary data, where `encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])`.
+
+Custom implementations of `Encodable` and `Decodable` can directly call `encodeNil()` on `UnkeyedEncodingContainer` and `decodeNil()` on `UnkeyedDecodingContainer`.
+This feature is not supported in the standard configuration and will result in a fatal error.
+If these functions are needed, then the `prependNilIndexSetForUnkeyedContainers` must be set for the encoder and decoder.
+If this option is set to `true`, then each unkeyed container is prepended with a "nil index set". 
+It first consists of the number of `nil` elements in the sequence (only those encoded using `encodeNil()`), encoded as a `Varint`. 
+Then follow the indices in the array where `nil` values are present, each encoded as a `Varint`. 
+The decoder can then first parse this `nil` set, and return the appropriate value for each position where a `nil` value is encoded when `decodeNil()` is called. 
+This approach is fairly efficient while only few `nil` values are encoded, or while the sequence doesn't contain a large number of elements.
 For arrays that don't contain optionals, only a single byte (`0`) is prepended to the binary representation, to signal that there are no `nil` indices in the sequence.
-
-If the `prependNilIndexSetForUnkeyedContainers` is set to `false`, then this behaviour is changed.
-The encoder then omits the *nil index set*, and instead adds a single byte `0x01` before each non-nil element, and a single `0x00` byte to signal `nil`.
-
-- Note: One benefit of this option is that top-level sequences can be joined using their binary data, where `encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])`.
 
 More efficient ways could be devised to handle arrays of optionals, like specifying the number of `nil` or non-nil elements following one another, but the increased encoding and decoding complexity don't justify these gains in communication efficiency.
 
@@ -94,7 +104,9 @@ Evidently this is a significant improvement, especially for long property names.
 
 ### Optional properties
 
-Any properties of structs or other keyed containers is omitted from the binary data, i.e. nothing is encoded. The absence of a key then indicates to the decoder that the value is `nil`
+Any properties of structs or other keyed containers is omitted from the binary data, i.e. nothing is encoded. 
+The absence of a key then indicates to the decoder that the value is `nil`.
+For multiple optionals (e.g. `Bool??`), the inner optional is encoded as a `varLen` type, with the same encoding as optionals in arrays. 
 
 ## Codable quirks
 
@@ -218,9 +230,5 @@ This concerns `String` and `Data`, as well as complex types like structs and arr
 
 ### Optionals
 
-Normally, `Optional` values in unkeyed containers are tracked using [nil index sets](#arrays-of-optionals), which is prepended to the list of non-optionals.
-This approach is not possible for streams, requiring additional information for each element in the stream.
 A single byte is prepended to each `Optional` element, where binary `0x01` is used to indicate a non-optional value, and `0x00` is used to signal an optional value. 
 `nil` values have no additional data, so each is encoded using one byte.
-
-This encoding of optionals is similar to the [encoding of sequences of optionals](#arrays-of-optionals) when not using the default option.

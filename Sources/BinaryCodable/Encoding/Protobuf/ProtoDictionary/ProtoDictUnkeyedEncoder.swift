@@ -8,9 +8,9 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
 
     private var content = [ProtoDictPair]()
 
-    private var key: NonNilEncodingContainer?
+    private var key: EncodingContainer?
 
-    private func assign<T>(_ value: T) where T: NonNilEncodingContainer {
+    private func assign<T>(_ value: T) where T: EncodingContainer {
         if let key = key {
             let pair = ProtoDictPair(key: key, value: value)
             content.append(pair)
@@ -40,7 +40,7 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
             assign(node)
             return
         }
-        let node = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
+        let node = try ProtoEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         assign(node)
     }
 
@@ -59,7 +59,7 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
     }
 }
 
-extension ProtoDictUnkeyedEncoder: NonNilEncodingContainer {
+extension ProtoDictUnkeyedEncoder: EncodingContainer {
 
     func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
         content

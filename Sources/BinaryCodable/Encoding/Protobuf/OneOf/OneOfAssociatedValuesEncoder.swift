@@ -5,7 +5,7 @@ import Foundation
  */
 protocol OneOfAssociatedValuesContainer {
     
-    func getValue() throws -> NonNilEncodingContainer
+    func getValue() throws -> EncodingContainer
 }
 
 /**
@@ -18,7 +18,7 @@ protocol OneOfAssociatedValuesContainer {
 final class OneOfAssociatedValuesEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProtocol where Key: CodingKey {
 
     /// The encoded associated value
-    var value: NonNilEncodingContainer?
+    var value: EncodingContainer?
 
     func encodeNil(forKey key: Key) throws {
         throw ProtobufEncodingError.invalidAccess(
@@ -34,9 +34,9 @@ final class OneOfAssociatedValuesEncoder<Key>: AbstractEncodingNode, KeyedEncodi
         if let primitive = value as? EncodablePrimitive {
             self.value = try EncodedPrimitive(protobuf: primitive, excludeDefaults: false)
         } else if value is AnyDictionary {
-            self.value = try ProtoDictEncodingNode(path: codingPath, info: userInfo).encoding(value)
+            self.value = try ProtoDictEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         } else {
-            self.value = try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
+            self.value = try ProtoEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         }
     }
     
@@ -69,7 +69,7 @@ final class OneOfAssociatedValuesEncoder<Key>: AbstractEncodingNode, KeyedEncodi
 
 extension OneOfAssociatedValuesEncoder: OneOfAssociatedValuesContainer {
     
-    func getValue() throws -> NonNilEncodingContainer {
+    func getValue() throws -> EncodingContainer {
         guard let value = value else {
             throw ProtobufEncodingError.noContainersAccessed
         }

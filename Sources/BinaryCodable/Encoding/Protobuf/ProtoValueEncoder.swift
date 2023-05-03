@@ -2,13 +2,13 @@ import Foundation
 
 final class ProtoValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
 
-    private var container: NonNilEncodingContainer?
+    private var container: EncodingContainer?
 
     func encodeNil() throws {
         try assign { nil }
     }
 
-    private func assign(_ encoded: () throws -> NonNilEncodingContainer?) throws {
+    private func assign(_ encoded: () throws -> EncodingContainer?) throws {
         guard container == nil else {
             throw BinaryEncodingError.multipleValuesInSingleValueContainer
         }
@@ -23,12 +23,12 @@ final class ProtoValueEncoder: AbstractEncodingNode, SingleValueEncodingContaine
             return
         }
         try assign {
-            try ProtoEncodingNode(path: codingPath, info: userInfo).encoding(value)
+            try ProtoEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         }
     }
 }
 
-extension ProtoValueEncoder: NonNilEncodingContainer {
+extension ProtoValueEncoder: EncodingContainer {
 
     var data: Data {
         container?.data ?? .empty

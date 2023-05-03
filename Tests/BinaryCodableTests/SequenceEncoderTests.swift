@@ -11,6 +11,7 @@ final class SequenceEncoderTests: XCTestCase {
         let decoder = BinaryStreamDecoder<T>()
 
         let decoded = try decoder.decode(bytes)
+        print(Array(bytes))
         XCTAssertEqual(decoded, input)
     }
 
@@ -71,8 +72,8 @@ final class SequenceEncoderTests: XCTestCase {
         do {
             let decoded = try decoder.decode(data)
             XCTFail("Should not be able to decode \(decoded)")
-        } catch let error as BinaryDecodingError {
-            print(error)
+        } catch is BinaryDecodingError {
+
         }
     }
 

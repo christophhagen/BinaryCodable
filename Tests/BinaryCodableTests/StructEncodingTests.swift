@@ -8,7 +8,7 @@ final class StructEncodingTests: XCTestCase {
             let val: [Bool]
         }
         let expected: [UInt8] = [0b00111010, 118, 97, 108,
-                                 4, 0, 1, 0, 1]
+                                 3, 1, 0, 1]
         try compare(Test(val: [true, false, true]), to: expected)
     }
 
@@ -18,7 +18,6 @@ final class StructEncodingTests: XCTestCase {
         }
         let value = [Test(val: 123), Test(val: 124)]
         let expected: [UInt8] = [
-            0, // nil index set
             6, // Length of first element
             0b00111000, 118, 97, 108, // String key 'val', varint
             246, 1, // Value '123'
@@ -35,10 +34,12 @@ final class StructEncodingTests: XCTestCase {
         }
         let value: [Test?] = [Test(val: 123), nil, Test(val: 124)]
         let expected: [UInt8] = [
-            1, 1, // nil index set
+            1, // First element not nil
             6, // Length of first element
             0b00111000, 118, 97, 108, // String key 'val', varint
             246, 1, // Value '123'
+            0, // Second element is nil
+            1, // Third element not nil
             6, // Length of third element
             0b00111000, 118, 97, 108, // String key 'val', varint
             248, 1, // Value '124'

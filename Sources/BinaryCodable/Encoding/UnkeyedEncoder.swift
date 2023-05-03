@@ -22,36 +22,36 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
     }
     
     func encode<T>(_ value: T) throws where T : Encodable {
-        if let primitive = value as? EncodablePrimitive {
+        if value is AnyOptional {
+            try assign {
+                try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
+            }
+        } else if let primitive = value as? EncodablePrimitive {
             try assign {
                 try EncodedPrimitive(primitive: primitive)
             }
-            return
-        }
-        let node = try EncodingNode(path: codingPath, info: userInfo).encoding(value)
-        if node.isNil {
-            try encodeNil()
         } else {
+            let node = try EncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
             assign { node }
         }
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         let container = assign {
-            KeyedEncoder<NestedKey>(path: codingPath, info: userInfo)
+            KeyedEncoder<NestedKey>(path: codingPath, info: userInfo, optional: false)
         }
         return KeyedEncodingContainer(container)
     }
     
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
         assign {
-            UnkeyedEncoder(path: codingPath, info: userInfo)
+            UnkeyedEncoder(path: codingPath, info: userInfo, optional: false)
         }
     }
     
     func superEncoder() -> Encoder {
         assign {
-            EncodingNode(path: codingPath, info: userInfo)
+            EncodingNode(path: codingPath, info: userInfo, optional: false)
         }
     }
 }
@@ -71,27 +71,11 @@ extension UnkeyedEncoder: EncodingContainer {
         content.map { $0.dataWithLengthInformationIfRequired }.joinedData
     }
 
-    /**
-     Encode the elements without a prepended index set.
-
-     Adds a `0` for `nil` elements, and a `1` before non-nil elements.
-     */
-    private var dataWithoutIndexSet: Data {
-        var contentIndex = 0
-        return (0..<count).map { index -> Data in
-            if nilIndices.contains(index) {
-                return Data([0])
-            }
-            defer { contentIndex += 1 }
-            return [1] + content[contentIndex].dataWithLengthInformationIfRequired
-        }.joinedData
-    }
-
     var data: Data {
         if prependNilIndexSetForUnkeyedContainers {
             return nilIndicesData + contentData
         } else {
-            return dataWithoutIndexSet
+            return contentData
         }
     }
     

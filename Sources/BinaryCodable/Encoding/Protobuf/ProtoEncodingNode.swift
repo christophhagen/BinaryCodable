@@ -2,9 +2,9 @@ import Foundation
 
 class ProtoEncodingNode: AbstractEncodingNode, Encoder {
 
-    var container: NonNilEncodingContainer?
+    var container: EncodingContainer?
 
-    func wrap<T>(container: () -> T) -> T where T: NonNilEncodingContainer {
+    func wrap<T>(container: () -> T) -> T where T: EncodingContainer {
         guard self.container == nil else {
             fatalError("Multiple calls to `container<>(keyedBy:)`, `unkeyedContainer()`, or `singleValueContainer()` for an encoder")
         }
@@ -14,16 +14,16 @@ class ProtoEncodingNode: AbstractEncodingNode, Encoder {
     }
 
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        let container = wrap { ProtoKeyedEncoder<Key>(path: codingPath, info: userInfo) }
+        let container = wrap { ProtoKeyedEncoder<Key>(path: codingPath, info: userInfo, optional: false) }
         return KeyedEncodingContainer(container)
     }
 
     func unkeyedContainer() -> UnkeyedEncodingContainer {
-        wrap { ProtoUnkeyedEncoder(path: codingPath, info: userInfo) }
+        wrap { ProtoUnkeyedEncoder(path: codingPath, info: userInfo, optional: false) }
     }
 
     func singleValueContainer() -> SingleValueEncodingContainer {
-        wrap { ProtoValueEncoder(path: codingPath, info: userInfo) }
+        wrap { ProtoValueEncoder(path: codingPath, info: userInfo, optional: false) }
     }
 
     func encoding<T>(_ value: T) throws -> Self where T: Encodable {
@@ -32,7 +32,7 @@ class ProtoEncodingNode: AbstractEncodingNode, Encoder {
     }
 }
 
-extension ProtoEncodingNode: NonNilEncodingContainer {
+extension ProtoEncodingNode: EncodingContainer {
 
     var data: Data {
         container!.data

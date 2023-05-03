@@ -5,6 +5,7 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     private var container: EncodingContainer?
     
     func encodeNil() throws {
+        print("ValueEncoder.encodeNil")
         try assign { nil }
     }
     
@@ -16,31 +17,71 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     }
     
     func encode<T>(_ value: T) throws where T : Encodable {
-        if let primitive = value as? EncodablePrimitive {
+        if value is AnyOptional {
+            try assign {
+                try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
+            }
+        } else if let primitive = value as? EncodablePrimitive {
+            // Note: This assignment also work for optionals with a value, so
+            // we need to check for optionals explicitly before
             try assign {
                 try EncodedPrimitive(primitive: primitive)
             }
-            return
-        }
-        try assign {
-            try EncodingNode(path: codingPath, info: userInfo).encoding(value)
+        } else {
+            try assign {
+                try EncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
+            }
         }
     }
 }
 
 extension ValueEncoder: EncodingContainer {
 
-    var isNil: Bool { container?.isNil ?? true }
+    private var isNil: Bool { container == nil }
     
     var data: Data {
-        container?.data ?? .empty
+        if containsOptional {
+            if isNil {
+                return Data([0])
+            }
+            return Data([1]) + (container?.dataWithLengthInformationIfRequired ?? .empty)
+        }
+        return container?.data ?? .empty
+    }
+
+    var dataWithLengthInformationIfRequired: Data {
+        if containsOptional {
+            return data
+        }
+        guard dataType == .variableLength else {
+            return data
+        }
+        return dataWithLengthInformation
     }
     
     var dataType: DataType {
-        container!.dataType
+        if containsOptional {
+            return .variableLength
+        }
+        return container?.dataType ?? .byte
     }
 
     var isEmpty: Bool {
         container?.isEmpty ?? true
+    }
+
+    private var optionalData: Data {
+        guard let container else {
+            return Data([0])
+        }
+        return Data([1]) + container.dataWithLengthInformationIfRequired
+    }
+
+    func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
+        guard containsOptional else {
+            return key.encode(for: container?.dataType ?? .byte) + (container?.dataWithLengthInformationIfRequired ?? .empty)
+        }
+        let data = optionalData
+        return key.encode(for: .variableLength) + data.count.variableLengthEncoding + optionalData
     }
 }

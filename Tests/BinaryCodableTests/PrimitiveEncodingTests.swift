@@ -172,8 +172,8 @@ final class PrimitiveEncodingTests: XCTestCase {
         func compare(_ value: Data, to expected: [UInt8]) throws {
             try compareEncoding(Data.self, value: value, to: expected)
         }
-        try compare(Data(), to: [0])
-        try compare(Data([0]), to: [0,0])
-        try compare(Data([0x40, 0x09, 0x21, 0xFB]), to: [0, 0x40, 0x09, 0x21, 0xFB])
+        try compare(Data(), to: [])
+        try compare(Data([0]), to: [0])
+        try compare(Data([0x40, 0x09, 0x21, 0xFB]), to: [0x40, 0x09, 0x21, 0xFB])
     }
 }

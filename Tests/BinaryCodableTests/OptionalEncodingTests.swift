@@ -2,19 +2,25 @@ import XCTest
 import BinaryCodable
 
 final class OptionalEncodingTests: XCTestCase {
-    
-    func testOptionalBoolEncoding() throws {
-        func compare(_ value: Bool?, to expected: [UInt8]) throws {
-            try compareEncoding(Bool?.self, value: value, to: expected)
-        }
-        try compare(true, to: [1])
-        try compare(false, to: [0])
-        try compare(nil, to: [])
+
+    func testSingleOptional() throws {
+        let value: [Int?] = [1, nil]
+        try compare(value, to: [1, 2, 0])
     }
     
-    func testArrayOfOptionalsEncoding() throws {
-        let value: [Bool?] = [false, nil, true]
-        try compareEncoding([Bool?].self, value: value, to: [1, 1, 0, 1])
+    func testOptionalBoolEncoding() throws {
+        try compareEncoding(Bool?.self, value: true, to: [1, 1])
+        try compareEncoding(Bool?.self, value: false, to: [1, 0])
+        try compareEncoding(Bool?.self, value: nil, to: [0])
+    }
+
+    func testOptionalStruct() throws {
+        struct T: Codable, Equatable {
+            var a: Int
+        }
+        try compareEncoding(T?.self, value: T(a: 123),
+                            to: [1, 4, 24, 97, 246, 1])
+        try compareEncoding(T?.self, value: nil, to: [0])
     }
 
     func testOptionalInStructEncoding() throws {
@@ -28,14 +34,32 @@ final class OptionalEncodingTests: XCTestCase {
                 case opt = 4
             }
         }
+        // Note: `encodeNil()` is not called for single optionals
         try compare(Test(value: 123, opt: nil), to: [0b01010111, 123, 0])
+        let part1: [UInt8] = [0b01010111, 123, 0] // value: 123
+        let part2: [UInt8] = [0b01000111, 12, 0] // opt: 12
+        try compare(Test(value: 123, opt: 12), possibleResults: [part1 + part2, part2 + part1])
+    }
+
+    func testDoubleOptionalInStruct() throws {
+        struct Test: Codable, Equatable {
+            let value: UInt16
+
+            let opt: Int16??
+
+            enum CodingKeys: Int, CodingKey {
+                case value = 4
+                case opt = 5
+            }
+        }
+        try compare(Test(value: 123, opt: nil), to: [0b01000111, 123, 0])
         let part1: [UInt8] = [0b01000111, 123, 0]
-        let part2: [UInt8] = [0b01010111, 123, 0]
-        try compare(Test(value: 123, opt: 123), possibleResults: [part1 + part2, part2 + part1])
+        let part2: [UInt8] = [0b01010010, 3, 1, 12, 0] // Optionals are VarLen
+        try compare(Test(value: 123, opt: 12), possibleResults: [part1 + part2, part2 + part1])
     }
 
     func testClassWithOptionalProperty() throws {
-        let item = TestClass(withName: "Bob", endDate: nil)
+        let item = TestClass(withName: "Bob", endDate: "s")
 
         let data = try BinaryEncoder().encode(item)
         let decoded: TestClass = try BinaryDecoder().decode(from: data)
@@ -44,13 +68,13 @@ final class OptionalEncodingTests: XCTestCase {
 }
 
 
-private final class TestClass: Codable, Equatable {
+private final class TestClass: Codable, Equatable, CustomStringConvertible {
     let name: String
     let date: String?
 
-    enum CodingKeys: String, CodingKey {
-        case name
-        case date
+    enum CodingKeys: Int, CodingKey {
+        case name = 1
+        case date = 2
     }
 
     convenience init(from decoder: Decoder) throws {
@@ -73,5 +97,9 @@ private final class TestClass: Codable, Equatable {
 
     static func == (lhs: TestClass, rhs: TestClass) -> Bool {
         lhs.name == rhs.name && lhs.date == rhs.date
+    }
+
+    var description: String {
+        "\(name): \(date ?? "nil")"
     }
 }
