@@ -36,7 +36,9 @@ final class ProtoDictUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContai
                 }
             }
 
-            let node = try EncodedPrimitive(protobuf: primitive)
+            let node = try wrapError(path: codingPath) {
+                try EncodedPrimitive(protobuf: primitive)
+            }
             assign(node)
             return
         }

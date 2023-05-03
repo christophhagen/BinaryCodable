@@ -30,7 +30,7 @@ final class OneOfKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         do {
-            let wrapped = try IntKeyWrapper(key)
+            let wrapped = try wrapError(path: codingPath + [key]) { try IntKeyWrapper(key) }
             let container = OneOfAssociatedValuesEncoder<NestedKey>(path: codingPath + [key], info: userInfo, optional: false)
             content = (wrapped, container)
             return KeyedEncodingContainer(container)

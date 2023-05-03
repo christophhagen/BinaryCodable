@@ -32,7 +32,9 @@ final class OneOfAssociatedValuesEncoder<Key>: AbstractEncodingNode, KeyedEncodi
         }
 
         if let primitive = value as? EncodablePrimitive {
-            self.value = try EncodedPrimitive(protobuf: primitive, excludeDefaults: false)
+            self.value = try wrapError(path: codingPath) {
+                try EncodedPrimitive(protobuf: primitive, excludeDefaults: false)
+            }
         } else if value is AnyDictionary {
             self.value = try ProtoDictEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         } else {

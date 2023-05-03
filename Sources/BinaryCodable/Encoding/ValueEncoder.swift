@@ -5,13 +5,12 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     private var container: EncodingContainer?
     
     func encodeNil() throws {
-        print("ValueEncoder.encodeNil")
-        try assign { nil }
+        assign { nil }
     }
     
-    private func assign(_ encoded: () throws -> EncodingContainer?) throws {
+    private func assign(_ encoded: () throws -> EncodingContainer?) rethrows {
         guard container == nil else {
-            throw BinaryEncodingError.multipleValuesInSingleValueContainer
+            fatalError("Attempt to encode multiple values in single value container")
         }
         container = try encoded()
     }
@@ -25,7 +24,9 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
             // Note: This assignment also work for optionals with a value, so
             // we need to check for optionals explicitly before
             try assign {
-                try EncodedPrimitive(primitive: primitive)
+                try wrapError(path: codingPath) {
+                    try EncodedPrimitive(primitive: primitive)
+                }
             }
         } else {
             try assign {

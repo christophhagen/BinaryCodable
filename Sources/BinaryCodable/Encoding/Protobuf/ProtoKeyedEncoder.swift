@@ -23,7 +23,9 @@ final class ProtoKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainer
         if value is ProtobufOneOf {
             (wrappedKey, container) = try OneOfEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         } else if let primitive = value as? EncodablePrimitive {
-            container = try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
+            container = try wrapError(path: codingPath + [key]) {
+                try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
+            }
         } else if value is AnyDictionary {
             container = try ProtoDictEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         } else {

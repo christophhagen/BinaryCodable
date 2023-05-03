@@ -28,7 +28,9 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
             }
         } else if let primitive = value as? EncodablePrimitive {
             try assign {
-                try EncodedPrimitive(primitive: primitive)
+                try wrapError(path: codingPath) {
+                    try EncodedPrimitive(primitive: primitive)
+                }
             }
         } else {
             let node = try EncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)

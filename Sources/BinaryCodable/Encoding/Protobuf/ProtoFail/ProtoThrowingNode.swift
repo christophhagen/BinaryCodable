@@ -3,7 +3,7 @@ import Foundation
 /**
  A class used when features are not supported for protobuf encoding.
 
- Any calls to encoding functions will fail with a `BinaryEncodingError.notProtobufCompatible` error
+ Any calls to encoding functions will fail with a `ProtobufEncodingError` error
  */
 class ProtoThrowingNode: AbstractEncodingNode, Encoder {
 

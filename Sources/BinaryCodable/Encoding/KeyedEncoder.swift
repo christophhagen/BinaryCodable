@@ -25,7 +25,7 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
             container = try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
         } else if let primitive = value as? EncodablePrimitive {
             print("Encode primitive")
-            container = try EncodedPrimitive(primitive: primitive)
+            container = try wrapError(path: codingPath) { try EncodedPrimitive(primitive: primitive) }
         } else {
             print("Encode complex")
             let node = EncodingNode(

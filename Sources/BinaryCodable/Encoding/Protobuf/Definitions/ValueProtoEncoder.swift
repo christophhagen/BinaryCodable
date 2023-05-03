@@ -10,7 +10,7 @@ final class ValueProtoEncoder: AbstractProtoNode, SingleValueEncodingContainer {
     
     private func assign(_ encoded: () throws -> ProtoContainer?) rethrows {
         guard container == nil else {
-            encodingError = BinaryEncodingError.multipleValuesInSingleValueContainer
+            encodingError = ProtobufEncodingError.multipleValuesInSingleValueContainer
             return
         }
         container = try encoded()

@@ -4,6 +4,21 @@ import Foundation
  An error thrown when encoding a value using `ProtobufEncoder`.
  */
 public enum ProtobufEncodingError: Error {
+    
+    /**
+     A procedural error occuring during encoding.
+
+     A custom implementation of `func encode(to encoder: Encoder) throws` tried to encode multiple values into a single value container:
+
+     ```
+     func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        container.encode(...)
+        container.encode(...) // Invalid
+     }
+     ```
+     */
+    case multipleValuesInSingleValueContainer
 
     case noValueInSingleValueContainer
 

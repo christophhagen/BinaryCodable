@@ -91,16 +91,12 @@ public final class BinaryEncoder {
      Encode a value to binary data.
      - Parameter value: The value to encode
      - Returns: The encoded data
-     - Throws: Errors of type `BinaryEncodingError`
+     - Throws: Errors of type `EncodingError`
      */
     public func encode(_ value: Encodable) throws -> Data {
         let isOptional = value is AnyOptional
         let root = EncodingNode(path: [], info: fullInfo, optional: isOptional)
-        do {
-            try value.encode(to: root)
-        } catch {
-            throw BinaryEncodingError(wrapping: error)
-        }
+        try value.encode(to: root)
         return root.data
     }
 
@@ -112,15 +108,16 @@ public final class BinaryEncoder {
 
      - Note: This function is not exposed publicly to keep the API easy to understand.
      Advanced features like stream encoding are handled by ``BinaryStreamEncoder``.
+
+
+     - Parameter value: The value to encode
+     - Returns: The encoded data for the element
+     - Throws: Errors of type `EncodingError`
      */
     func encodeForStream(_ value: Encodable) throws -> Data {
         let isOptional = value is AnyOptional
         let root = EncodingNode(path: [], info: fullInfo, optional: isOptional)
-        do {
-            try value.encode(to: root)
-        } catch {
-            throw BinaryEncodingError(wrapping: error)
-        }
+        try value.encode(to: root)
         return root.dataWithLengthInformationIfRequired
     }
 
@@ -128,7 +125,7 @@ public final class BinaryEncoder {
      Encode a single value to binary data using a default encoder.
      - Parameter value: The value to encode
      - Returns: The encoded data
-     - Throws: Errors of type `BinaryEncodingError`
+     - Throws: Errors of type `EncodingError`
      */
     public static func encode(_ value: Encodable) throws -> Data {
         try BinaryEncoder().encode(value)

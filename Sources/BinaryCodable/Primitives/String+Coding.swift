@@ -8,7 +8,7 @@ extension String: EncodablePrimitive {
     
     func data() throws -> Data {
         guard let result = data(using: .utf8) else {
-            throw BinaryEncodingError.stringEncodingFailed(self)
+            throw EncodingError.invalidValue(self, .init(codingPath: [], debugDescription: "String is not UTF-8"))
         }
         return result
     }

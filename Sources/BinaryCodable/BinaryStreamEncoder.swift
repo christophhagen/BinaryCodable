@@ -62,7 +62,7 @@ public final class BinaryStreamEncoder<Element> where Element: Encodable {
      Decoding using a simple ``BinaryDecoder`` will not be successful.
      - Parameter element: The element to encode.
      - Returns: The next chunk of the encoded binary stream.
-     - Throws: Errors of type ``BinaryEncodingError``
+     - Throws: Errors of type ``EncodingError``
      */
     public func encode(_ element: Element) throws -> Data {
         try encoder.encodeForStream(element)
@@ -74,7 +74,7 @@ public final class BinaryStreamEncoder<Element> where Element: Encodable {
      This function performs multiple calls to ``encode(_:)`` to convert all elements of the sequence, and then returns the joined data.
      - Parameter sequence: The sequence of elements to encode
      - Returns: The binary data of the encoded sequence elements
-     - Throws: Errors of type ``BinaryEncodingError``
+     - Throws: Errors of type ``EncodingError``
      */
     public func encode<S>(contentsOf sequence: S) throws -> Data where S: Sequence, S.Element == Element {
         try sequence.map(encode).joinedData

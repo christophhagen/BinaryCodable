@@ -10,7 +10,7 @@ final class ProtoValueEncoder: AbstractEncodingNode, SingleValueEncodingContaine
 
     private func assign(_ encoded: () throws -> EncodingContainer?) throws {
         guard container == nil else {
-            throw BinaryEncodingError.multipleValuesInSingleValueContainer
+            throw ProtobufEncodingError.multipleValuesInSingleValueContainer
         }
         container = try encoded()
     }
@@ -18,7 +18,9 @@ final class ProtoValueEncoder: AbstractEncodingNode, SingleValueEncodingContaine
     func encode<T>(_ value: T) throws where T : Encodable {
         if let primitive = value as? EncodablePrimitive {
             try assign {
-                try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
+                try wrapError(path: codingPath) {
+                    try EncodedPrimitive(protobuf: primitive, excludeDefaults: true)
+                }
             }
             return
         }

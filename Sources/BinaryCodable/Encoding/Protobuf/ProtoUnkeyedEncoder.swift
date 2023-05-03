@@ -35,7 +35,9 @@ final class ProtoUnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer 
             }
 
             try assign {
-                try EncodedPrimitive(protobuf: primitive)
+                try wrapError(path: codingPath) {
+                    try EncodedPrimitive(protobuf: primitive)
+                }
             }
             return
         }

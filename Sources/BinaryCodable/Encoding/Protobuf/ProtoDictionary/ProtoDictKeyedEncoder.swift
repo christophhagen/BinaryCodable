@@ -16,17 +16,21 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
         let container: EncodingContainer
         if let primitive = value as? EncodablePrimitive {
-            container = try EncodedPrimitive(protobuf: primitive)
+            container = try wrapError(path: codingPath) { try EncodedPrimitive(protobuf: primitive) }
         } else {
             container = try ProtoEncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
         }
-        let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
+        let wrapped = try wrapError(path: codingPath) {
+            try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
+        }
         assign(container, to: wrapped)
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         do {
-            let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
+            let wrapped = try wrapError(path: codingPath) {
+                try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
+            }
             let container = ProtoKeyedEncoder<NestedKey>(path: codingPath + [key], info: userInfo, optional: false)
             assign(container, to: wrapped)
             return KeyedEncodingContainer(container)
@@ -41,7 +45,9 @@ final class ProtoDictKeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingConta
 
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         do {
-            let wrapped = try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
+            let wrapped = try wrapError(path: codingPath) {
+                try EncodedPrimitive(protobuf: key.intValue ?? key.stringValue)
+            }
             let container = ProtoUnkeyedEncoder(path: codingPath + [key], info: userInfo, optional: false)
             assign(container, to: wrapped)
             return container
