@@ -32,10 +32,10 @@ public final class BinaryDecoder {
     /**
      Assumes that unkeyed containers are encoded using a set of indices for `nil` values.
 
-     Refer to the ``prependNilIndexSetForUnkeyedContainers`` property of `BinaryEncoder`
+     Refer to the ``prependNilIndexSetForUnkeyedContainers`` property of ``BinaryEncoder``
      for more information about the binary data format in both cases.
 
-     - Note: This option defaults to `true`
+     - Note: This option defaults to `false`
      - Note: To decode successfully, the encoder must use the same setting for `prependNilIndexSetForUnkeyedContainers`.
      */
     public var containsNilIndexSetForUnkeyedContainers: Bool = false

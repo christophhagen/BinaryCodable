@@ -37,19 +37,19 @@ public final class BinaryEncoder {
     /**
      Add a set of indices for `nil` values in unkeyed containers.
 
-     This option changes the encoding of unkeyed sequences like arrays with optional values.
+     This option is only necessary for custom implementations of `func encode(to:)`, when using `encodeNil()` on `UnkeyedEncodingContainer`.
 
      If this option is set to `true`, then the encoded binary data first contains a list of indexes for each position where `nil` is encoded.
      After this data the remaining (non-nil) values are added.
      If this option is `false`, then each value is prepended with a byte `1` for non-nil values, and a byte `0` for `nil` values.
 
-     Using an index set is generally more efficient, expect for large sequences with many `nil` values.
      An index set is encoded using first the number of elements, and then each element, all encoded as var-ints.
 
      One benefit of this option is that top-level sequences can be joined using their binary data, where `encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])`.
 
-     - Note: This option defaults to `true`
+     - Note: This option defaults to `false`
      - Note: To decode successfully, the decoder must use the same setting for `containsNilIndexSetForUnkeyedContainers`.
+     - Note: Using `encodeNil()` on `UnkeyedEncodingContainer` without this option results in a fatal error.
      */
     public var prependNilIndexSetForUnkeyedContainers: Bool = false
 
