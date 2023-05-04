@@ -3,16 +3,22 @@ import Foundation
 final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     
     private var container: EncodingContainer?
+
+    private var hasValue = false
     
     func encodeNil() throws {
+        if !containsOptional {
+            fatalError("Calling `encodeNil()` on `SingleValueEncodingContainer` is not supported")
+        }
         assign { nil }
     }
     
     private func assign(_ encoded: () throws -> EncodingContainer?) rethrows {
-        guard container == nil else {
+        guard !hasValue else {
             fatalError("Attempt to encode multiple values in single value container")
         }
         container = try encoded()
+        hasValue = true
     }
     
     func encode<T>(_ value: T) throws where T : Encodable {
