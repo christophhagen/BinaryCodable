@@ -59,11 +59,11 @@ final class OptionalEncodingTests: XCTestCase {
     }
 
     func testClassWithOptionalProperty() throws {
-        let item = TestClass(withName: "Bob", endDate: "s")
+        let item = TestClass(withName: "Bob", endDate: nil)
+        try compare(item, to: [18, 3, 66, 111, 98, 34, 1, 0], sort: true)
 
-        let data = try BinaryEncoder().encode(item)
-        let decoded: TestClass = try BinaryDecoder().decode(from: data)
-        XCTAssertEqual(item, decoded)
+        let item2 = TestClass(withName: "Bob", endDate: "s")
+        try compare(item2, to: [18, 3, 66, 111, 98, 34, 3, 1, 1, 115], sort: true)
     }
 }
 
