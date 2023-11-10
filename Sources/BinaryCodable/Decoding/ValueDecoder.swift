@@ -5,10 +5,13 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
     let data: BinaryStreamProvider
 
     private let isOptional: Bool
+    
+    private let isInUnkeyedContainer: Bool
 
-    init(data: BinaryStreamProvider, isOptional: Bool, path: [CodingKey], info: UserInfo) {
+    init(data: BinaryStreamProvider, isOptional: Bool, isInUnkeyedContainer: Bool, path: [CodingKey], info: UserInfo) {
         self.data = data
         self.isOptional = isOptional
+        self.isInUnkeyedContainer = isInUnkeyedContainer
         super.init(path: path, info: info)
     }
 
@@ -27,7 +30,7 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
             return try T.init(from: node)
         } else if let Primitive = type as? DecodablePrimitive.Type {
             let data: Data
-            if Primitive.dataType == .variableLength, !isOptional, let d = self.data as? DataDecoder {
+            if !isInUnkeyedContainer, Primitive.dataType == .variableLength, !isOptional, let d = self.data as? DataDecoder {
                 data = d.getAllData()
             } else {
                 data = try self.data.getData(for: Primitive.dataType, path: codingPath)

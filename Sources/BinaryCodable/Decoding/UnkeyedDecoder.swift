@@ -51,14 +51,14 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         defer { currentIndex += 1 }
         if type is AnyOptional.Type {
-            let node = DecodingNode(decoder: decoder, isOptional: true, path: codingPath, info: userInfo)
+            let node = DecodingNode(decoder: decoder, isOptional: true, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
             return try T.init(from: node)
         } else if let Primitive = type as? DecodablePrimitive.Type {
             let dataType = Primitive.dataType
             let data = try decoder.getData(for: dataType, path: codingPath)
             return try Primitive.init(decodeFrom: data, path: codingPath) as! T
         } else {
-            let node = DecodingNode(decoder: decoder, path: codingPath, info: userInfo)
+            let node = DecodingNode(decoder: decoder, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
             return try T.init(from: node)
         }
     }
@@ -78,7 +78,7 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
     func superDecoder() throws -> Decoder {
         currentIndex += 1
-        return DecodingNode(decoder: decoder, path: codingPath, info: userInfo)
+        return DecodingNode(decoder: decoder, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
     }
 
     private func wrapError<T>(_ block: () throws -> T) throws -> T {

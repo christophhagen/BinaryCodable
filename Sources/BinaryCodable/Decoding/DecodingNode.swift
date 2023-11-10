@@ -5,16 +5,20 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
     private let storage: Storage
 
     private let isOptional: Bool
+    
+    private let isInUnkeyedContainer: Bool
 
     init(data: Data, isOptional: Bool = false, path: [CodingKey], info: UserInfo) {
         self.storage = .data(data)
         self.isOptional = isOptional
+        self.isInUnkeyedContainer = false
         super.init(path: path, info: info)
     }
 
-    init(decoder: BinaryStreamProvider, isOptional: Bool = false, path: [CodingKey], info: UserInfo) {
+    init(decoder: BinaryStreamProvider, isOptional: Bool = false, path: [CodingKey], info: UserInfo, isInUnkeyedContainer: Bool = false) {
         self.storage = .decoder(decoder)
         self.isOptional = isOptional
+        self.isInUnkeyedContainer = isInUnkeyedContainer
         super.init(path: path, info: info)
     }
 
@@ -30,7 +34,8 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
     func singleValueContainer() throws -> SingleValueDecodingContainer {
         return ValueDecoder(
             data: storage.useAsDecoder(),
-            isOptional: isOptional,
+            isOptional: isOptional, 
+            isInUnkeyedContainer: isInUnkeyedContainer,
             path: codingPath,
             info: userInfo)
     }
