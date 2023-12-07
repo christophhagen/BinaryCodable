@@ -6,7 +6,7 @@ final class DataDecodingBuffer {
 
     private var index: Data.Index
 
-    var didExceedBuffer = false
+    private(set) var didExceedBuffer = false
 
     init() {
         self.buffer = Data()
@@ -27,6 +27,14 @@ final class DataDecodingBuffer {
         buffer = buffer[index..<buffer.endIndex]
         index = buffer.startIndex
         didExceedBuffer = false
+    }
+    
+    @discardableResult
+    func discard(bytes: Int) -> Int {
+        let bytesToRemove = min(buffer.count, bytes)
+        buffer = buffer.dropFirst(bytesToRemove)
+        index = buffer.startIndex
+        return bytesToRemove
     }
 
     var totalBufferSize: Int {

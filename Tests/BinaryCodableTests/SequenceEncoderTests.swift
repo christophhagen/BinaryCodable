@@ -10,7 +10,8 @@ final class SequenceEncoderTests: XCTestCase {
 
         let decoder = BinaryStreamDecoder<T>()
 
-        let decoded = try decoder.decode(bytes)
+        decoder.add(bytes)
+        let decoded = try decoder.decodeElements()
         print(Array(bytes))
         XCTAssertEqual(decoded, input)
     }
@@ -47,9 +48,11 @@ final class SequenceEncoderTests: XCTestCase {
         let decoder = BinaryStreamDecoder<Test>()
 
         // Provide only the beginning of the stream
-        let first = try decoder.decode(bytes.dropLast(10))
+        decoder.add(bytes.dropLast(10))
+        let first = try decoder.decodeElements()
         // Decode remaining bytes
-        let remaining = try decoder.decode(bytes.suffix(10))
+        decoder.add(bytes.suffix(10))
+        let remaining = try decoder.decodeElements()
 
         XCTAssertEqual(first + remaining, input)
     }
@@ -71,7 +74,8 @@ final class SequenceEncoderTests: XCTestCase {
         let decoder = BinaryStreamDecoder<Test>()
 
         do {
-            let decoded = try decoder.decode(data)
+            decoder.add(data)
+            let decoded = try decoder.decodeElements()
             XCTAssertEqual(decoded, input)
             XCTFail("Should not be able to decode \(decoded)")
         } catch is DecodingError {
@@ -94,8 +98,10 @@ final class SequenceEncoderTests: XCTestCase {
         data.insert(123, at: 28)
         let decoder = BinaryStreamDecoder<Test>()
 
-        let decoded = try decoder.decode(data, returnElementsBeforeError: true)
-        XCTAssertEqual(decoded, [input[0], input[1]])
+        decoder.add(data)
+        let decoded = decoder.decodeElementsUntilError()
+        XCTAssertNotNil(decoded.error)
+        XCTAssertEqual(decoded.elements, [input[0], input[1]])
     }
 }
 
