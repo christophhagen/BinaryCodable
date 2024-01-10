@@ -133,7 +133,7 @@ final class CustomDecodingTests: XCTestCase {
     
     func testEncodingAsDifferentType() throws {
         let version = Version(major: 1, minor: 2, patch: 3)
-        let time = Date.now
+        let time = Date()
         let sValue = Timestamped(value: version.rawValue, timestamp: time)
         let vValue = Timestamped(value: version, timestamp: time)
         let encoder = BinaryEncoder()
