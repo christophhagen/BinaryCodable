@@ -153,4 +153,49 @@ final class StructEncodingTests: XCTestCase {
         let decoded: [String: Int] = try BinaryDecoder.decode(from: encoded)
         XCTAssertEqual(decoded, ["a" : 123, "b": 0, "c": -123456])
     }
+
+    func testDecodeKeyedContainerInSingleValueContainer() throws {
+        struct Wrapper: Codable, Equatable {
+            let wrapped: Wrapped
+
+            init(wrapped: Wrapped) {
+                self.wrapped = wrapped
+            }
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                self.wrapped = try container.decode(Wrapped.self)
+            }
+
+            func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                try container.encode(wrapped)
+            }
+        }
+        struct Wrapped: Codable, Equatable {
+            let val: String
+        }
+
+        let expected: [UInt8] = [
+            0b00111010, 118, 97, 108, // String key 'val', varint
+            4, // Length 4
+            83, 111, 109, 101, // String "Some"
+        ]
+
+        let wrapped = Wrapped(val: "Some")
+        let encodedWrapped = try BinaryEncoder.encode(wrapped)
+
+        try compare(encodedWrapped, to: expected)
+
+        let decodedWrapped: Wrapped = try BinaryDecoder.decode(from: encodedWrapped)
+        XCTAssertEqual(decodedWrapped, wrapped)
+
+        let wrapper = Wrapper(wrapped: wrapped)
+        let encodedWrapper = try BinaryEncoder.encode(wrapper)
+
+        try compare(encodedWrapper, to: expected)
+
+        let decodedWrapper: Wrapper = try BinaryDecoder.decode(from: encodedWrapper)
+        XCTAssertEqual(decodedWrapper, wrapper)
+    }
 }
