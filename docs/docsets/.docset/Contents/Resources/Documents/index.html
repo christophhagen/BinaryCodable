@@ -79,12 +79,6 @@
             <a href="Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Enums/BinaryDecodingError.html">BinaryDecodingError</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Enums/BinaryEncodingError.html">BinaryEncodingError</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="Enums/DataType.html">DataType</a>
               </li>
               <li class="nav-group-task">
@@ -198,6 +192,19 @@
 <p>So if you&rsquo;re looking for a decently efficient binary encoder in a pure Swift project, then <code>BinaryCodable</code> may be right for you. Simply make your <code>struct</code>s (or classes!) conform to <code>Codable</code>, and <code>BinaryCodable</code> does the rest!</p>
 
 <p>The <a href="#binary-format">message format</a> is similar to that of <code>Protocol Buffers</code> (with some additions to support more types). It is possible to create <a href="#protocol-buffer-compatibility">limited compatibility</a> between the two formats to exchange data with systems that don&rsquo;t support Swift.</p>
+<h3 id='alternatives' class='heading'>Alternatives</h3>
+<h4 id='a-href-https-developers-google-com-protocol-buffers-protocol-buffers-a' class='heading'><a href="https://developers.google.com/protocol-buffers">Protocol Buffers</a></h4>
+
+<p>Already mentioned above</p>
+<h4 id='a-href-https-github-com-somerandomiosdev-cborcoding-cborcoding-a' class='heading'><a href="https://github.com/SomeRandomiOSDev/CBORCoding">CBORCoding</a></h4>
+
+<p>If you&rsquo;re looking for a <code>Codable</code>-compatible alternative which is also available on other platforms, with a well-defined <a href="https://cbor.io">spec</a>. It appears to have nearly the same encoding efficiency as <code>BinaryCodable</code>. </p>
+<h4 id='a-href-https-github-com-outfoxx-potentcodables-potentcodables-a' class='heading'><a href="https://github.com/outfoxx/PotentCodables">PotentCodables</a></h4>
+
+<p>Also offers CBOR encoding, plus a bunch of other things related to <code>Codable</code>.</p>
+<h4 id='a-href-https-github-com-mongodb-swift-bson-swift-bson-a' class='heading'><a href="https://github.com/mongodb/swift-bson">Swift BSON</a></h4>
+
+<p>Encoding according to the <a href="https://bsonspec.org">BSON specification</a>. Less efficient binary represenation than Protocol Buffers and <code>BinaryCodable</code>, but mature. Used for MongoDB.</p>
 <h2 id='installation' class='heading'>Installation</h2>
 <h3 id='swift-package-manager' class='heading'>Swift Package Manager</h3>
 
@@ -256,9 +263,13 @@
 <h3 id='errors' class='heading'>Errors</h3>
 
 <p>It is possible for both encoding and decoding to fail. 
-All possible errors occuring during encoding produce <code><a href="Enums/BinaryEncodingError.html">BinaryEncodingError</a></code> errors, while unsuccessful decoding produces <code><a href="Enums/BinaryDecodingError.html">BinaryDecodingError</a></code>s. 
-Both are enums with several cases describing the nature of the error. 
+All possible errors occuring during encoding produce <code>EncodingError</code> errors, while unsuccessful decoding produces <code>DecodingError</code>s. 
+Both are the default Errors provided by Swift, supplied with information describing the nature of the error. 
 See the documentation of the types to learn more about the different error conditions.</p>
+<h4 id='unsupported-features' class='heading'>Unsupported features</h4>
+
+<p>It is currently not supported to call <code>func encodeNil()</code> on <code>SingleValueEncodingContainer</code> for custom implementations of <code>func encode(to:)</code>.
+Future versions may include a special setting to enforce compatibility with this option.</p>
 <h4 id='handling-corrupted-data' class='heading'>Handling corrupted data</h4>
 
 <p>The <a href="BinaryFormat.md">binary format</a> provides no provisions to detect data corruption, and various errors can occur as the result of added, changed, or missing bytes and bits. 
@@ -335,16 +346,14 @@ At the same time, it is not possible to determine <em>with certainty</em> where 
 <p><strong>Note:</strong> The <code>sortKeysDuringEncoding</code> option does not <em>neccessarily</em> guarantee deterministic binary data, and should be used with care.</p>
 <h4 id='encoding-optionals-in-arrays' class='heading'>Encoding optionals in arrays</h4>
 
-<p>Sequences of <code>Optional</code> values (like arrays, sets, &hellip;) are normally encoded using a <em>nil index set</em>. 
+<p>Sequences of <code>Optional</code> values (like arrays, sets, &hellip;) are normally encoded one additional byte to indicate following value (<code>0x01</code>) or a <code>nil</code> value (<code>0x00</code>).
+This works well for all compiler-generated conformances to <code>Codable</code>.
+For custom implementations of <code>func encode(to: Encoder)</code> and <code>init(from: Decoder)</code>, the <code>encodeNil()</code> is <em>not</em> supported on <code>UnkeyedEncodingContainer</code>s.
+If you must use this option, then it&rsquo;s necessary to enable the <code>prependNilIndexSetForUnkeyedContainers</code> option on both <code><a href="Classes/BinaryEncoder.html">BinaryEncoder</a></code> and <code><a href="Classes/BinaryDecoder.html">BinaryDecoder</a></code>.
+Optional values are then encoded using a <em>nil index set</em>. 
 The index of each <code>nil</code> element in the sequence is recorded, and only non-nil values are encoded. 
 The indices of <code>nil</code> elements are then prepended to the data as an array of integers.
 During decoding, this index set is checked to place <code>nil</code> values between the non-nil elements at the appropriate indices.</p>
-
-<p>This encoding scheme is usually more efficient than, e.g. indicating for each element whether the value is non-optional using an additional byte.
-There can be specific cases where <code>nil index sets</code> become less efficient, e.g. when storing very large arrays of mostly <code>nil</code> values.</p>
-
-<p>In these cases, the encoder option <code>prependNilIndexSetForUnkeyedContainers</code> can be set to <code>false</code>, causing the encoder to omit the nil index set in favour of an additional byte before each element.
-The decoder must then have <code>containsNilIndexSetForUnkeyedContainers</code> set to <code>false</code>, so that the data can be successfully decoded.</p>
 <h3 id='stream-encoding-and-decoding' class='heading'>Stream encoding and decoding</h3>
 
 <p>The library provides the option to perform encoding and decoding of continuous streams, such as when writing sequences of elements to a file, or when transmitting data over a network.
@@ -427,8 +436,8 @@ If you have any pointers on how to improve the performance further, feel free to
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-11-08)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+          <p>&copy; 2024 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2024-01-11)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>
     </div>

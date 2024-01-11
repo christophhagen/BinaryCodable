@@ -80,12 +80,6 @@
             <a href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Enums/BinaryDecodingError.html">BinaryDecodingError</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Enums/BinaryEncodingError.html">BinaryEncodingError</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Enums/DataType.html">DataType</a>
               </li>
               <li class="nav-group-task">
@@ -187,11 +181,8 @@
 or when the binary data should not be loaded into memory all at once (e.g. when parsing a file).</p>
 
 <p>Each stream decoder handles only elements of a single type.
-The elements are handed to a handler passed to the decoder upon initialization.
-The byte stream is managed by a provider also specified on object creation.
-The decoder can then attempt to read elements by reading bytes from the provider, until a complete element can be decoded.
-Buffering is handled internally, freeing the stream provider from this responsibility.
-Each completely decoded element is immediatelly passed to handler for further processing.</p>
+The decoder can then attempt to read elements whenever new data is received, until a complete element can be decoded.
+Buffering is handled internally, freeing the stream provider from this responsibility.</p>
 
           </section>
           <section class="section task-group-section">
@@ -243,6 +234,111 @@ Each completely decoded element is immediatelly passed to handler for further pr
                     </section>
                   </div>
                 </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A13StreamDecoderC3addyy10Foundation4DataVF"></a>
+                    <a name="//apple_ref/swift/Method/add(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A13StreamDecoderC3addyy10Foundation4DataVF">add(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Add new data to the internal buffer without attempting to decode elements.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">add</span><span class="p">(</span><span class="n">_</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>data</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The datat to append to the internal buffer.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A13StreamDecoderC12discardBytesyS2iF"></a>
+                    <a name="//apple_ref/swift/Method/discardBytes(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A13StreamDecoderC12discardBytesyS2iF">discardBytes(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Discard bytes from the currently remaining bytes.</p>
+
+<p>This function can be used when attempting to correct a corrupted stream. It may be possible to drop bytes from the buffer until a new valid element can be decoded.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    If the stream data is corrupted, then decoding elements from the middle of the stream may lead to unexpected results.
+It&rsquo;s possible to decode bogus elements when starting at the wrong position, or the stream decoder could get stuck waiting for a large number of bytes.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">discardBytes</span><span class="p">(</span><span class="n">_</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>count</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The number of bytes to remove</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The number of bytes removed.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
               </ul>
             </div>
             <div class="task-group">
@@ -272,7 +368,11 @@ Each completely decoded element is immediatelly passed to handler for further pr
                         <p>Read elements from the stream until no more bytes are available.</p>
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    Decoding errors of type <code><a href="../Enums/BinaryDecodingError.html">BinaryDecodingError</a></code>.
+    Decoding errors of type <code>DecodingError</code>.
+
+</div><div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    This function is deprecated. If you want to decode elements, use <code><a href="../Classes/BinaryStreamDecoder.html#/s:13BinaryCodable0A13StreamDecoderC14decodeElementsSayxGyKF">decodeElements()</a></code>, or use <code><a href="../Classes/BinaryStreamDecoder.html#/s:13BinaryCodable0A13StreamDecoderC24decodeElementsUntilErrorSayxG8elements_s0H0_pSg5errortyF">decodeElementsUntilError()</a></code>, if you expect errors in the data stream.
 
 </div>
 
@@ -281,7 +381,8 @@ Each completely decoded element is immediatelly passed to handler for further pr
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">_</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">,</span> <span class="nv">returnElementsBeforeError</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Element</span><span class="p">]</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Use add(﹚ and decodeElementsUntilError(﹚ or decodeElements(﹚ instead."</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">decode</span><span class="p">(</span><span class="n">_</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">,</span> <span class="nv">returnElementsBeforeError</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Element</span><span class="p">]</span></code></pre>
 
                         </div>
                       </div>
@@ -311,6 +412,80 @@ then all successfully decoded elements will be returned if an error occurs. Defa
                 <li class="item">
                   <div>
                     <code>
+                    <a name="/s:13BinaryCodable0A13StreamDecoderC24decodeElementsUntilErrorSayxG8elements_s0H0_pSg5errortyF"></a>
+                    <a name="//apple_ref/swift/Method/decodeElementsUntilError()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A13StreamDecoderC24decodeElementsUntilErrorSayxG8elements_s0H0_pSg5errortyF">decodeElementsUntilError()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Read elements from the stream until an error occurs.</p>
+
+<p>This function may be useful if the data is corrupted. The readable elements can be decoded until a decoding error is encountered.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">decodeElementsUntilError</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nv">elements</span><span class="p">:</span> <span class="p">[</span><span class="kt">Element</span><span class="p">],</span> <span class="nv">error</span><span class="p">:</span> <span class="kt">Error</span><span class="p">?)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The elements that could be decoded until an error occured or the buffer was insufficient, and the decoding error, if one occured.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13BinaryCodable0A13StreamDecoderC14decodeElementsSayxGyKF"></a>
+                    <a name="//apple_ref/swift/Method/decodeElements()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13BinaryCodable0A13StreamDecoderC14decodeElementsSayxGyKF">decodeElements()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Read elements until no more data is available.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    If a decoding error occurs within the data, then the elements successfully decoded before are lost.
+If you expect decoding errors to occur, either decode elements individually using <code><a href="../Classes/BinaryStreamDecoder.html#/s:13BinaryCodable0A13StreamDecoderC13decodeElementxSgyKF">decodeElement()</a></code>, or use <code><a href="../Classes/BinaryStreamDecoder.html#/s:13BinaryCodable0A13StreamDecoderC24decodeElementsUntilErrorSayxG8elements_s0H0_pSg5errortyF">decodeElementsUntilError()</a></code>.
+
+</div><div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    Decoding errors of type <code>DecodingError</code>.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">decodeElements</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Element</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The elements that could be decoded with the available data.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
                     <a name="/s:13BinaryCodable0A13StreamDecoderC13decodeElementxSgyKF"></a>
                     <a name="//apple_ref/swift/Method/decodeElement()" class="dashAnchor"></a>
                     <a class="token" href="#/s:13BinaryCodable0A13StreamDecoderC13decodeElementxSgyKF">decodeElement()</a>
@@ -321,7 +496,15 @@ then all successfully decoded elements will be returned if an error occurs. Defa
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Attempt to decode a single element from the stream.</p>
+
+<p>If insufficient bytes are available, then no element is returned, and the internal buffer is kept intact.</p>
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    Decoding errors of type <code>DecodingError</code>.
+
+</div>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -331,6 +514,10 @@ then all successfully decoded elements will be returned if an error occurs. Defa
 
                         </div>
                       </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The decoded element, if enough bytes are available.</p>
+                      </div>
                     </section>
                   </div>
                 </li>
@@ -339,8 +526,8 @@ then all successfully decoded elements will be returned if an error occurs. Defa
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-11-08)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+          <p>&copy; 2024 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2024-01-11)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>
     </div>
