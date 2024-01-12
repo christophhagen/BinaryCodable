@@ -3,14 +3,15 @@ import Foundation
 final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     
     private var container: EncodingContainer?
+    private var containerHasOptionalContent: Bool = false
 
     private var hasValue = false
     
     func encodeNil() throws {
-        if !containsOptional {
-            fatalError("Calling `encodeNil()` on `SingleValueEncodingContainer` is not supported")
+        assign {
+            containsOptional = true
+            return nil
         }
-        assign { nil }
     }
     
     private func assign(_ encoded: () throws -> EncodingContainer?) rethrows {
@@ -24,7 +25,8 @@ final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
     func encode<T>(_ value: T) throws where T : Encodable {
         if value is AnyOptional {
             try assign {
-                try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
+                containerHasOptionalContent = true
+                return try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
             }
         } else if let primitive = value as? EncodablePrimitive {
             // Note: This assignment also work for optionals with a value, so
@@ -48,10 +50,10 @@ extension ValueEncoder: EncodingContainer {
     
     var data: Data {
         if containsOptional {
-            if isNil {
+            guard let container else {
                 return Data([0])
             }
-            return Data([1]) + (container?.dataWithLengthInformationIfRequired ?? .empty)
+            return Data([1]) + container.dataWithLengthInformationIfRequired
         }
         return container?.data ?? .empty
     }
@@ -77,22 +79,26 @@ extension ValueEncoder: EncodingContainer {
         container?.isEmpty ?? true
     }
 
-    private var optionalData: Data {
+    private var optionalDataWithinKeyedContainer: Data {
         guard let container else {
             return Data([0])
+        }
+        guard !containerHasOptionalContent else {
+            return container.data
         }
         return Data([1]) + container.dataWithLengthInformationIfRequired
     }
 
     func encodeWithKey(_ key: CodingKeyWrapper) -> Data {
-        guard containsOptional else {
+        if containsOptional || containerHasOptionalContent {
+            guard !isNil else {
+                // Nothing to do, nil is ommited for keyed containers
+                return Data()
+            }
+            let data = optionalDataWithinKeyedContainer
+            return key.encode(for: .variableLength) + data.count.variableLengthEncoding + data
+        } else {
             return key.encode(for: container?.dataType ?? .byte) + (container?.dataWithLengthInformationIfRequired ?? .empty)
         }
-        guard !isNil else {
-            // Nothing to do, nil is ommited for keyed containers
-            return Data()
-        }
-        let data = optionalData
-        return key.encode(for: .variableLength) + data.count.variableLengthEncoding + optionalData
     }
 }
