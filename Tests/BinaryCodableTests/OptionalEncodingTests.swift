@@ -14,6 +14,13 @@ final class OptionalEncodingTests: XCTestCase {
         try compareEncoding(Bool?.self, value: nil, to: [0])
     }
 
+    func testDoubleOptionalBoolEncoding() throws {
+        try compareEncoding(Bool??.self, value: .some(.some(true)), to: [1, 1, 1])
+        try compareEncoding(Bool??.self, value: .some(.some(false)), to: [1, 1, 0])
+        try compareEncoding(Bool??.self, value: .some(.none), to: [1, 0])
+        try compareEncoding(Bool??.self, value: .none, to: [0])
+    }
+
     func testOptionalStruct() throws {
         struct T: Codable, Equatable {
             var a: Int
