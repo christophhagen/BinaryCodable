@@ -88,6 +88,10 @@ extension ValueEncoder: EncodingContainer {
         guard containsOptional else {
             return key.encode(for: container?.dataType ?? .byte) + (container?.dataWithLengthInformationIfRequired ?? .empty)
         }
+        guard !isNil else {
+            // Nothing to do, nil is ommited for keyed containers
+            return Data()
+        }
         let data = optionalData
         return key.encode(for: .variableLength) + data.count.variableLengthEncoding + optionalData
     }

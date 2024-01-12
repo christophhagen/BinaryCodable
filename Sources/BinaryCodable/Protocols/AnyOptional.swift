@@ -4,7 +4,7 @@ protocol AnyOptional {
 
     var isNil: Bool { get }
 
-    static var nilValue: Any { get }
+    static var nilValue: Self { get }
 }
 
 extension Optional: AnyOptional {
@@ -18,8 +18,8 @@ extension Optional: AnyOptional {
         }
     }
 
-    static var nilValue: Any {
-        return Self.none as Any
+    static var nilValue: Self {
+        return Self.none
     }
 
 }
