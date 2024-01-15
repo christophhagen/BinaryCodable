@@ -50,30 +50,36 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         defer { currentIndex += 1 }
-        if type is AnyOptional.Type {
-            let node = DecodingNode(decoder: decoder, isOptional: true, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
-            return try T.init(from: node)
-        } else if let Primitive = type as? DecodablePrimitive.Type {
-            let dataType = Primitive.dataType
-            let data = try decoder.getData(for: dataType, path: codingPath)
-            return try Primitive.init(decodeFrom: data, path: codingPath) as! T
-        } else {
-            let node = DecodingNode(decoder: decoder, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
-            return try T.init(from: node)
+        return try wrapError {
+            if type is AnyOptional.Type {
+                let node = DecodingNode(decoder: decoder, isOptional: true, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
+                return try T.init(from: node)
+            } else if let Primitive = type as? DecodablePrimitive.Type {
+                let dataType = Primitive.dataType
+                let data = try decoder.getData(for: dataType, path: codingPath)
+                return try Primitive.init(decodeFrom: data, path: codingPath) as! T
+            } else {
+                let node = DecodingNode(decoder: decoder, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
+                return try T.init(from: node)
+            }
         }
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
         currentIndex += 1
-        let data = try decoder.getData(for: .variableLength, path: codingPath)
-        let container = try KeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
-        return KeyedDecodingContainer(container)
+        return try wrapError {
+            let data = try decoder.getData(for: .variableLength, path: codingPath)
+            let container = try KeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
+            return KeyedDecodingContainer(container)
+        }
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
         currentIndex += 1
-        let data = try decoder.getData(for: .variableLength, path: codingPath)
-        return try UnkeyedDecoder(data: data, path: codingPath, info: userInfo)
+        return try wrapError {
+            let data = try decoder.getData(for: .variableLength, path: codingPath)
+            return try UnkeyedDecoder(data: data, path: codingPath, info: userInfo)
+        }
     }
 
     func superDecoder() throws -> Decoder {
@@ -85,7 +91,15 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
         do {
             return try block()
         } catch DecodingError.dataCorrupted(let context) {
-            throw DecodingError.dataCorruptedError(in: self, debugDescription: context.debugDescription)
+            var codingPath = codingPath
+            codingPath.append(AnyCodingKey(intValue: currentIndex))
+            codingPath.append(contentsOf: context.codingPath)
+            let newContext = DecodingError.Context(
+                codingPath: codingPath,
+                debugDescription: context.debugDescription,
+                underlyingError: context.underlyingError
+            )
+            throw DecodingError.dataCorrupted(newContext)
         }
     }
 }
