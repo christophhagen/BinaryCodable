@@ -82,13 +82,18 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
         try wrapError(forKey: key) {
-            let data = try getData(forKey: key)
-            if type is AnyOptional.Type {
-                let node = DecodingNode(data: data, isOptional: true, path: codingPath, info: userInfo)
-                return try T.init(from: node)
+            if let optionalType = type as? AnyOptional.Type {
+                if let data = try? getData(forKey: key) {
+                    let node = DecodingNode(data: data, isOptional: true, path: codingPath, info: userInfo)
+                    return try T.init(from: node)
+                } else {
+                    return optionalType.nilValue as! T
+                }
             } else if let Primitive = type as? DecodablePrimitive.Type {
+                let data = try getData(forKey: key)
                 return try Primitive.init(decodeFrom: data, path: codingPath + [key]) as! T
             } else {
+                let data = try getData(forKey: key)
                 let node = DecodingNode(data: data, path: codingPath, info: userInfo)
                 return try T.init(from: node)
             }

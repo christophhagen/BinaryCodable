@@ -14,6 +14,13 @@ final class OptionalEncodingTests: XCTestCase {
         try compareEncoding(Bool?.self, value: nil, to: [0])
     }
 
+    func testDoubleOptionalBoolEncoding() throws {
+        try compareEncoding(Bool??.self, value: .some(.some(true)), to: [1, 1, 1])
+        try compareEncoding(Bool??.self, value: .some(.some(false)), to: [1, 1, 0])
+        try compareEncoding(Bool??.self, value: .some(.none), to: [1, 0])
+        try compareEncoding(Bool??.self, value: .none, to: [0])
+    }
+
     func testOptionalStruct() throws {
         struct T: Codable, Equatable {
             var a: Int
@@ -60,7 +67,7 @@ final class OptionalEncodingTests: XCTestCase {
 
     func testClassWithOptionalProperty() throws {
         let item = TestClass(withName: "Bob", endDate: nil)
-        try compare(item, to: [18, 3, 66, 111, 98, 34, 1, 0], sort: true)
+        try compare(item, to: [18, 3, 66, 111, 98], sort: true)
 
         let item2 = TestClass(withName: "Bob", endDate: "s")
         try compare(item2, to: [18, 3, 66, 111, 98, 34, 3, 1, 1, 115], sort: true)

@@ -117,11 +117,6 @@ All possible errors occuring during encoding produce `EncodingError` errors, whi
 Both are the default Errors provided by Swift, supplied with information describing the nature of the error. 
 See the documentation of the types to learn more about the different error conditions.
 
-#### Unsupported features
-
-It is currently not supported to call `func encodeNil()` on `SingleValueEncodingContainer` for custom implementations of `func encode(to:)`.
-Future versions may include a special setting to enforce compatibility with this option.
-
 #### Handling corrupted data
 
 The [binary format](BinaryFormat.md) provides no provisions to detect data corruption, and various errors can occur as the result of added, changed, or missing bytes and bits. 
