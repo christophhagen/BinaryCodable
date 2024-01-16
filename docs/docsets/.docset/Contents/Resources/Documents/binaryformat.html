@@ -79,12 +79,6 @@
             <a href="Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Enums/BinaryDecodingError.html">BinaryDecodingError</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="Enums/BinaryEncodingError.html">BinaryEncodingError</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="Enums/DataType.html">DataType</a>
               </li>
               <li class="nav-group-task">
@@ -199,19 +193,29 @@ If this is your goal, then simply using <code>Codable</code> with it&rsquo;s key
 <p><code>Bool</code> values are always encoded as a single byte, using <code>1</code> for <code>true</code>, and <code>0</code> for <code>false</code>.</p>
 <h2 id='arrays' class='heading'>Arrays</h2>
 
-<p>Arrays (and other sequences) are encoded by converting each item to binary data, and concatenating the results. Elements with variable length (like <code>String</code>) are prepended with their length encoded as a <a href="#integer-encoding">Varint</a>. Each encoded array has at least one byte prepended to it, in order to support optional values.</p>
+<p>Arrays (and other sequences) are encoded by converting each item to binary data, and concatenating the results. Elements with variable length (like <code>String</code>) are prepended with their length encoded as a <a href="#integer-encoding">Varint</a>.</p>
 <h3 id='arrays-of-optionals' class='heading'>Arrays of Optionals</h3>
 
-<p>It is possible to encode arrays where the elements are <code>Optional</code>, e.g. <code>[Bool?]</code>. Due to constraints regarding Apple&rsquo;s implementation of <code>Encoder</code> and <code>Decoder</code>, it is not consistently possible to infer if optionals are present in unkeyed containers. <code>BinaryCodable</code> therefore encodes optionals using a different strategy: Each array binary representation is prepended with a &ldquo;nil index set&rdquo;. It first consists of the number of <code>nil</code> elements in the sequence, encoded as a <code>Varint</code>. Then follow the indices in the array where <code>nil</code> values are present, each encoded as a <code>Varint</code>. The decoder can then first parse this <code>nil</code> set, and return the appropriate value for each position where a <code>nil</code> value is encoded. This approach is fairly efficient while only few <code>nil</code> values are encoded, or while the sequence doesn&rsquo;t contain a large number of elements.
-For arrays that don&rsquo;t contain optionals, only a single byte (<code>0</code>) is prepended to the binary representation, to signal that there are no <code>nil</code> indices in the sequence.</p>
-
-<p>If the <code>prependNilIndexSetForUnkeyedContainers</code> is set to <code>false</code>, then this behaviour is changed.
-The encoder then omits the <em>nil index set</em>, and instead adds a single byte <code>0x01</code> before each non-nil element, and a single <code>0x00</code> byte to signal <code>nil</code>.</p>
+<p>It is possible to encode arrays where the elements are <code>Optional</code>, e.g. <code>[Bool?]</code>. 
+For all types with compiler-generated <code>Codable</code> conformance, an optional is prepended with one byte (<code>1</code> for the <code>.some()</code> case, <code>0</code> for <code>nil</code>).
+If the optional has a value, then the encoded data follows the <code>1</code> byte.
+If <code>nil</code> is encoded, then no additional data is added.
+This means that an array of <code>[Bool?]</code> with the values <code>[true, nil, false]</code> is encoded as <code>[1, 1, 0, 1, 0]</code>.</p>
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
-    One benefit of this option is that top-level sequences can be joined using their binary data, where <code>encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])</code>.
+    One benefit of this encoding is that top-level sequences can be joined using their binary data, where <code>encoded([a,b]) | encoded([c,d]) == encoded([a,b,c,d])</code>.
 
 </div>
+
+<p>Custom implementations of <code>Encodable</code> and <code>Decodable</code> can directly call <code>encodeNil()</code> on <code>UnkeyedEncodingContainer</code> and <code>decodeNil()</code> on <code>UnkeyedDecodingContainer</code>.
+This feature is not supported in the standard configuration and will result in a fatal error.
+If these functions are needed, then the <code>prependNilIndexSetForUnkeyedContainers</code> must be set for the encoder and decoder.
+If this option is set to <code>true</code>, then each unkeyed container is prepended with a &ldquo;nil index set&rdquo;. 
+It first consists of the number of <code>nil</code> elements in the sequence (only those encoded using <code>encodeNil()</code>), encoded as a <code>Varint</code>. 
+Then follow the indices in the array where <code>nil</code> values are present, each encoded as a <code>Varint</code>. 
+The decoder can then first parse this <code>nil</code> set, and return the appropriate value for each position where a <code>nil</code> value is encoded when <code>decodeNil()</code> is called. 
+This approach is fairly efficient while only few <code>nil</code> values are encoded, or while the sequence doesn&rsquo;t contain a large number of elements.
+For arrays that don&rsquo;t contain optionals, only a single byte (<code>0</code>) is prepended to the binary representation, to signal that there are no <code>nil</code> indices in the sequence.</p>
 
 <p>More efficient ways could be devised to handle arrays of optionals, like specifying the number of <code>nil</code> or non-nil elements following one another, but the increased encoding and decoding complexity don&rsquo;t justify these gains in communication efficiency.</p>
 <h2 id='structs' class='heading'>Structs</h2>
@@ -293,7 +297,9 @@ The following data types are possible:</p>
 <p>Evidently this is a significant improvement, especially for long property names. Note that while it is possible to specify any integer as the key (between 2^59 and -2^59), small, positive integers are the most efficient.</p>
 <h3 id='optional-properties' class='heading'>Optional properties</h3>
 
-<p>Any properties of structs or other keyed containers is omitted from the binary data, i.e. nothing is encoded. The absence of a key then indicates to the decoder that the value is <code>nil</code></p>
+<p>Any properties of structs or other keyed containers is omitted from the binary data, i.e. nothing is encoded. 
+The absence of a key then indicates to the decoder that the value is <code>nil</code>.
+For multiple optionals (e.g. <code>Bool??</code>), the inner optional is encoded as a <code>varLen</code> type, with the same encoding as optionals in arrays. </p>
 <h2 id='codable-quirks' class='heading'>Codable quirks</h2>
 
 <p>There are some interesting details on how <code>Codable</code> treats certain types, which produce unexpected binary data. Although <code>BinaryCodable</code> decodes all these cases correctly, implementing these &ldquo;features&rdquo; may be difficult on other platforms.</p>
@@ -484,18 +490,14 @@ Only types with data type <code>variable length</code> have their length prepend
 This concerns <code>String</code> and <code>Data</code>, as well as complex types like structs and arrays, among others.</p>
 <h3 id='optionals' class='heading'>Optionals</h3>
 
-<p>Normally, <code>Optional</code> values in unkeyed containers are tracked using <a href="#arrays-of-optionals">nil index sets</a>, which is prepended to the list of non-optionals.
-This approach is not possible for streams, requiring additional information for each element in the stream.
-A single byte is prepended to each <code>Optional</code> element, where binary <code>0x01</code> is used to indicate a non-optional value, and <code>0x00</code> is used to signal an optional value. 
+<p>A single byte is prepended to each <code>Optional</code> element, where binary <code>0x01</code> is used to indicate a non-optional value, and <code>0x00</code> is used to signal an optional value. 
 <code>nil</code> values have no additional data, so each is encoded using one byte.</p>
-
-<p>This encoding of optionals is similar to the <a href="#arrays-of-optionals">encoding of sequences of optionals</a> when not using the default option.</p>
 
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2022 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2022-11-08)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+          <p>&copy; 2024 <a class="link" href="https://christophhagen.de" target="_blank" rel="external noopener">Christoph Hagen</a>. All rights reserved. (Last updated: 2024-01-11)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
         </section>
       </article>
     </div>
