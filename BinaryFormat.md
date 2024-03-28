@@ -220,7 +220,7 @@ For dictionaries with `String` keys (`[String: ...]`), the process is similar to
 
 ## Stream encoding
 
-The encoding for data streams is only differs from standard encoding in two key aspects.
+The encoding for data streams only differs from standard encoding in two key aspects.
 
 ### Added length information
 
