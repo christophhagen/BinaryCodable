@@ -16,7 +16,7 @@ final class OneOfDecodingNode: AbstractDecodingNode, Decoder {
     
     init(content: [DecodingKey: Data], path: [CodingKey], info: UserInfo) {
         self.content = content
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {

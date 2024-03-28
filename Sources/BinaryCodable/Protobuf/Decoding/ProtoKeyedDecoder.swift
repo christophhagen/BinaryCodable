@@ -28,12 +28,12 @@ class ProtoKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtoc
                 $0.count.variableLengthEncoding + $0
             }.joinedData
         }
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     init(content: [DecodingKey: Data], path: [CodingKey], info: UserInfo) {
         self.content = content
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     var allKeys: [Key] {

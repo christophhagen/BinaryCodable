@@ -6,7 +6,7 @@ final class ProtoUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer 
 
     init(data: Data, path: [CodingKey], info: UserInfo) throws {
         self.decoder = DataDecoder(data: data)
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     var count: Int? {

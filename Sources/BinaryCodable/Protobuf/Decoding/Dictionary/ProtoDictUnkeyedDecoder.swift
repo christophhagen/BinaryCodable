@@ -26,7 +26,7 @@ final class ProtoDictUnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContai
             elements.append((dataType: valueDataType, data: valueData))
         }
         self.elements = elements
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     var count: Int? {

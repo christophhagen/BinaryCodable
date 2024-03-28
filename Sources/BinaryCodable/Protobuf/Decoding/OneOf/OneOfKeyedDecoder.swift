@@ -15,7 +15,7 @@ final class OneOfKeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainer
 
     init(content: [DecodingKey: Data], path: [CodingKey], info: UserInfo) {
         self.content = content
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     var allKeys: [Key] {

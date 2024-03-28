@@ -6,7 +6,7 @@ final class ProtoValueDecoder: AbstractDecodingNode, SingleValueDecodingContaine
 
     init(data: BinaryStreamProvider, path: [CodingKey], info: UserInfo) {
         self.data = data
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     func decodeNil() -> Bool {

@@ -6,12 +6,12 @@ class ProtoDecodingNode: AbstractDecodingNode, Decoder {
 
     init(data: Data, path: [CodingKey], info: UserInfo) {
         self.storage = .data(data)
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     init(decoder: BinaryStreamProvider, path: [CodingKey], info: UserInfo) {
         self.storage = .decoder(decoder)
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {

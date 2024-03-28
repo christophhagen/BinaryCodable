@@ -14,7 +14,7 @@ final class OneOfAssociatedValuesDecoder<Key>: AbstractDecodingNode, KeyedDecodi
 
     init(data: Data, path: [CodingKey], info: UserInfo) {
         self.data = data
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     var allKeys: [Key] {
