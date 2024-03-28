@@ -47,7 +47,7 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     
     func superEncoder() -> Encoder {
         let container = EncodingNode(path: codingPath, info: userInfo, optional: false)
-        assign(container, to: SuperEncoderKey())
+        assign(container, to: SuperCodingKey())
         return container
     }
     

@@ -116,7 +116,7 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     }
 
     func superDecoder() throws -> Decoder {
-        let data = try getData(forKey: SuperEncoderKey())
+        let data = try getData(forKey: SuperCodingKey())
         return DecodingNode(data: data, path: codingPath, info: userInfo)
     }
 

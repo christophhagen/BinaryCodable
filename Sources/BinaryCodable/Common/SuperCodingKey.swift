@@ -5,7 +5,7 @@ import Foundation
 
  The key uses either the string key `super`, or the integer key `0`.
  */
-struct SuperEncoderKey: CodingKey {
+struct SuperCodingKey: CodingKey {
 
     /**
      Create a new super encoding key.
