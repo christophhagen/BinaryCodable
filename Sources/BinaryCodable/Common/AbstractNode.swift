@@ -50,8 +50,8 @@ class AbstractNode {
      - Parameter path: The path to get to this point in encoding or decoding
      - Parameter info: Contextual information set by the user
      */
-    init(path: [CodingKey], info: UserInfo) {
-        self.codingPath = path
-        self.userInfo = info
+    init(codingPath: [CodingKey], userInfo: UserInfo) {
+        self.codingPath = codingPath
+        self.userInfo = userInfo
     }
 }

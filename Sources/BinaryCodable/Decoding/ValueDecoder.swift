@@ -12,7 +12,7 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
         self.storage = storage
         self.isOptional = isOptional
         self.isInUnkeyedContainer = isInUnkeyedContainer
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     private func asDecoder() -> BinaryStreamProvider {

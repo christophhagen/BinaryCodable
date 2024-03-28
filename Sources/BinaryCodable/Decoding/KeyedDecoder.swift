@@ -50,7 +50,7 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
                 $0.count.variableLengthEncoding + $0
             }.joinedData
         }
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 
     var allKeys: [Key] {

@@ -22,6 +22,6 @@ class AbstractEncodingNode: AbstractNode {
 
     init(path: [CodingKey], info: UserInfo, optional: Bool) {
         self.containsOptional = optional
-        super.init(path: path, info: info)
+        super.init(codingPath: path, userInfo: info)
     }
 }
