@@ -110,6 +110,15 @@ Alternatively, the type can be inferred:
 let message: Message = try decoder.decode(from: data)
 ```
 
+### Limitations
+
+`BinaryCodable` supports most features of the `Codable` protocol.
+One known issue is the missing compatibility with `SIMD` types (`import simd`), wich require the `count` property of unkeyed containers.
+This optional property *can* return the number of values in the container.
+Due to the binary format of `BinaryCodable`, this information is not available for unkeyed containers.
+Only once specific types are decoded (e.g. using `decode(Bool.self)`) does the container know how to treat the data.
+So a container with 8 bytes of data could contain 8 `Bool` values, or a single `Double`.
+
 ### Errors
 
 It is possible for both encoding and decoding to fail. 
