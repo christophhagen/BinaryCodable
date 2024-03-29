@@ -36,7 +36,7 @@ extension Timestamped: Decodable where Value: Decodable {
 }
 
 extension Timestamped: Equatable where Value: Equatable {
-    
+
 }
 
 /// A special semantic version with a fourth number
@@ -101,8 +101,6 @@ extension Version: Decodable { }
 extension Version: Encodable { }
 extension Version: Equatable { }
 
-
-
 final class CustomDecodingTests: XCTestCase {
 
     func testCustomDecoding() throws {
@@ -111,7 +109,7 @@ final class CustomDecodingTests: XCTestCase {
         let decoded = try BinaryDecoder().decode(Timestamped<String>.self, from: encoded)
         XCTAssertEqual(value, decoded)
     }
-    
+
     func testCustomVersionDecoding() throws {
         let version = Version(major: 1, minor: 2, patch: 3)
         let value = Timestamped(value: version)
@@ -119,18 +117,22 @@ final class CustomDecodingTests: XCTestCase {
         let decoded = try BinaryDecoder().decode(Timestamped<Version>.self, from: encoded)
         XCTAssertEqual(version, decoded.value)
     }
-    
+
+    /**
+     This function tests if a `RawRepresentable` can be decoded directly as `RawRepresentable.RawValue?`
+     */
     func testDecodingAsDifferentType() throws {
         let version = Version(major: 1, minor: 2, patch: 3)
         let encoded = try BinaryEncoder().encode(version)
-        let decoded = try BinaryDecoder().decode(String.self, from: encoded)
-        let encoded2 = try BinaryEncoder().encode("1.2.3")
-        print(Array(encoded2))
-        let decoded2 = try BinaryDecoder().decode(Version.self, from: encoded2)
+        let decoded = try BinaryDecoder().decode(String?.self, from: encoded)
         XCTAssertEqual(version.rawValue, decoded)
+
+        let version2: String? = "1.2.3"
+        let encoded2 = try BinaryEncoder().encode(version2)
+        let decoded2 = try BinaryDecoder().decode(Version.self, from: encoded2)
         XCTAssertEqual(version, decoded2)
     }
-    
+
     func testEncodingAsDifferentType() throws {
         let version = Version(major: 1, minor: 2, patch: 3)
         let time = Date()

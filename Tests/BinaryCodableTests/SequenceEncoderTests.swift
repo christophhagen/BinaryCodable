@@ -7,17 +7,16 @@ final class SequenceEncoderTests: XCTestCase {
         let encoder = BinaryStreamEncoder<T>()
 
         let bytes = try input.map(encoder.encode).joinedData
-
+        print(Array(bytes))
         let decoder = BinaryStreamDecoder<T>()
 
         decoder.add(bytes)
         let decoded = try decoder.decodeElements()
-        print(Array(bytes))
         XCTAssertEqual(decoded, input)
     }
 
     func testIntegerEncoding() throws {
-        try encodeSequence([1,2,3])
+        try encodeSequence([1, 2, 3])
         try encodeSequence([1.0, 2.0, 3.0])
         try encodeSequence([true, false, true])
         try encodeSequence(["Some", "Text", "More"])
@@ -65,7 +64,7 @@ final class SequenceEncoderTests: XCTestCase {
         }
         let input = [Test(a: 1, b: "Some"), Test(a: 2, b: "Text"), Test(a: 3, b: "More")]
 
-        let enc = BinaryEncoder()
+        var enc = BinaryEncoder()
         enc.sortKeysDuringEncoding = true
         let encoder = BinaryStreamEncoder<Test>(encoder: enc)
         var data = try encoder.encode(contentsOf: input)
@@ -90,7 +89,7 @@ final class SequenceEncoderTests: XCTestCase {
         }
         let input = [Test(a: 1, b: "Some"), Test(a: 2, b: "Text"), Test(a: 3, b: "More")]
 
-        let enc = BinaryEncoder()
+        var enc = BinaryEncoder()
         enc.sortKeysDuringEncoding = true
         let encoder = BinaryStreamEncoder<Test>(encoder: enc)
         var data = try encoder.encode(contentsOf: input)
@@ -104,4 +103,3 @@ final class SequenceEncoderTests: XCTestCase {
         XCTAssertEqual(decoded.elements, [input[0], input[1]])
     }
 }
-

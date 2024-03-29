@@ -2,104 +2,61 @@ import Foundation
 
 final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
 
-    private let decoder: BinaryStreamProvider
+    var count: Int? { data.count }
 
-    private let nilIndices: Set<Int>
-
-    init(data: Data, path: [CodingKey], info: UserInfo) throws {
-        let decoder = DataDecoder(data: data)
-        self.decoder = decoder
-        if info.has(.prependNilIndicesForUnkeyedContainers) {
-            let nilIndicesCount = try decoder.getVarint(path: path)
-            guard nilIndicesCount >= 0 else {
-                throw DecodingError.invalidDataSize(path)
-            }
-            self.nilIndices = try (0..<nilIndicesCount)
-                .map { _ in try decoder.getVarint(path: path) }
-                .reduce(into: []) { $0.insert($1) }
-        } else {
-            self.nilIndices = []
-        }
-        super.init(codingPath: path, userInfo: info)
-    }
-
-    var count: Int? {
-        nil
-    }
-
-    var isAtEnd: Bool {
-        !nextValueIsNil && !decoder.hasMoreBytes
-    }
+    var isAtEnd: Bool { currentIndex >= data.count }
 
     private(set) var currentIndex: Int = 0
 
-    private var nextValueIsNil: Bool {
-        nilIndices.contains(currentIndex)
+    private let data: [Data?]
+
+    init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
+        self.data = try DecodingStorage(data: data, codingPath: codingPath).decodeUnkeyedElements()
+        super.init(parentDecodedNil: true, codingPath: codingPath, userInfo: userInfo)
     }
 
-    func decodeNil() throws -> Bool {
-        guard prependNilIndexSetForUnkeyedContainers else {
-            fatalError("Use option `containsNilIndexSetForUnkeyedContainers` to use `decodeNil()`")
+    /// Get the next element without advancing the index.
+    private func ensureNextElement() throws -> Data? {
+        guard currentIndex < data.count else {
+            throw DecodingError.corrupted("No more elements to decode", codingPath: codingPath)
         }
-        guard nilIndices.contains(currentIndex) else {
-            return false
-        }
+        return data[currentIndex]
+    }
+
+    /// Get the next element and advance the index.
+    private func nextElement() throws -> Data? {
+        let element = try ensureNextElement()
         currentIndex += 1
-        return true
+        return element
     }
 
-    func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
-        defer { currentIndex += 1 }
-        return try wrapError {
-            if type is AnyOptional.Type {
-                let node = DecodingNode(decoder: decoder, isOptional: true, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
-                return try T.init(from: node)
-            } else if let Primitive = type as? DecodablePrimitive.Type {
-                let dataType = Primitive.dataType
-                let data = try decoder.getData(for: dataType, path: codingPath)
-                return try Primitive.init(decodeFrom: data, path: codingPath) as! T
-            } else {
-                let node = DecodingNode(decoder: decoder, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
-                return try T.init(from: node)
-            }
-        }
+    private func nextNode() throws -> DecodingNode {
+        let element = try nextElement()
+        return try DecodingNode(data: element, parentDecodedNil: true, codingPath: codingPath, userInfo: userInfo)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        currentIndex += 1
-        return try wrapError {
-            let data = try decoder.getData(for: .variableLength, path: codingPath)
-            let container = try KeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
-            return KeyedDecodingContainer(container)
-        }
+        return KeyedDecodingContainer(try nextNode().container(keyedBy: type))
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        currentIndex += 1
-        return try wrapError {
-            let data = try decoder.getData(for: .variableLength, path: codingPath)
-            return try UnkeyedDecoder(data: data, path: codingPath, info: userInfo)
-        }
+        return try nextNode().unkeyedContainer()
     }
 
     func superDecoder() throws -> Decoder {
-        currentIndex += 1
-        return DecodingNode(decoder: decoder, path: codingPath, info: userInfo, isInUnkeyedContainer: true)
+        return try nextNode()
     }
 
-    private func wrapError<T>(_ block: () throws -> T) throws -> T {
-        do {
-            return try block()
-        } catch DecodingError.dataCorrupted(let context) {
-            var codingPath = codingPath
-            codingPath.append(AnyCodingKey(intValue: currentIndex))
-            codingPath.append(contentsOf: context.codingPath)
-            let newContext = DecodingError.Context(
-                codingPath: codingPath,
-                debugDescription: context.debugDescription,
-                underlyingError: context.underlyingError
-            )
-            throw DecodingError.dataCorrupted(newContext)
+    func decodeNil() throws -> Bool {
+        if try ensureNextElement() == nil {
+            currentIndex += 1
+            return true
         }
+        return false
+    }
+
+    func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
+        let element = try nextElement()
+        return try decode(element: element, type: type, codingPath: codingPath)
     }
 }

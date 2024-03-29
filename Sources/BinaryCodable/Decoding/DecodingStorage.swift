@@ -1,24 +1,44 @@
 import Foundation
 
-enum Storage {
-    case data(Data)
-    case decoder(BinaryStreamProvider)
+final class DecodingStorage {
 
-    func useAsData(path: [CodingKey]) throws -> Data {
-        switch self {
-        case .data(let data):
-            return data
-        case .decoder(let decoder):
-            return try decoder.getData(for: .variableLength, path: path)
-        }
+    let codingPath: [CodingKey]
+
+    private let data: Data
+
+    private var index: Data.Index
+
+    init(data: Data, codingPath: [CodingKey]) {
+        self.codingPath = codingPath
+        self.data = data
+        self.index = data.startIndex
+    }
+}
+
+extension DecodingStorage: DecodingDataProvider {
+
+    var isAtEnd: Bool {
+        index >= data.endIndex
     }
 
-    func useAsDecoder() -> BinaryStreamProvider {
-        switch self {
-        case .data(let data):
-            return DataDecoder(data: data)
-        case .decoder(let decoder):
-            return decoder
+    func nextByte() throws -> UInt64 {
+        guard !isAtEnd else {
+            throw corrupted("Missing byte(s) decoding variable length integer")
         }
+        defer { index += 1 }
+        return UInt64(data[index])
+    }
+
+    var numberOfRemainingBytes: Int {
+        data.endIndex - index
+    }
+
+    func getBytes(_ count: Int) throws -> Data {
+        let newIndex = index + count
+        guard newIndex <= data.endIndex else {
+            throw corrupted("Unexpected end of data")
+        }
+        defer { index = newIndex }
+        return data[index..<newIndex]
     }
 }

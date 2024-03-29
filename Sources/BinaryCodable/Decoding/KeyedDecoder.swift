@@ -2,139 +2,75 @@ import Foundation
 
 final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProtocol where Key: CodingKey {
 
-    let content: [DecodingKey: Data]
+    let allKeys: [Key]
 
-    init(data: Data, path: [CodingKey], info: UserInfo) throws {
-        let decoder = DataDecoder(data: data)
-        var content = [DecodingKey: [Data]]()
-        while decoder.hasMoreBytes {
-            let (key, dataType) = try DecodingKey.decode(from: decoder, path: path)
+    /// - Note: The keys are not of type `Key`, since `CodingKey`s are not `Hashable`.
+    /// Also, some keys found in the data may not be convertable to `Key`, e.g. the `super` key, or obsoleted keys from older implementations.
+    private let elements: [DecodingKey: Data?]
 
-            do {
-                let data = try decoder.getData(for: dataType, path: path)
-                guard content[key] != nil else {
-                    content[key] = [data]
-                    continue
-                }
-            } catch DecodingError.dataCorrupted(let context) {
-                let codingKey = {
-                    switch key {
-                    case .stringKey(let stringValue):
-                        return Key(stringValue: stringValue)
-                    case .intKey(let intValue):
-                        return Key(intValue: intValue)
-                    }
-                }()
-                var newCodingPath = path
-                if let codingKey {
-                    newCodingPath += [codingKey]
-                }
-                let newContext = DecodingError.Context(
-                    codingPath: newCodingPath,
-                    debugDescription: context.debugDescription,
-                    underlyingError: context.underlyingError
-                )
-                throw DecodingError.dataCorrupted(newContext)
-            }
-
-            throw DecodingError.multipleValuesForKey(path, key)
-        }
-        self.content = content.mapValues { parts in
-            guard parts.count > 1 else {
-                return parts[0]
-            }
-            /// We only get here when `forceProtobufCompatibility = true`
-            /// So we need to prepend the length of each element
-            /// so that `KeyedEncoder` can decode it correctly
-            return parts.map {
-                $0.count.variableLengthEncoding + $0
-            }.joinedData
-        }
-        super.init(codingPath: path, userInfo: info)
+    init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
+        self.elements = try DecodingStorage(data: data, codingPath: codingPath).decodeKeyDataPairs()
+        self.allKeys = elements.keys.compactMap { $0.asKey() }
+        super.init(parentDecodedNil: true, codingPath: codingPath, userInfo: userInfo)
     }
 
-    var allKeys: [Key] {
-        content.keys.compactMap { key in
-            switch key {
-            case .intKey(let value):
-                return Key(intValue: value)
-            case .stringKey(let value):
-                return Key(stringValue: value)
-            }
+    private func value(for intKey: Int?) -> Data?? {
+        guard let intKey else {
+            return nil
         }
+        return elements[.integer(intKey)]
     }
 
-    func contains(_ key: Key) -> Bool {
-        content.keys.contains { $0.isEqual(to: key) }
+    private func value(for stringKey: String) -> Data?? {
+        elements[.string(stringKey)]
     }
 
-    private func getData(forKey key: CodingKey) throws -> Data {
-        guard let data = content.first(where: { $0.key.isEqual(to: key) })?.value else {
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Key not found")
-            throw DecodingError.keyNotFound(key, context)
+    private func value(for key: CodingKey) throws -> Data? {
+        let int = value(for: key.intValue)
+        let string = value(for: key.stringValue)
+        if int != nil && string != nil {
+            throw DecodingError.corrupted("Found value for int and string key", codingPath: codingPath + [key])
         }
-        return data
-    }
-
-    func decodeNil(forKey key: Key) throws -> Bool {
-        !contains(key)
-    }
-
-    func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
-        try wrapError(forKey: key) {
-            if let optionalType = type as? AnyOptional.Type {
-                if let data = try? getData(forKey: key) {
-                    let node = DecodingNode(data: data, isOptional: true, path: codingPath, info: userInfo)
-                    return try T.init(from: node)
-                } else {
-                    return optionalType.nilValue as! T
-                }
-            } else if let Primitive = type as? DecodablePrimitive.Type {
-                let data = try getData(forKey: key)
-                return try Primitive.init(decodeFrom: data, path: codingPath + [key]) as! T
-            } else {
-                let data = try getData(forKey: key)
-                let node = DecodingNode(data: data, path: codingPath, info: userInfo)
-                return try T.init(from: node)
-            }
+        guard let value = int ?? string else {
+            throw DecodingError.notFound(key, codingPath: codingPath + [key], "Missing value for key")
         }
+        return value
+    }
+
+    private func node(for key: CodingKey) throws -> DecodingNode {
+        let element = try value(for: key)
+        return try DecodingNode(data: element, parentDecodedNil: true, codingPath: codingPath + [key], userInfo: userInfo)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        try wrapError(forKey: key) {
-            let data = try getData(forKey: key)
-            let container = try KeyedDecoder<NestedKey>(data: data, path: codingPath, info: userInfo)
-            return KeyedDecodingContainer(container)
-        }
+        return KeyedDecodingContainer(try node(for: key).container(keyedBy: type))
     }
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
-        try wrapError(forKey: key) {
-            let data = try getData(forKey: key)
-            return try UnkeyedDecoder(data: data, path: codingPath, info: userInfo)
-        }
+        return try node(for: key).unkeyedContainer()
     }
 
     func superDecoder() throws -> Decoder {
-        let data = try getData(forKey: SuperCodingKey())
-        return DecodingNode(data: data, path: codingPath, info: userInfo)
+        return try node(for: SuperCodingKey())
     }
 
     func superDecoder(forKey key: Key) throws -> Decoder {
-        let data = try getData(forKey: key)
-        return DecodingNode(data: data, path: codingPath, info: userInfo)
+        return try node(for: key)
     }
 
-    private func wrapError<T>(forKey key: Key, _ block: () throws -> T) throws -> T {
-        do {
-            return try block()
-        } catch DecodingError.dataCorrupted(let context) {
-            let newContext = DecodingError.Context(
-                codingPath: codingPath + [key] + context.codingPath,
-                debugDescription: context.debugDescription,
-                underlyingError: context.underlyingError
-            )
-            throw DecodingError.dataCorrupted(newContext)
+    func contains(_ key: Key) -> Bool {
+        if let intValue = key.intValue, elements[.integer(intValue)] != .none {
+            return true
         }
+        return elements[.string(key.stringValue)] != .none
+    }
+
+    func decodeNil(forKey key: Key) throws -> Bool {
+        return !contains(key)
+    }
+
+    func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
+        let element = try value(for: key)
+        return try decode(element: element, type: type, codingPath: codingPath + [key])
     }
 }

@@ -1,49 +1,59 @@
 import Foundation
 
+/**
+ A class acting as a decoder, to provide different containers for decoding.
+ */
 final class DecodingNode: AbstractDecodingNode, Decoder {
 
-    private let storage: Storage
+    private let data: Data?
 
-    private let isOptional: Bool
-    
-    private let isInUnkeyedContainer: Bool
+    private var didCallContainer = false
 
-    init(storage: Storage, isOptional: Bool = false, path: [CodingKey], info: UserInfo, isInUnkeyedContainer: Bool = false) {
-        self.storage = storage
-        self.isOptional = isOptional
-        self.isInUnkeyedContainer = isInUnkeyedContainer
-        super.init(codingPath: path, userInfo: info)
+    init(data: Data?, parentDecodedNil: Bool, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
+        self.data = data
+        super.init(parentDecodedNil: parentDecodedNil, codingPath: codingPath, userInfo: userInfo)
     }
 
-    init(data: Data, isOptional: Bool = false, path: [CodingKey], info: UserInfo) {
-        self.storage = .data(data)
-        self.isOptional = isOptional
-        self.isInUnkeyedContainer = false
-        super.init(codingPath: path, userInfo: info)
+    private func registerContainer() throws {
+        guard !didCallContainer else {
+            throw DecodingError.corrupted("Multiple containers requested from decoder", codingPath: codingPath)
+        }
+        didCallContainer = true
     }
 
-    init(decoder: BinaryStreamProvider, isOptional: Bool = false, path: [CodingKey], info: UserInfo, isInUnkeyedContainer: Bool = false) {
-        self.storage = .decoder(decoder)
-        self.isOptional = isOptional
-        self.isInUnkeyedContainer = isInUnkeyedContainer
-        super.init(codingPath: path, userInfo: info)
+    private func getNonNilElement() throws -> Data {
+        try registerContainer()
+        // Non-root containers just use the data, which can't be nil
+        guard let data else {
+            throw DecodingError.corrupted("Container requested, but nil found", codingPath: codingPath)
+        }
+        return data
+    }
+
+    private func getPotentialNilElement() throws -> Data? {
+        try registerContainer()
+        guard !parentDecodedNil else {
+            return data
+        }
+        guard let data else {
+            return nil
+        }
+        return try DecodingStorage(data: data, codingPath: codingPath)
+            .decodeSingleElementWithNilIndicator()
     }
 
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
-        let container = try KeyedDecoder<Key>(data: storage.useAsData(path: codingPath), path: codingPath, info: userInfo)
-        return KeyedDecodingContainer(container)
+        let data = try getNonNilElement()
+        return KeyedDecodingContainer(try KeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo))
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        return try UnkeyedDecoder(data: storage.useAsData(path: codingPath), path: codingPath, info: userInfo)
+        let data = try getNonNilElement()
+        return try UnkeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {
-        return ValueDecoder(
-            storage: storage,
-            isOptional: isOptional, 
-            isInUnkeyedContainer: isInUnkeyedContainer,
-            path: codingPath,
-            info: userInfo)
+        let data = try getPotentialNilElement()
+        return ValueDecoder(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 }

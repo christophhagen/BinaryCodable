@@ -1,6 +1,13 @@
 import Foundation
 
-protocol DecodablePrimitive: DataTypeProvider {
+/**
+ A protocol adopted by primitive types for decoding.
+ */
+protocol DecodablePrimitive {
 
-    init(decodeFrom data: Data, path: [CodingKey]) throws
+    /**
+     Decode a value from the data.
+     - Note: All provided data can be used
+     */
+    init(data: Data, codingPath: [CodingKey]) throws
 }

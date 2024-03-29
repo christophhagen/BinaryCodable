@@ -1,25 +1,20 @@
 import Foundation
 
-extension Int32: FixedSizeCompatible {
-
-    public static var fixedSizeDataType: DataType {
-        .fourBytes
-    }
-
-    public var fixedProtoType: String {
-        "sfixed32"
-    }
-
-    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
-        guard data.count == MemoryLayout<UInt32>.size else {
-            throw DecodingError.invalidDataSize(path)
-        }
-        let value = UInt32(littleEndian: read(data: data, into: UInt32.zero))
-        self.init(bitPattern: value)
-    }
+extension Int32: FixedSizeEncodable {
 
     public var fixedSizeEncoded: Data {
         let value = UInt32(bitPattern: littleEndian)
-        return toData(value)
+        return Data(underlying: value)
+    }
+}
+
+extension Int32: FixedSizeDecodable {
+
+    public init(fromFixedSize data: Data, codingPath: [CodingKey]) throws {
+        guard data.count == MemoryLayout<UInt32>.size else {
+            throw DecodingError.invalidSize(size: data.count, for: "Int32", codingPath: codingPath)
+        }
+        let value = UInt32(littleEndian: data.interpreted())
+        self.init(bitPattern: value)
     }
 }

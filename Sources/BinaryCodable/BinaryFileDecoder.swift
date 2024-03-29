@@ -31,11 +31,11 @@ import Foundation
  */
 public final class BinaryFileDecoder<Element> where Element: Decodable {
 
-    private let handle: FileHandle
+    private let file: FileHandle
 
     private let decoder: BinaryDecoder
 
-    private let buffer: BinaryStreamBuffer
+    private let endIndex: UInt64
 
     /**
      Create a file decoder.
@@ -47,10 +47,16 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
      - Throws: An error, if the file handle could not be created.
      */
     public init(fileAt url: URL, decoder: BinaryDecoder = .init()) throws {
-        let handle = try FileHandle(forReadingFrom: url)
-        self.handle = handle
+        let file = try FileHandle(forReadingFrom: url)
+        self.file = file
         self.decoder = decoder
-        self.buffer = BinaryStreamBuffer(data: handle)
+        if #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) {
+            self.endIndex = try file.seekToEnd()
+            try file.seek(toOffset: 0)
+        } else {
+            self.endIndex = file.seekToEndOfFile()
+            file.seek(toFileOffset: 0)
+        }
     }
 
     deinit {
@@ -66,9 +72,9 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
      */
     public func close() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.4, watchOS 6.2, *) {
-            try handle.close()
+            try file.close()
         } else {
-            handle.closeFile()
+            file.closeFile()
         }
     }
 
@@ -120,74 +126,51 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
      - Throws: Errors of type ``DecodingError``
      */
     public func readElement() throws -> Element? {
-        guard buffer.hasMoreBytes else {
+        guard !isAtEnd else {
             return nil
         }
-        do {
-            let element = try decodeNextElement()
-            // Remove the buffered data since element was correctly decoded
-            buffer.discardUsedBufferData()
-            return element
-        } catch {
-            buffer.discardUsedBufferData()
-            throw error
-        }
-    }
-
-    private func decodeNextElement() throws -> Element {
-        if Element.self is AnyOptional.Type {
-            return try decodeOptional()
-        } else {
-            return try decodeNonOptional()
-        }
-    }
-
-    private func decodeNonOptional() throws -> Element {
-        return try decoder.decode(fromStream: buffer)
-    }
-
-    private func decodeOptional() throws -> Element {
-        guard try buffer.getByte(path: []) > 0 else {
-            return try decoder.decode(from: Data())
-        }
-        return try decodeNonOptional()
+        // Read length/nil indicator
+        let data = try decodeNextDataOrNilElement()
+        let node = try DecodingNode(data: data, parentDecodedNil: true, codingPath: [], userInfo: decoder.userInfo)
+        return try Element.init(from: node)
     }
 }
 
-extension FileHandle: BinaryStreamProvider {
+extension BinaryFileDecoder: DecodingDataProvider {
 
-    func getBytes(_ count: Int, path: [CodingKey]) throws -> Data {
+    var codingPath: [any CodingKey] { [] }
+
+    private var currentOffset: UInt64 {
+        if #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) {
+            return (try? file.offset()) ?? endIndex
+        }
+        return file.offsetInFile
+    }
+
+    var isAtEnd: Bool {
+        currentOffset >= endIndex
+    }
+
+    func nextByte() throws -> UInt64 {
+        let byte = try getBytes(1).first!
+        return UInt64(byte)
+    }
+
+    var numberOfRemainingBytes: Int {
+        Int(endIndex - currentOffset)
+    }
+
+    func getBytes(_ count: Int) throws -> Data {
         guard #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) else {
-            let data = readData(ofLength: count)
+            let data = file.readData(ofLength: count)
             guard data.count == count else {
-                throw DecodingError.prematureEndOfData(path)
+                throw DecodingError.prematureEndOfData([])
             }
             return data
         }
-        guard let data = try read(upToCount: count) else {
-            throw DecodingError.prematureEndOfData(path)
+        guard let data = try file.read(upToCount: count) else {
+            throw DecodingError.prematureEndOfData([])
         }
         return data
-    }
-
-    var hasMoreBytes: Bool {
-        if #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) {
-            return moreBytesAvailable
-        }
-
-        if readData(ofLength: 1).first != nil {
-            seek(toFileOffset: offsetInFile - 1)
-            return true
-        }
-        return false
-    }
-
-    @available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *)
-    private var moreBytesAvailable: Bool {
-        if (try? read(upToCount: 1)?.first) != nil {
-            try? seek(toOffset: offset() - 1)
-            return true
-        }
-        return false
     }
 }

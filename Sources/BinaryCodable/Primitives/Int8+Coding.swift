@@ -1,21 +1,17 @@
 import Foundation
 
 extension Int8: EncodablePrimitive {
-    
-    func data() -> Data {
+
+    var encodedData: Data {
         Data([UInt8(bitPattern: self)])
-    }
-    
-    static var dataType: DataType {
-        .byte
     }
 }
 
 extension Int8: DecodablePrimitive {
 
-    init(decodeFrom data: Data, path: [CodingKey]) throws {
+    init(data: Data, codingPath: [CodingKey]) throws {
         guard data.count == 1 else {
-            throw DecodingError.invalidDataSize(path)
+            throw DecodingError.invalidSize(size: data.count, for: "Int8", codingPath: codingPath)
         }
         self.init(bitPattern: data[data.startIndex])
     }

@@ -71,7 +71,7 @@ public final class BinaryFileEncoder<Element> where Element: Encodable {
      Write a sequence of elements to the file.
 
      This is a convenience function calling `write(_ element:)` for each element of the sequence in order.
-     
+
      - Parameter sequence: The sequence to encode
      - Throws: Errors of type ``EncodingError``
      */

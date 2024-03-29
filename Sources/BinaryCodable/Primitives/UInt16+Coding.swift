@@ -1,22 +1,18 @@
 import Foundation
 
 extension UInt16: EncodablePrimitive {
-    
-    func data() -> Data {
-        toData(littleEndian)
-    }
-    
-    static var dataType: DataType {
-        .twoBytes
+
+    var encodedData: Data {
+        .init(underlying: littleEndian)
     }
 }
 
 extension UInt16: DecodablePrimitive {
 
-    init(decodeFrom data: Data, path: [CodingKey]) throws {
+    init(data: Data, codingPath: [CodingKey]) throws {
         guard data.count == MemoryLayout<UInt16>.size else {
-            throw DecodingError.invalidDataSize(path)
+            throw DecodingError.invalidSize(size: data.count, for: "UInt16", codingPath: codingPath)
         }
-        self.init(littleEndian: read(data: data, into: UInt16.zero))
+        self.init(littleEndian: data.interpreted())
     }
 }
