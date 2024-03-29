@@ -42,29 +42,6 @@ where WrappedValue: FixedSizeCompatible,
 
 }
 
-extension FixedSize: ProtobufEncodable where WrappedValue: ProtobufDecodable {
-
-    func protobufData() throws -> Data {
-        wrappedValue.fixedSizeEncoded
-    }
-
-    var protoType: String {
-        wrappedValue.fixedProtoType
-    }
-}
-
-extension FixedSize: ProtobufDecodable where WrappedValue: ProtobufDecodable {
-
-    static var zero: FixedSize {
-        .init(wrappedValue: .zero)
-    }
-
-    init(fromProtobuf data: Data, path: [CodingKey]) throws {
-        let value = try WrappedValue(fromFixedSize: data, path: path)
-        self.init(wrappedValue: value)
-    }
-}
-
 extension FixedSize: Equatable {
 
 }
@@ -78,7 +55,15 @@ extension FixedSize: Comparable {
 
 extension FixedSize: Hashable { }
 
-extension FixedSize: CodablePrimitive, DataTypeProvider where WrappedValue: DataTypeProvider {
+extension FixedSize: DataTypeProvider where WrappedValue: FixedSizeProtoCompatible, WrappedValue: DataTypeProvider {
+
+    /// The wire type of the wrapped value.
+    static var dataType: DataType {
+        WrappedValue.fixedSizeDataType
+    }
+}
+
+extension FixedSize: CodablePrimitive {
 
     /**
      Encode the wrapped value to binary data compatible with the protobuf encoding.
@@ -91,11 +76,6 @@ extension FixedSize: CodablePrimitive, DataTypeProvider where WrappedValue: Data
     init(decodeFrom data: Data, path: [CodingKey]) throws {
         let wrappedValue = try WrappedValue(fromFixedSize: data, path: path)
         self.init(wrappedValue: wrappedValue)
-    }
-
-    /// The wire type of the wrapped value.
-    static var dataType: DataType {
-        WrappedValue.fixedSizeDataType
     }
 }
 

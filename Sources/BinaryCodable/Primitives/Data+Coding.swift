@@ -17,10 +17,3 @@ extension Data: DecodablePrimitive {
         self = Data(data)
     }
 }
-
-extension Data: ProtobufCodable {
-
-    var protoType: String { "bytes" }
-
-    static var zero: Data { .empty }
-}

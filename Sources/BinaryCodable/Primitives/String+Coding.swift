@@ -24,10 +24,3 @@ extension String: DecodablePrimitive {
         self = value
     }
 }
-
-extension String: ProtobufCodable {
-    
-    var protoType: String { "string" }
-
-    static let zero = ""
-}
