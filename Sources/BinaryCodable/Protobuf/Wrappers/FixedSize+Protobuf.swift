@@ -1,6 +1,6 @@
 import Foundation
 
-extension FixedSize: ProtobufEncodable where WrappedValue: ProtobufDecodable {
+extension FixedSize: ProtobufEncodable where WrappedValue: ProtobufDecodable, WrappedValue: FixedSizeProtoCompatible {
 
     func protobufData() throws -> Data {
         wrappedValue.fixedSizeEncoded
