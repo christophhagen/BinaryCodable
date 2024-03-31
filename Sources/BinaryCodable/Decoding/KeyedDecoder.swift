@@ -65,8 +65,15 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
         return elements[.string(key.stringValue)] != .none
     }
 
+    /**
+     Decodes a null value for the given key.
+     - Parameter key: The key that the decoded value is associated with.
+     - Returns: Whether the encountered value was null.
+     - Throws: `DecodingError.keyNotFound` if self does not have an entry for the given key.
+     */
     func decodeNil(forKey key: Key) throws -> Bool {
-        return !contains(key)
+        let element = try value(for: key)
+        return element == nil
     }
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
