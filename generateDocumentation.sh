@@ -3,7 +3,7 @@
 #
 # To use this script:
 # Install chruby
-#     sudo gem instll chruby
+#     sudo gem install chruby
 # Install ruby-build
 #     brew install ruby-build
 # Install ruby version and switch
