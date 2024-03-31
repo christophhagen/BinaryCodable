@@ -84,7 +84,7 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
      Read all elements in the file, and handle each element using a closure.
 
      - Parameter elementHandler: The closure to handle each element as it is decoded.
-     - Throws: Decoding errors of type ``DecodingError``.
+     - Throws: Decoding errors of type `DecodingError`.
      */
     public func read(_ elementHandler: (Element) throws -> Void) throws {
         while let element = try readElement() {
@@ -95,7 +95,7 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
     /**
      Read all elements at once.
      - Returns: The elements decoded from the file.
-     - Throws: Errors of type ``DecodingError``
+     - Throws: Errors of type `DecodingError`
      */
     public func readAll() throws -> [Element] {
         var result = [Element]()
@@ -123,7 +123,7 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
     /**
      Read a single elements from the current position in the file.
      - Returns: The element decoded from the file, or `nil`, if no more data is available.
-     - Throws: Errors of type ``DecodingError``
+     - Throws: Errors of type `DecodingError`
      */
     public func readElement() throws -> Element? {
         guard !isAtEnd else {

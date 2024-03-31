@@ -118,7 +118,7 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
      - Note: If a decoding error occurs within the data, then the elements successfully decoded before are lost.
      If you expect decoding errors to occur, either decode elements individually using ``decodeElement()``, or use ``decodeElementsUntilError()``.
      - Returns: The elements that could be decoded with the available data.
-     - Throws: Decoding errors of type ``DecodingError``.
+     - Throws: Decoding errors of type `DecodingError`.
      */
     public func decodeElements() throws -> [Element] {
         var results = [Element]()
@@ -136,7 +136,7 @@ public final class BinaryStreamDecoder<Element> where Element: Decodable {
 
      If insufficient bytes are available, then no element is returned, and the internal buffer is kept intact.
      - Returns: The decoded element, if enough bytes are available.
-     - Throws: Decoding errors of type ``DecodingError``.
+     - Throws: Decoding errors of type `DecodingError`.
      */
     public func decodeElement() throws -> Element? {
         if let length = lengthOfCurrentElement {

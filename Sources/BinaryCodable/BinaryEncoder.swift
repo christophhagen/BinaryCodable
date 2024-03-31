@@ -16,7 +16,7 @@ import Foundation
  */
 public struct BinaryEncoder {
 
-    /// The user info key for the ``sortKeysInKeyedContainers`` option.
+    /// The user info key for the ``sortKeysDuringEncoding`` option.
     public static let userInfoSortKey: CodingUserInfoKey = .init(rawValue: "sortByKey")!
 
     /**
@@ -32,7 +32,7 @@ public struct BinaryEncoder {
      This option has no impact on decoding using `BinaryDecoder`.
 
      Enabling this option will add the `CodingUserInfoKey(rawValue: "sortByKey")` to the `userInfo` dictionary.
-     This key is also available as ``SimpleEncoder.userInfoSortKey``
+     This key is also available as ``userInfoSortKey``
 
      - Note: The default value for this option is `false`.
      */
