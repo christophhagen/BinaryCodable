@@ -1,7 +1,8 @@
 import Foundation
-import simd
 import XCTest
 @testable import BinaryCodable
+#if canImport(simd)
+import simd
 
 
 final class SIMDTests: XCTestCase {
@@ -14,3 +15,4 @@ final class SIMDTests: XCTestCase {
         try compare(value, to: doubleData + doubleData)
     }
 }
+#endif
