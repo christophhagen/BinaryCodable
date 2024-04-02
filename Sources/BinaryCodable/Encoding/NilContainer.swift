@@ -5,11 +5,11 @@ import Foundation
  */
 struct NilContainer: EncodableContainer {
 
-    var needsLengthData: Bool { false }
+    let needsLengthData = true
 
-    var needsNilIndicator: Bool { true }
+    let needsNilIndicator = true
 
-    var isNil: Bool { true }
+    let isNil = true
 
     func containedData() throws -> Data {
         fatalError()

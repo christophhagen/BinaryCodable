@@ -6,9 +6,9 @@ struct PrimitiveEncodingContainer: EncodableContainer {
 
     let wrapped: EncodablePrimitive
 
-    var needsNilIndicator: Bool { false }
+    let needsNilIndicator = false
 
-    var isNil: Bool { false }
+    let isNil = false
 
     init(wrapped: EncodablePrimitive, needsLengthData: Bool) {
         self.needsLengthData = needsLengthData
