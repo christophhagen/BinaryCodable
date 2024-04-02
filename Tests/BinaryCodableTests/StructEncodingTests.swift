@@ -7,8 +7,13 @@ final class StructEncodingTests: XCTestCase {
         struct Test: Codable, Equatable {
             let val: [Bool]
         }
-        let expected: [UInt8] = [0b00111010, 118, 97, 108,
-                                 3, 1, 0, 1]
+        let expected: [UInt8] = [
+            7, // String key, length 3
+            118, 97, 108,
+            12, // Length 6
+            2, 1, // true
+            2, 0, // false
+            2, 1] // true
         try compare(Test(val: [true, false, true]), to: expected)
     }
 
@@ -18,11 +23,15 @@ final class StructEncodingTests: XCTestCase {
         }
         let value = [Test(val: 123), Test(val: 124)]
         let expected: [UInt8] = [
-            6, // Length of first element
-            0b00111000, 118, 97, 108, // String key 'val', varint
+            14, // Length 7
+            7, // String key, length 3
+            118, 97, 108, // 'val'
+            4, // Length 2
             246, 1, // Value '123'
-            6, // Length of second element
-            0b00111000, 118, 97, 108, // String key 'val', varint
+            14, // Length 7
+            7, // String key, length 3
+            118, 97, 108, // 'val'
+            4, // Length 2
             248, 1, // Value '124'
         ]
         try compare(value, to: expected)
@@ -34,14 +43,16 @@ final class StructEncodingTests: XCTestCase {
         }
         let value: [Test?] = [Test(val: 123), nil, Test(val: 124)]
         let expected: [UInt8] = [
-            1, // First element not nil
-            6, // Length of first element
-            0b00111000, 118, 97, 108, // String key 'val', varint
+            14, // Not nil, length 7
+            7, // String key, length 3
+            118, 97, 108, // 'val'
+            4, // Length 2
             246, 1, // Value '123'
-            0, // Second element is nil
-            1, // Third element not nil
-            6, // Length of third element
-            0b00111000, 118, 97, 108, // String key 'val', varint
+            1, // Nil
+            14, // Not nil, length 7
+            7, // String key, length 3
+            118, 97, 108, // 'val'
+            4, // Length 2
             248, 1, // Value '124'
         ]
         try compare(value, to: expected)
@@ -55,101 +66,109 @@ final class StructEncodingTests: XCTestCase {
                 case val = -1
             }
         }
-        let value = Test(val: true)
-        let expected: [UInt8] = [
-            0b11110000, // Int key, varint, three LSB of int key
-            255, 255, 255, 255, 255, 255, 255, 255,
-            1, /// Bool `true`
-        ]
-        try compare(value, to: expected)
+        let encoder = BinaryEncoder()
+        do {
+            _ = try encoder.encode(Test(val: true))
+        } catch let error as EncodingError {
+            guard case .invalidValue(let any, let context) = error else {
+                XCTFail()
+                return
+            }
+            XCTAssertEqual(context.codingPath, [-1])
+            guard let int = any as? Int else {
+                XCTFail()
+                return
+            }
+            XCTAssertEqual(int, -1)
+        }
     }
 
-    func testIntegerKeysLowerBound() throws {
+    func testIntegerKeysValidLowerBound() throws {
         struct TestLowBound: Codable, Equatable {
             let val: Bool
 
             enum CodingKeys: Int, CodingKey {
-                case val = -576460752303423488
+                case val = 0
             }
         }
         let value = TestLowBound(val: true)
         let expected: [UInt8] = [
-            0b10000000, // Int key, varint, three LSB of int key
-            128, 128, 128, 128, 128, 128, 128, 128,
-            1, /// Bool `true`
+            0, // Int key 0
+            2, 1, /// Bool `true`
         ]
         try compare(value, to: expected)
     }
 
-    func testIntegerKeysHighBound() throws {
-        struct TestHighBound: Codable, Equatable {
+    func testIntegerKeysValidUpperBound() throws {
+        struct TestUpperBound: Codable, Equatable {
             let val: Bool
 
             enum CodingKeys: Int, CodingKey {
-                case val = 576460752303423487
+                case val = 9223372036854775807
             }
         }
-        let value = TestHighBound(val: true)
+        let value = TestUpperBound(val: true)
         let expected: [UInt8] = [
-            0b11110000, // Int key, varint, three LSB of int key
-            255, 255, 255, 255, 255, 255, 255, 127,
-            1, /// Bool `true`
+            254, 255, 255, 255, 255, 255, 255, 255, 255, // Int key 9223372036854775807
+            2, 1, /// Bool `true`
         ]
         try compare(value, to: expected)
     }
-    
+
     func testSortingStructKeys() throws {
         struct Test: Codable, Equatable {
-            
+
             let one: Int
-            
+
             let two: String
-            
+
             let three: Bool
-            
+
             enum CodingKeys: Int, CodingKey {
                 case one = 1
                 case two = 2
                 case three = 3
             }
         }
-        
+
         let val = Test(one: 123, two: "Some", three: true)
         try compare(val, to: [
-            0x10, // Int key(1), VarInt
+            2, // Int key 1
+            4, // Length 2
             246, 1, // Int(123)
-            0x22, // Int key(2), VarLen
-            4, // Length 4
-            83, 111, 109, 101, // String "Some"
-            0x30, // Int key(3), VarInt
-            1, // Bool(true)
-        ], sort: true)
+            4, // Int key 2
+            8, // Length 4
+            83, 111, 109, 101, // "Some"
+            6, // Int key 3
+            2, // Length 1
+            1, // 'true'
+        ], sortingKeys: true)
     }
-    
+
     func testDecodeDictionaryAsStruct() throws {
         struct Test: Codable, Equatable {
             let a: Int
             let b: Int
             let c: Int
         }
-        
+
         let input: [String: Int] = ["a" : 123, "b": 0, "c": -123456]
         let encoded = try BinaryEncoder.encode(input)
-        
+
         let decoded: Test = try BinaryDecoder.decode(from: encoded)
         XCTAssertEqual(decoded, Test(a: 123, b: 0, c: -123456))
     }
-    
+
     func testDecodeStructAsDictionary() throws {
         struct Test: Codable, Equatable {
             let a: Int
             let b: Int
             let c: Int
         }
-        
+
         let input = Test(a: 123, b: 0, c: -123456)
         let encoded = try BinaryEncoder.encode(input)
-        
+
         let decoded: [String: Int] = try BinaryDecoder.decode(from: encoded)
         XCTAssertEqual(decoded, ["a" : 123, "b": 0, "c": -123456])
     }
@@ -177,9 +196,10 @@ final class StructEncodingTests: XCTestCase {
         }
 
         let expected: [UInt8] = [
-            0b00111010, 118, 97, 108, // String key 'val', varint
-            4, // Length 4
-            83, 111, 109, 101, // String "Some"
+            7, // String key, length 3
+            118, 97, 108, // "val"
+            8, // Length 4
+            83, 111, 109, 101, // "Some"
         ]
 
         let wrapped = Wrapped(val: "Some")
@@ -193,7 +213,8 @@ final class StructEncodingTests: XCTestCase {
         let wrapper = Wrapper(wrapped: wrapped)
         let encodedWrapper = try BinaryEncoder.encode(wrapper)
 
-        try compare(encodedWrapper, to: expected)
+        // Prepend nil-indicator
+        try compare(encodedWrapper, to: [0] + expected)
 
         let decodedWrapper: Wrapper = try BinaryDecoder.decode(from: encodedWrapper)
         XCTAssertEqual(decodedWrapper, wrapper)

@@ -25,15 +25,36 @@ extension Sequence where Element: Sequence, Element.Element == UInt8 {
     }
 }
 
-func read<T>(data: Data, into value: T) -> T {
-    Data(data).withUnsafeBytes {
-        $0.baseAddress!.load(as: T.self)
+extension Data {
+
+    /**
+     Interpret the binary data as another type.
+     - Parameter type: The type to interpret
+     */
+    func interpreted<T>(as type: T.Type = T.self) -> T {
+        Data(self).withUnsafeBytes {
+            $0.baseAddress!.load(as: T.self)
+        }
+    }
+
+    /**
+     Extract the binary representation of a value.
+     - Parameter value: The value to convert to binary data
+     */
+    init<T>(underlying value: T) {
+        var target = value
+        self = Swift.withUnsafeBytes(of: &target) {
+            Data($0)
+        }
     }
 }
 
-func toData<T>(_ value: T) -> Data {
-    var target = value
-    return withUnsafeBytes(of: &target) {
-        Data($0)
+extension Optional<Data> {
+
+    var view: String {
+        guard let self else {
+            return "nil"
+        }
+        return "\(Array(self))"
     }
 }

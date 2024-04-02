@@ -1,78 +1,86 @@
 import Foundation
 
 final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProtocol where Key: CodingKey {
-    
-    var content = [MixedCodingKeyWrapper : EncodingContainer]()
 
-    override init(path: [CodingKey], info: UserInfo, optional: Bool) {
-        super.init(path: path, info: info, optional: optional)
-    }
+    private var encodedValues: [HashableKey : EncodableContainer] = [:]
 
-    func assign(_ value: EncodingContainer, to key: CodingKey) {
-        let wrapped = MixedCodingKeyWrapper(key)
-        content[wrapped] = value
-    }
-    
-    func encodeNil(forKey key: Key) throws {
-        // Nothing to do, nil is ommited for keyed containers
-    }
-    
-    func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
-        let container: EncodingContainer
-        if value is AnyOptional {
-            container = try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
-        } else if let primitive = value as? EncodablePrimitive {
-            container = try wrapError(path: codingPath) { try EncodedPrimitive(primitive: primitive) }
+    /// Internal indicator to prevent assigning a single key multiple times
+    private var multiplyAssignedKey: HashableKey? = nil
+
+    @discardableResult
+    private func assign<T>(_ value: T, forKey key: CodingKey) -> T where T: EncodableContainer {
+        let hashableKey = HashableKey(key: key)
+        if encodedValues[hashableKey] != nil {
+            multiplyAssignedKey = hashableKey
         } else {
-            let node = EncodingNode(
-                path: codingPath,
-                info: userInfo,
-                optional: false)
-            container = try node.encoding(value)
+            encodedValues[hashableKey] = value
         }
-        assign(container, to: key)
+        return value
     }
-    
+
+    private func assignedNode(forKey key: CodingKey) -> EncodingNode {
+        let node = EncodingNode(needsLengthData: true, codingPath: codingPath + [key], userInfo: userInfo)
+        return assign(node, forKey: key)
+    }
+
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        let container = KeyedEncoder<NestedKey>(path: codingPath + [key], info: userInfo, optional: false)
-        assign(container, to: key)
-        return KeyedEncodingContainer(container)
+        // By wrapping the nested container in a node, it adds length information to it
+        KeyedEncodingContainer(assignedNode(forKey: key).container(keyedBy: keyType))
     }
-    
+
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
-        let container = UnkeyedEncoder(path: codingPath + [key], info: userInfo, optional: false)
-        assign(container, to: key)
-        return container
+        // By wrapping the nested container in a node, it adds length information to it
+        assignedNode(forKey: key).unkeyedContainer()
     }
-    
+
     func superEncoder() -> Encoder {
-        let container = EncodingNode(path: codingPath, info: userInfo, optional: false)
-        assign(container, to: SuperEncoderKey())
-        return container
+        assignedNode(forKey: SuperCodingKey())
     }
-    
+
     func superEncoder(forKey key: Key) -> Encoder {
-        let container = EncodingNode(path: codingPath + [key], info: userInfo, optional: false)
-        assign(container, to: key)
-        return container
+        assignedNode(forKey: key)
+    }
+
+    func encodeNil(forKey key: Key) throws {
+        // If a value is nil, then it is not encoded
+        // This is not consistent with the documentation of `decodeNil(forKey:)`,
+        // which states that when decodeNil() should fail if the key is not present.
+        // We could fix this by explicitly assigning a `nil` value:
+        // `assign(NilContainer(), forKey: key)`
+        // But this would cause other problems, either breaking the decoding of double optionals (e.g. Int??),
+        // Or by requiring an additional `nil` indicator for ALL values in keyed containers,
+        // which would make the format a lot less efficient
+    }
+
+    func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
+        let encoded = try encodeValue(value, needsLengthData: true)
+        assign(encoded, forKey: key)
     }
 }
 
+extension KeyedEncoder: EncodableContainer {
 
-extension KeyedEncoder: EncodingContainer {
+    var needsNilIndicator: Bool {
+        false
+    }
 
-    var data: Data {
-        if sortKeysDuringEncoding {
-            return content.sorted { $0.key < $1.key }.map { $1.encodeWithKey($0) }.reduce(Data(), +)
+    var isNil: Bool {
+        false
+    }
+
+    func containedData() throws -> Data {
+        if let multiplyAssignedKey {
+            throw EncodingError.invalidValue(0, .init(codingPath: codingPath, debugDescription: "Multiple values assigned to key \(multiplyAssignedKey)"))
         }
-        return content.map { $1.encodeWithKey($0) }.reduce(Data(), +)
-    }
-    
-    var dataType: DataType {
-        .variableLength
+        guard sortKeysDuringEncoding else {
+            return try encode(elements: encodedValues)
+        }
+        return try encode(elements: encodedValues.sorted { $0.key < $1.key })
     }
 
-    var isEmpty: Bool {
-        !content.values.contains { !$0.isEmpty }
+    private func encode<T>(elements: T) throws -> Data where T: Collection, T.Element == (key: HashableKey, value: EncodableContainer) {
+        try elements.map { key, value in
+            try value.completeData(with: key.key, codingPath: codingPath)
+        }.joinedData
     }
 }

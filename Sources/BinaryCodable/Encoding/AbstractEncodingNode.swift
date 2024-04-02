@@ -1,6 +1,20 @@
 import Foundation
 
+/**
+ A class that provides encoding functions for all encoding containers.
+ */
 class AbstractEncodingNode: AbstractNode {
+
+    let needsLengthData: Bool
+
+    /**
+    - Parameter codingPath: The path to get to this point in encoding or decoding
+    - Parameter userInfo: Contextual information set by the user
+    */
+    init(needsLengthData: Bool, codingPath: [CodingKey], userInfo: UserInfo) {
+        self.needsLengthData = needsLengthData
+        super.init(codingPath: codingPath, userInfo: userInfo)
+    }
 
     /**
      Sort keyed data in the binary representation.
@@ -15,13 +29,16 @@ class AbstractEncodingNode: AbstractNode {
      - Note: The default value for this option is `false`.
      */
     var sortKeysDuringEncoding: Bool {
-        userInfo.has(.sortKeys)
+        userInfo[BinaryEncoder.userInfoSortKey] as? Bool ?? false
     }
-    
-    var containsOptional: Bool
 
-    init(path: [CodingKey], info: UserInfo, optional: Bool) {
-        self.containsOptional = optional
-        super.init(path: path, info: info)
+    func encodeValue<T>(_ value: T, needsLengthData: Bool) throws -> EncodableContainer where T : Encodable {
+        if T.self is EncodablePrimitive.Type, let base = value as? EncodablePrimitive {
+            return PrimitiveEncodingContainer(wrapped: base, needsLengthData: needsLengthData)
+        } else {
+            let encoder = EncodingNode(needsLengthData: needsLengthData, codingPath: codingPath, userInfo: userInfo)
+            try value.encode(to: encoder)
+            return encoder
+        }
     }
 }

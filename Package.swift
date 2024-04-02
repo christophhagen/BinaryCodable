@@ -11,7 +11,7 @@ let package = Package(
             targets: ["BinaryCodable"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.19.0"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     ],
     targets: [
         .target(
@@ -19,8 +19,7 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "BinaryCodableTests",
-            dependencies: ["BinaryCodable", .product(name: "SwiftProtobuf", package: "swift-protobuf")],
-            exclude: ["Proto/TestTypes.proto"]),
+            dependencies: ["BinaryCodable"]),
     ],
     swiftLanguageVersions: [.v5]
 )

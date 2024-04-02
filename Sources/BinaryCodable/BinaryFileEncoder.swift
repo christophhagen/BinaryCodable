@@ -56,7 +56,7 @@ public final class BinaryFileEncoder<Element> where Element: Encodable {
      Write a single element to the file.
      - Note: This function will throw an error or exception if the file handle has already been closed.
      - Parameter element: The element to encode.
-     - Throws: Errors of type ``EncodingError``
+     - Throws: Errors of type `EncodingError`
      */
     public func write(_ element: Element) throws {
         let data = try stream.encode(element)
@@ -71,9 +71,9 @@ public final class BinaryFileEncoder<Element> where Element: Encodable {
      Write a sequence of elements to the file.
 
      This is a convenience function calling `write(_ element:)` for each element of the sequence in order.
-     
+
      - Parameter sequence: The sequence to encode
-     - Throws: Errors of type ``EncodingError``
+     - Throws: Errors of type `EncodingError`
      */
     public func write<S>(contentsOf sequence: S) throws where S: Sequence, S.Element == Element {
         try sequence.forEach(write)

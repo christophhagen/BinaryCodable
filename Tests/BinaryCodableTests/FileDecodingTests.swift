@@ -55,7 +55,7 @@ final class FileDecodingTests: XCTestCase {
             decoded.append(element)
         }
         try decoder.close()
-        
+
         XCTAssertEqual(input, decoded)
     }
 

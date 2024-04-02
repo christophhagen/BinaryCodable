@@ -60,7 +60,8 @@ final class PropertyWrapperCodingTests: XCTestCase {
         line: UInt = #line
     ) throws {
         let bytePrefix: [UInt8] = [
-            0b01111010, 119, 114, 97, 112, 112, 101, 114, // String key 'wrapper', varint,
+            15, // String key, length 7
+            119, 114, 97, 112, 112, 101, 114, // "wrapper"
         ]
 
         let wrapper = KeyedWrapper<T>(wrapped)
@@ -82,11 +83,11 @@ final class PropertyWrapperCodingTests: XCTestCase {
             encoding: WrappedString(val: "Some"),
             as: WrappedString?.self,
             expectByteSuffix: [
-                11, // Length 11
-                1, // 1 as in the optional is present
-                9, // Length 9
-                0b00111010, 118, 97, 108, // String key 'val', varint
-                4, // Length 4,
+                20, // Length 10
+                0, // Non-nil
+                7, // String key, length 3
+                118, 97, 108, // "val"
+                8, // Length 4,
                 83, 111, 109, 101, // String "Some"
             ]
         )
@@ -97,8 +98,8 @@ final class PropertyWrapperCodingTests: XCTestCase {
             encoding: nil,
             as: WrappedString?.self,
             expectByteSuffix: [
-                1, // Length 1
-                0, // Optional is absent
+                2, // Length 1
+                1, // Nil indicator
             ]
         )
     }
@@ -108,8 +109,8 @@ final class PropertyWrapperCodingTests: XCTestCase {
             encoding: .some(true),
             as: Bool?.self,
             expectByteSuffix: [
-                2, // Length 2
-                1, // Optional is present
+                4, // Length 2
+                0, // Non-nil
                 1, // Boolean is true
             ]
         )
@@ -118,8 +119,8 @@ final class PropertyWrapperCodingTests: XCTestCase {
             encoding: .some(false),
             as: Bool?.self,
             expectByteSuffix: [
-                2, // Length 2
-                1, // Optional is present
+                4, // Length 2
+                0, // Non-nil
                 0, // Boolean is false
             ]
         )
@@ -128,8 +129,8 @@ final class PropertyWrapperCodingTests: XCTestCase {
             encoding: nil,
             as: Bool?.self,
             expectByteSuffix: [
-                1, // Length 1
-                0, // Optional is present
+                2, // Length 1
+                1, // Nil
             ]
         )
     }
@@ -138,25 +139,42 @@ final class PropertyWrapperCodingTests: XCTestCase {
         try assert(
             encoding: .some(.some(true)),
             as: Bool??.self,
-            expectByteSuffix: [3, 1, 1, 1]
+            expectByteSuffix: [
+                6, // Length 3
+                0, // Not nil
+                0, // Not nil
+                1 // true
+            ]
         )
 
         try assert(
             encoding: .some(.some(false)),
             as: Bool??.self,
-            expectByteSuffix: [3, 1, 1, 0]
+            expectByteSuffix: [
+                6, // Length 3
+                0, // Not nil
+                0, // Not nil
+                0 // false
+            ]
         )
 
         try assert(
             encoding: .some(nil),
             as: Bool??.self,
-            expectByteSuffix: [2, 1, 0]
+            expectByteSuffix: [
+                4, // Length 2
+                0, // Not nil
+                1 // Nil
+            ]
         )
 
         try assert(
             encoding: nil,
             as: Bool??.self,
-            expectByteSuffix: [1, 0]
+            expectByteSuffix: [
+                2, // Length 1
+                1 // Nil
+            ]
         )
     }
 }

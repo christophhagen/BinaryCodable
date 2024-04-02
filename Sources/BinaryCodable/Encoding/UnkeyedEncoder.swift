@@ -1,91 +1,61 @@
 import Foundation
 
 final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
-    
+
+    private var encodedValues: [EncodableContainer] = []
+
     var count: Int {
-        content.count + nilIndices.count
+        encodedValues.count
     }
-    
-    private var content = [EncodingContainer]()
-    
-    private var nilIndices = Set<Int>()
-    
+
+    func encodeNil() throws {
+        encodedValues.append(NilContainer())
+    }
+
     @discardableResult
-    private func assign<T>(_ encoded: () throws -> T) rethrows -> T where T: EncodingContainer {
-        let value = try encoded()
-        content.append(value)
+    private func add<T>(_ value: T) -> T where T: EncodableContainer {
+        encodedValues.append(value)
         return value
     }
-    
-    func encodeNil() throws {
-        nilIndices.insert(count)
+
+    private func addedNode() -> EncodingNode {
+        let node = EncodingNode(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)
+        return add(node)
     }
-    
-    func encode<T>(_ value: T) throws where T : Encodable {
-        if value is AnyOptional {
-            try assign {
-                try EncodingNode(path: codingPath, info: userInfo, optional: true).encoding(value)
-            }
-        } else if let primitive = value as? EncodablePrimitive {
-            try assign {
-                try wrapError(path: codingPath) {
-                    try EncodedPrimitive(primitive: primitive)
-                }
-            }
-        } else {
-            let node = try EncodingNode(path: codingPath, info: userInfo, optional: false).encoding(value)
-            assign { node }
-        }
-    }
-    
+
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        let container = assign {
-            KeyedEncoder<NestedKey>(path: codingPath, info: userInfo, optional: false)
-        }
-        return KeyedEncodingContainer(container)
+        KeyedEncodingContainer(add(KeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)))
     }
-    
+
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        assign {
-            UnkeyedEncoder(path: codingPath, info: userInfo, optional: false)
-        }
+        add(UnkeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo))
     }
-    
+
     func superEncoder() -> Encoder {
-        assign {
-            EncodingNode(path: codingPath, info: userInfo, optional: false)
-        }
+        addedNode()
     }
+
+    func encode<T>(_ value: T) throws where T : Encodable {
+        let encoded = try encodeValue(value, needsLengthData: true)
+        add(encoded)
+    }
+
 }
 
-extension UnkeyedEncoder: EncodingContainer {
+extension UnkeyedEncoder: EncodableContainer {
 
-    private var rawIndicesData: Data {
-        nilIndices.sorted().map { $0.variableLengthEncoding }.joinedData
-    }
-    
-    private var nilIndicesData: Data {
-        let count = nilIndices.count
-        return count.variableLengthEncoding + rawIndicesData
-    }
-    
-    private var contentData: Data {
-        content.map { $0.dataWithLengthInformationIfRequired }.joinedData
+    var needsNilIndicator: Bool {
+        false
     }
 
-    var data: Data {
-        if prependNilIndexSetForUnkeyedContainers {
-            return nilIndicesData + contentData
-        } else {
-            return contentData
-        }
-    }
-    
-    var dataType: DataType {
-        .variableLength
+    var isNil: Bool {
+        false
     }
 
-    var isEmpty: Bool {
-        count == 0
+    func containedData() throws -> Data {
+        try encodedValues.map {
+            let data = try $0.completeData()
+            return data
+        }.joinedData
     }
 }

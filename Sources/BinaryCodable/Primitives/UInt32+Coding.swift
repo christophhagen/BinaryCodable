@@ -1,75 +1,33 @@
 import Foundation
 
 extension UInt32: EncodablePrimitive {
-    
-    func data() -> Data {
-        variableLengthEncoding
-    }
-    
-    static var dataType: DataType {
-        .variableLengthInteger
-    }
+
+    /// The value encoded using variable-length encoding
+    var encodedData: Data { variableLengthEncoding }
 }
 
 extension UInt32: DecodablePrimitive {
 
-    init(decodeFrom data: Data, path: [CodingKey]) throws {
-        try self.init(fromVarint: data, path: path)
+    init(data: Data, codingPath: [CodingKey]) throws {
+        try self.init(fromVarint: data, codingPath: codingPath)
     }
 }
 
-extension UInt32: VariableLengthCodable {
-    
+extension UInt32: VariableLengthEncodable {
+
+    /// The value encoded using variable-length encoding
     var variableLengthEncoding: Data {
         UInt64(self).variableLengthEncoding
     }
-    
-    init(fromVarint data: Data, path: [CodingKey]) throws {
-        let intValue = try UInt64(fromVarint: data, path: path)
-        guard let value = UInt32(exactly: intValue) else {
-            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
-        }
-        self = value
-    }
+
 }
 
-extension UInt32: FixedSizeCompatible {
+extension UInt32: VariableLengthDecodable {
 
-    static public var fixedSizeDataType: DataType {
-        .fourBytes
-    }
-
-    public var fixedProtoType: String {
-        "fixed32"
-    }
-
-    public init(fromFixedSize data: Data, path: [CodingKey]) throws {
-        guard data.count == MemoryLayout<UInt32>.size else {
-            throw DecodingError.invalidDataSize(path)
-        }
-        self.init(littleEndian: read(data: data, into: UInt32.zero))
-    }
-
-    public var fixedSizeEncoded: Data {
-        toData(littleEndian)
-    }
-}
-
-extension UInt32: ProtobufEncodable {
-
-    func protobufData() -> Data {
-        UInt64(self).protobufData()
-    }
-
-    var protoType: String { "uint32" }
-}
-
-extension UInt32: ProtobufDecodable {
-
-    init(fromProtobuf data: Data, path: [CodingKey]) throws {
-        let intValue = try UInt64.init(fromProtobuf: data, path: path)
-        guard let value = UInt32(exactly: intValue) else {
-            throw DecodingError.variableLengthEncodedIntegerOutOfRange(path)
+    init(fromVarint data: Data, codingPath: [any CodingKey]) throws {
+        let raw = try UInt64(fromVarint: data, codingPath: codingPath)
+        guard let value = UInt32(exactly: raw) else {
+            throw DecodingError.corrupted("Decoded value \(raw) is out of range for type UInt32", codingPath: codingPath)
         }
         self = value
     }

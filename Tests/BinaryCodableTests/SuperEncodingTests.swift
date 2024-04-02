@@ -88,30 +88,34 @@ final class SuperEncodingTests: XCTestCase {
     func testSuperEncodingWithDefaultKey() throws {
         let value = Child1(other: true, value: 123)
         let part1: [UInt8] = [
-            32, // Int key, varint, Key "2"
+            4, // Int key 2
+            2, // Length 1
             1, // Bool true
         ]
         let part2: [UInt8] = [
-            2, // VarLen key, varint, Key "0"
-            3, // Length(3)
-            16, // Int key, varint, Key "1"
+            0, // Int key 0
+            8, // Length 4
+            2, // Int key 1
+            4, // Length 2
             246, 1, // ZigZag(123)
         ]
-        try compare(value, possibleResults: [part1 + part2, part2 + part1])
+        try compare(value, toOneOf: [part1 + part2, part2 + part1])
     }
 
     func testSuperEncodingWithCustomKey() throws {
         let value = Child2(other: true, value: 123)
         let part1: [UInt8] = [
-            32, // Int key, varint, Key "2"
+            4, // Int key 2
+            2, // Length 1
             1, // Bool true
         ]
         let part2: [UInt8] = [
-            50, // VarLen key, varint, Key "3"
-            3, // Length(3)
-            16, // Int key, varint, Key "1"
+            6, // Int key 3
+            8, // Length 4
+            2, // Int key 1
+            4, // Length 2
             246, 1, // ZigZag(123)
         ]
-        try compare(value, possibleResults: [part1 + part2, part2 + part1])
+        try compare(value, toOneOf: [part1 + part2, part2 + part1])
     }
 }

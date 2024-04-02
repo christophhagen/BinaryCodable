@@ -1,8 +1,13 @@
 import Foundation
 
-protocol VariableLengthCodable {
-    
+typealias VariableLengthCodable = VariableLengthEncodable & VariableLengthDecodable
+
+protocol VariableLengthEncodable: FixedWidthInteger {
+
     var variableLengthEncoding: Data { get }
-    
-    init(fromVarint data: Data, path: [CodingKey]) throws
+}
+
+protocol VariableLengthDecodable: FixedWidthInteger {
+
+    init(fromVarint data: Data, codingPath: [CodingKey]) throws
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 /**
- An encoder to convert binary data back to `Codable` objects.
+ A decoder to convert data encoded with `BinaryEncoder` back to a `Codable` types.
 
  To decode from data, instantiate a decoder and specify the type:
  ```
@@ -18,44 +18,20 @@ import Foundation
  ```
  let message = try BinaryDecoder.decode(Message.self, from: data)
  ```
- - Note: A single decoder can be used to decode multiple messages.
+ - Note: A single decoder can be used to decode multiple objects.
  */
-public final class BinaryDecoder {
+public struct BinaryDecoder {
 
     /**
      Any contextual information set by the user for decoding.
 
      This dictionary is passed to all containers during the decoding process.
      */
-    public var userInfo = [CodingUserInfoKey : Any]()
+    public var userInfo: [CodingUserInfoKey : Any] = [:]
 
     /**
-     Assumes that unkeyed containers are encoded using a set of indices for `nil` values.
-
-     Refer to the ``prependNilIndexSetForUnkeyedContainers`` property of ``BinaryEncoder``
-     for more information about the binary data format in both cases.
-
-     - Note: This option defaults to `false`
-     - Note: To decode successfully, the encoder must use the same setting for `prependNilIndexSetForUnkeyedContainers`.
-     */
-    public var containsNilIndexSetForUnkeyedContainers: Bool = false
-
-    /**
-     The info for decoding.
-
-     Combines the info data provided by the user with the internal keys of the decoding options.
-     */
-    private var fullInfo: [CodingUserInfoKey : Any] {
-        var info = userInfo
-        if containsNilIndexSetForUnkeyedContainers {
-            info[CodingOption.prependNilIndicesForUnkeyedContainers.infoKey] = true
-        }
-        return info
-    }
-
-    /**
-     Create a new binary encoder.
-     - Note: A single decoder can be used to decode multiple messages.
+     Create a new decoder.
+     - Note: A single decoder can be reused to decode multiple objects.
      */
     public init() {
 
@@ -69,21 +45,12 @@ public final class BinaryDecoder {
      - Throws: Errors of type `DecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        let root = DecodingNode(data: data, path: [], info: fullInfo)
-        return try type.init(from: root)
-    }
-
-    /**
-     Decode a type from a data stream.
-
-     This function is the pendant to `encodeForStream()` on ``BinaryEncoder``, and decodes a type from a data stream.
-     The additional length information added to the stream is used to correctly decode each element.
-     - Note: This function is not exposed publicly to keep the API easy to understand.
-     Advanced features like stream decoding are handled by ``BinaryStreamDecoder``.
-     */
-    func decode<T>(_ type: T.Type = T.self, fromStream provider: BinaryStreamProvider) throws -> T where T: Decodable {
-        let root = DecodingNode(decoder: provider, path: [], info: fullInfo)
-        return try type.init(from: root)
+        // Directly decode primitives, otherwise it would be decoded with a nil indicator
+        if let BaseType = T.self as? DecodablePrimitive.Type {
+            return try BaseType.init(data: data, codingPath: []) as! T
+        }
+        let node = try DecodingNode(data: data, parentDecodedNil: false, codingPath: [], userInfo: userInfo)
+        return try T.init(from: node)
     }
 
     /**

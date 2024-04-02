@@ -12,7 +12,7 @@
     </a>
 </p>
 
-This package provides convenient encoding and decoding to/from binary data for all Swift `Codable` types. It also provides limited cross-compatibility to [Google Protocol Buffers](https://developers.google.com/protocol-buffers).
+This package provides convenient encoding and decoding to/from binary data for all Swift `Codable` types. 
 
 ## Use cases
 
@@ -21,8 +21,6 @@ There are only few encoders and decoders available for Swift's Codable format, a
 One very popular alternative for binary data are Google's [Protocol Buffers](https://developers.google.com/protocol-buffers), which offer broad support across different platforms and programming languages. But they don't support Swift's `Codable` protocol, and thus require manual message definitions, the Protobuf compiler, and a lot of copying between data structures during encoding and decoding.
 
 So if you're looking for a decently efficient binary encoder in a pure Swift project, then `BinaryCodable` may be right for you. Simply make your `struct`s (or classes!) conform to `Codable`, and `BinaryCodable` does the rest!
-
-The [message format](#binary-format) is similar to that of `Protocol Buffers` (with some additions to support more types). It is possible to create [limited compatibility](#protocol-buffer-compatibility) between the two formats to exchange data with systems that don't support Swift.
 
 ### Alternatives
 
@@ -45,10 +43,7 @@ Encoding according to the [BSON specification](https://bsonspec.org). Less effic
 Simply include in your `Package.swift`:
 ```swift
 dependencies: [
-    .package(
-        name: "BinaryCodable", 
-        url: "https://github.com/christophhagen/BinaryCodable", 
-        from: "1.0.0")
+    .package(url: "https://github.com/christophhagen/BinaryCodable", from: "3.0.0")
 ],
 targets: [
     .target(name: "MyTarget", dependencies: [
@@ -110,20 +105,34 @@ Alternatively, the type can be inferred:
 let message: Message = try decoder.decode(from: data)
 ```
 
-### Limitations
+### Custom encoding and decoding
 
-`BinaryCodable` supports most features of the `Codable` protocol.
-One known issue is the missing compatibility with `SIMD` types (`import simd`), wich require the `count` property of unkeyed containers.
-This optional property *can* return the number of values in the container.
-Due to the binary format of `BinaryCodable`, this information is not available for unkeyed containers.
-Only once specific types are decoded (e.g. using `decode(Bool.self)`) does the container know how to treat the data.
-So a container with 8 bytes of data could contain 8 `Bool` values, or a single `Double`.
+`BinaryCodable` supports the use of custom encoding and decoding routines by implementing `encode(to:)` and `init(from:)`.
+
+There is only one aspect that's handled differently than the `Codable` documentation specifies, which is the explicit encoding of `nil` in keyed containers.
+Calling `encodeNil(forKey:)` on a keyed container has no effect, there is no explicit `nil` value encoded for the key.
+This results in the `contains()` function during decoding returning `false` for the key.
+This is different to e.g. JSON, where calling `encodeNil(forKey:)` would cause the following encoding:
+
+```json
+{ 
+    "myProperty" : nil
+}
+```
+
+The implementation of `encodeNil(forKey:)` and `decodeNil(forKey:)` handles this case differently, because the alternatives are not optimal:
+It would be possible to explicitly encode `nil` for a key, but this would cause problems with double optionals in structs (e.g. Int??), which could no longer distinguish between `.some(nil)` and `nil`.
+To fix this issue, an additional `nil` indicator would be needed for **all** values in keyed containers, which would decrease the efficiency of the binary format. 
+That doesn't seem reasonable just to support a rarely used feature, since `encodeNil(forKey:)` is never called for automatically synthesized Codable conformances.
+
+The recommendation therefore is to use `encodeIfPresent(_, forKey:)` and `decodeIfPresent(_, forKey:)`.
+Another option would be to use a double optional, since this is basically the information `encodeNil` provides: `nil`, if the key is not present, `.some(nil)`, if the key is present with `nil`, and `value`, if the key is present with a value.
 
 ### Errors
 
-It is possible for both encoding and decoding to fail. 
-All possible errors occuring during encoding produce `EncodingError` errors, while unsuccessful decoding produces `DecodingError`s. 
-Both are the default Errors provided by Swift, supplied with information describing the nature of the error. 
+It's possible for both encoding and decoding to fail. 
+Encoding can produce `EncodingError` errors, while unsuccessful decoding produces `DecodingError`s. 
+Both are the default Errors provided by Swift, supplied with additional information describing the nature of the error. 
 See the documentation of the types to learn more about the different error conditions.
 
 #### Handling corrupted data
@@ -132,19 +141,22 @@ The [binary format](BinaryFormat.md) provides no provisions to detect data corru
 Additional external measures (checksums, error-correcting codes, ...) should be applied if there is an increased risk of data corruption.
 
 As an example, consider the simple encoding of a `String` inside a `struct`, which consists of a `key` followed by the length of the string in bytes, and the string content.
-The length of the string is encoded using variable-length encoding, so a single bit flip (in the MSB of the length byte) could result in a very large `length` being decoded, causing the decoder to wait for a very large number of bytes to decode the string. 
+The length of the string is encoded using variable-length encoding, so a single bit flip (in the MSB of the length byte) could result in a very large `length` being decoded, causing the decoder to wait for a very large number of bytes to decode the string.
 This simple error would cause much data to be skipped, potentially corrupting the data stream indefinitely.
 At the same time, it is not possible to determine *with certainty* where the error occured, making error recovery difficult without additional information about boundaries between elements.
 
-The decoding errors provided by the library are therefore only hints about error likely occuring from non-conformance to the binary format or version incompatibility, which are not necessarily the *true* causes of the failures when data corruption is present.
+The decoding errors provided by the library are therefore only hints about errors likely occuring from non-conformance to the binary format or version incompatibility, which are not necessarily the *true* causes of the failures when data corruption is present.
 
 ### Coding Keys
 
-The `Codable` protocol uses [`CodingKey`](https://developer.apple.com/documentation/swift/codingkey) definitions to identify properties of instances. By default, coding keys are generated using the string values of the property names.
+The `Codable` protocol uses [`CodingKey`](https://developer.apple.com/documentation/swift/codingkey) definitions to identify properties of instances. 
+By default, coding keys are generated using the string values of the property names.
 
 Similar to JSON encoding, `BinaryCodable` can embed the property names in the encoded data.
 
-Unlike JSON (which is human-readable), the binary representation produced by `BinaryCodable` is intended for cases when efficient encoding is important. `Codable` allows the use of integer keys for each property, which significantly increases encoding efficiency. You can specify integer keys by adding an `Int` enum conforming to the `CodingKey` protocol to the `Codable` type:
+Unlike JSON (which is human-readable), the binary representation produced by `BinaryCodable` is intended for cases when efficient encoding is important. 
+`Codable` allows the use of integer keys for each property, which significantly increases encoding efficiency. 
+You can specify integer keys by adding an `Int` enum conforming to the `CodingKey` protocol to the `Codable` type:
 
 ```swift
 struct Message: Codable {
@@ -165,19 +177,24 @@ struct Message: Codable {
 ```
 The enum must have a raw value of either `Int` or `String`, and the cases must match the property names within the type (it is possible to omit keys for properties which should not be encoded).
 
-Using integer keys can significantly decrease the binary size, especially for long property names. Additionally, integer keys can be useful when intending to store the binary data persistently. Changes to property names can be performed in the code without breaking the decoding of older data (although this can also be achieved with custom `String` keys).
+Using integer keys can significantly decrease the binary size, especially for long property names. 
+Additionally, integer keys can be useful when intending to store the binary data persistently. 
+Changes to property names can be performed in the code without breaking the decoding of older data (although this can also be achieved with custom `String` keys).
 
 Notes: 
 - Small, positive integer keys produce the smallest binary sizes.
 - The `0` integer key shouldn't be used, since it is also used internally when encoding `super`.
-- Negative values for integer keys are **not** recommended (but possible). Since the keys are encoded as `Varint`, they are very inefficient for negative numbers.
-- The allowed range for integer keys is from `-576460752303423488` (`-2^59`, inclusive) to `576460752303423487` (`2^59-1`, inclusive). Values outside of these bounds will cause a `fatalError` crash.
+- Negative values for integer keys are **not** rsupported.
+- The allowed range for integer keys is from `0` (inclusive) to `Int64.max` (inclusive).
 
 ### Property wrappers
 
 #### Fixed size integers
 
-While varints are efficient for small numbers, their encoding introduces a storage and computation penalty when the integers are often large, e.g. for random numbers. `BinaryCodable` provides the `FixedSize` wrapper, which forces integers to be encoded using their little-endian binary representations. This means that e.g. an `Int32` is always encoded as 4 byte (instead of 1-5 bytes using Varint encoding). This makes 32-bit `FixedSize` types more efficient than `Varint` if values are often larger than `2^28` (`2^56` for 64-bit types).
+While varints are efficient for small numbers, their encoding introduces a storage and computation penalty when the integers are often large, e.g. for random numbers. 
+`BinaryCodable` provides the `FixedSize` wrapper, which forces integers to be encoded using their little-endian binary representations. 
+This means that e.g. an `Int32` is always encoded as 4 byte (instead of 1-5 bytes using Varint encoding). 
+This makes 32-bit `FixedSize` types more efficient than `Varint` if values are often larger than `2^28` (`2^56` for 64-bit types).
 
  Use the property wrapper within a `Codable` definition to enforce fixed-width encoding for a property:
  ```swift
@@ -190,31 +207,20 @@ While varints are efficient for small numbers, their encoding introduces a stora
  ```
  
  The `FixedSize` wrapper is available to all `Varint` types: `Int`, `UInt`, `Int32`, `UInt32`, `Int64`, and `UInt64`.
- 
- #### Other property wrappers
- 
- There is an additional `SignedValue` wrapper, which is only useful when encoding in [protobuf-compatible format](ProtobufSupport.md#signed-integers).
 
 ### Options
 
 #### Sorting keys
 
-The `BinaryEncoder` provides the `sortKeysDuringEncoding` option, which forces fields in "keyed" containers, such as `struct` properties (and some dictionaries), to be sorted in the binary data. This sorting is done by using either the [integer keys](#coding-keys) (if defined), or the property names. Dictionaries with `Int` or `String` keys are also sorted. 
+The `BinaryEncoder` provides the `sortKeysDuringEncoding` option, which forces fields in "keyed" containers, such as `struct` properties (and some dictionaries), to be sorted in the binary data. 
+This sorting is done by using either the [integer keys](#coding-keys) (if defined), or the property names. 
+Dictionaries with `Int` or `String` keys are also sorted. 
 
-Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. It should therefore only be used if the binary data must be consistent across multiple invocations.
+Sorting the binary data does not influence decoding, but introduces a computation penalty during encoding. 
+It should therefore only be used if the binary data must be consistent across multiple invocations.
 
-**Note:** The `sortKeysDuringEncoding` option does not *neccessarily* guarantee deterministic binary data, and should be used with care.
-
-#### Encoding optionals in arrays
-
-Sequences of `Optional` values (like arrays, sets, ...) are normally encoded one additional byte to indicate following value (`0x01`) or a `nil` value (`0x00`).
-This works well for all compiler-generated conformances to `Codable`.
-For custom implementations of `func encode(to: Encoder)` and `init(from: Decoder)`, the `encodeNil()` is *not* supported on `UnkeyedEncodingContainer`s.
-If you must use this option, then it's necessary to enable the `prependNilIndexSetForUnkeyedContainers` option on both `BinaryEncoder` and `BinaryDecoder`.
-Optional values are then encoded using a *nil index set*. 
-The index of each `nil` element in the sequence is recorded, and only non-nil values are encoded. 
-The indices of `nil` elements are then prepended to the data as an array of integers.
-During decoding, this index set is checked to place `nil` values between the non-nil elements at the appropriate indices.
+**Note:** The `sortKeysDuringEncoding` option does **not** guarantee deterministic binary data, and should be used with care.
+Elements of any non-ordered types (Sets, Dictionaries) will appear in random order in the binary data.
 
 ### Stream encoding and decoding
 
@@ -271,17 +277,57 @@ try decoder.read { element in
 
 There is also the possibility to read all elements at once using `readAll()`, or to read only one element at a time (`readElement()`).
 
-### Protocol Buffer compatibility
-
-Achieving Protocol Buffer compatibility is described in [ProtobufSupport.md](ProtobufSupport.md).
-
 ## Binary format
 
 To learn more about the encoding format, see [BinaryFormat.md](BinaryFormat.md).
 
+## Legacy versions and migration
+
+Version 3 of `BinaryCodable` has significantly changed the binary format, which means that the two versions are **not** cross-compatible.
+The [format](BinaryFormat.md) was changed to provide support for all `Codable` features, which was not possible with the previous format, that was adapted from [Protocol Buffers](https://developers.google.com/protocol-buffers).
+The redesign of the library also reduced code complexity and size, which lead to some speed improvements and greater reliability.
+
+The support for interoperability with [Protocol Buffers](https://developers.google.com/protocol-buffers) was also dropped, since the binary formats are no longer similar.
+The functionality was extracted to a separate library called [ProtobufCodable](https://github.com/christophhagen/ProtobufCodable).
+
+### Migrating from 2.x to 3.0
+
+To convert data from the [legacy format](LegacyFormat) to the new version, the data has to be decoded with version 2 and re-encoded with version 3.
+The Swift Package Manager currently doesn't allow to include the same dependency twice (with different versions), so the legacy version has been stripped down to the essentials and is provided as the stand-alone package [LegacyBinaryCodable](https://christophhagen.de/LegacyBinaryCodable).
+It only allows decoding, and can be integrated as a separate dependency:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/christophhagen/BinaryCodable", from: "3.0.0"),
+        .package(url: "https://github.com/christophhagen/LegacyBinaryCodable", from: "2.0.0"),
+    
+],
+targets: [
+    .target(name: "MyTarget", dependencies: [
+        .product(name: "BinaryCodable", package: "BinaryCodable"),
+        .product(name: "LegacyBinaryCodable", package: "LegacyBinaryCodable")
+    ])
+]
+```
+
+In the code, you can then decode and re-encode:
+
+```swift
+import BinaryCodable
+import LegacyBinaryCodable
+
+func reencode<T>(data: Data, as type: T.Type) throws -> Data where T: Codable {
+    let decoder = LegacyBinaryDecoder()
+    let value = try decoder.decode(T.self, from data: Data)
+    let encoder = BinaryEncoder()
+    return try encoder.encode(value)
+}
+```
+
 ## Tests
 
-The library comes with an extensive test suite, which checks that encoding works correctly for many cases. These tests can be executed using ```swift test``` from the package root, or when opening the package using Xcode.
+The library comes with an extensive test suite, which checks that encoding works correctly for many cases. 
+These tests can be executed using ```swift test``` from the package root, or when opening the package using Xcode.
 
 ## License
 
@@ -289,11 +335,14 @@ MIT. See [License.md](License.md)
 
 ## Roadmap
 
-### Generate protobuf definitions
+### Additional tests
 
-It should be possible to generate a string containing a working Protobuf definition for any type that is determined to be Protobuf compatible.
+While the test suite covers many cases, there is no complete code coverage.
+Especially the bahaviour in error conditions can use additional testing to ensure that there are no edge cases where the program crashes, or does some other weird thing.
 
 ### Speed
+
+One option could be to use a common data storage during encoding and decoding, so that the individual containers can be converted to `struct`s to make them more lightweight. It may also be possible to prevent some unnecessary data copying.
 
 Increasing the speed of the encoding and decoding process is not a huge priority at the moment. 
 If you have any pointers on how to improve the performance further, feel free to contribute.
