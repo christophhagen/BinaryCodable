@@ -10,7 +10,7 @@ final class ValueDecoder: AbstractDecodingNode, SingleValueDecodingContainer {
     }
 
     func decodeNil() -> Bool {
-        return data == nil
+        data == nil
     }
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {

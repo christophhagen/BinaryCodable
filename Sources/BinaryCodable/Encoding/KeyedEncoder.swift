@@ -25,20 +25,20 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         // By wrapping the nested container in a node, it adds length information to it
-        return KeyedEncodingContainer(assignedNode(forKey: key).container(keyedBy: keyType))
+        KeyedEncodingContainer(assignedNode(forKey: key).container(keyedBy: keyType))
     }
 
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         // By wrapping the nested container in a node, it adds length information to it
-        return assignedNode(forKey: key).unkeyedContainer()
+        assignedNode(forKey: key).unkeyedContainer()
     }
 
     func superEncoder() -> Encoder {
-        return assignedNode(forKey: SuperCodingKey())
+        assignedNode(forKey: SuperCodingKey())
     }
 
     func superEncoder(forKey key: Key) -> Encoder {
-        return assignedNode(forKey: key)
+        assignedNode(forKey: key)
     }
 
     func encodeNil(forKey key: Key) throws {

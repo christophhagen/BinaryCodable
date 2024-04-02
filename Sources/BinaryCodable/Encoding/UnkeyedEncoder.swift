@@ -24,15 +24,15 @@ final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        return KeyedEncodingContainer(add(KeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)))
+        KeyedEncodingContainer(add(KeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)))
     }
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        return add(UnkeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo))
+        add(UnkeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo))
     }
 
     func superEncoder() -> Encoder {
-        return addedNode()
+        addedNode()
     }
 
     func encode<T>(_ value: T) throws where T : Encodable {

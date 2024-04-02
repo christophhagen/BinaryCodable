@@ -36,15 +36,15 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        return KeyedDecodingContainer(try nextNode().container(keyedBy: type))
+        KeyedDecodingContainer(try nextNode().container(keyedBy: type))
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        return try nextNode().unkeyedContainer()
+        try nextNode().unkeyedContainer()
     }
 
     func superDecoder() throws -> Decoder {
-        return try nextNode()
+        try nextNode()
     }
 
     func decodeNil() throws -> Bool {

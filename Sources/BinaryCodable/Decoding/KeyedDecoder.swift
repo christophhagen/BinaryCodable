@@ -43,19 +43,19 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        return KeyedDecodingContainer(try node(for: key).container(keyedBy: type))
+        KeyedDecodingContainer(try node(for: key).container(keyedBy: type))
     }
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
-        return try node(for: key).unkeyedContainer()
+        try node(for: key).unkeyedContainer()
     }
 
     func superDecoder() throws -> Decoder {
-        return try node(for: SuperCodingKey())
+        try node(for: SuperCodingKey())
     }
 
     func superDecoder(forKey key: Key) throws -> Decoder {
-        return try node(for: key)
+        try node(for: key)
     }
 
     func contains(_ key: Key) -> Bool {
