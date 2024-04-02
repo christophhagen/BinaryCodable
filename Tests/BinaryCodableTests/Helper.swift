@@ -46,7 +46,7 @@ extension XCTestCase {
         }
         let decoder = BinaryDecoder()
         let decoded = try decoder.decode(T.self, from: data)
-        XCTAssertEqual(value, decoded)
+        XCTAssertEqual(decoded, value)
     }
 
     func compare<T>(_ value: T, of type: T.Type = T.self, to expected: [UInt8]? = nil, sortingKeys: Bool = false) throws where T: Codable, T: Equatable {
