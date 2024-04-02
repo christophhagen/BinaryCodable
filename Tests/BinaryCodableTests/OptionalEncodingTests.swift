@@ -68,6 +68,20 @@ final class OptionalEncodingTests: XCTestCase {
         ]
         try compare(Test(value: 123, opt: 12), toOneOf: [part1 + part2, part2 + part1])
     }
+    
+    func testDoubleOptional() throws {
+        struct Test: Codable, Equatable {
+            let opt: Int16??
+
+            enum CodingKeys: Int, CodingKey {
+                case opt = 4
+            }
+        }
+        try compare(Test(opt: .some(nil)), to: [
+            8, // Int key 4
+            1, // nil
+        ])
+    }
 
     func testDoubleOptionalInStruct() throws {
         struct Test: Codable, Equatable {
@@ -108,6 +122,35 @@ final class OptionalEncodingTests: XCTestCase {
             12, 0 // value: 12
         ]
         try compare(Test(value: 123, opt: 12), toOneOf: [part3 + part4, part4 + part3])
+    }
+    
+    func testTripleOptionalInStruct() throws {
+        struct Test: Codable, Equatable {
+            let opt: Int???
+
+            enum CodingKeys: Int, CodingKey {
+                case opt = 4
+            }
+        }
+        try compare(Test(opt: nil), to: [])
+        
+        try compare(Test(opt: .some(nil)), to: [
+            8, // Int key 4
+            1, // nil
+        ])
+        
+        try compare(Test(opt: .some(.some(nil))), to: [
+            8, // Int key 4
+            2, // Not nil, length 2
+            1, // nil
+        ])
+        
+        try compare(Test(opt: .some(.some(.some(5)))), to: [
+            8, // Int key 4
+            4, // Not nil, length 2
+            0, // Not nil
+            10, // Int 10
+        ])
     }
 
     func testClassWithOptionalProperty() throws {

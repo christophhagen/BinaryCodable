@@ -196,7 +196,8 @@ final class KeyedEncodingTests: XCTestCase {
         GenericTestStruct.decode { decoder in
             let container = try decoder.container(keyedBy: Keys.self)
             XCTAssertFalse(container.contains(.value))
-            XCTAssertTrue(container.contains(.opt))
+            // Nil is not encoded
+            XCTAssertFalse(container.contains(.opt))
 
             let s = try container.decodeIfPresent(String.self, forKey: .value)
             XCTAssertEqual(s, nil)
@@ -207,13 +208,11 @@ final class KeyedEncodingTests: XCTestCase {
             XCTAssertNil(opt)
             do {
                 _ = try container.decode(Bool.self, forKey: .opt)
+                XCTFail()
             } catch {
 
             }
         }
-        try compare(GenericTestStruct(), to: [
-            4, // Int key 2
-            1 // Nil
-        ])
+        try compare(GenericTestStruct(), to: [])
     }
 }

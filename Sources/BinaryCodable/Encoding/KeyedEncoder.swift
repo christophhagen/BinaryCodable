@@ -42,7 +42,14 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     }
 
     func encodeNil(forKey key: Key) throws {
-        assign(NilContainer(), forKey: key)
+        // If a value is nil, then it is not encoded
+        // This is not consistent with the documentation of `decodeNil(forKey:)`,
+        // which states that when decodeNil() should fail if the key is not present.
+        // We could fix this by explicitly assigning a `nil` value:
+        // `assign(NilContainer(), forKey: key)`
+        // But this would cause other problems, either breaking the decoding of double optionals (e.g. Int??),
+        // Or by requiring an additional `nil` indicator for ALL values in keyed containers,
+        // which would make the format a lot less efficient
     }
 
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {

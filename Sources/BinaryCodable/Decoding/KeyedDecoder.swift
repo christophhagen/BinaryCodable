@@ -68,12 +68,25 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     /**
      Decodes a null value for the given key.
      - Parameter key: The key that the decoded value is associated with.
-     - Returns: Whether the encountered value was null.
-     - Throws: `DecodingError.keyNotFound` if self does not have an entry for the given key.
+     - Returns: Whether the encountered key is contained
      */
-    func decodeNil(forKey key: Key) throws -> Bool {
-        let element = try value(for: key)
-        return element == nil
+    func decodeNil(forKey key: Key) -> Bool {
+        /**
+          **Important note**: The implementation of `encodeNil(forKey:)` and `decodeNil(forKey:)` are implemented differently than the `Codable` documentation specifies:
+         - Throws: `DecodingError.keyNotFound` if `self` does not have an entry for the given key.
+         
+          If a value is `nil`, then it is not encoded.
+          We could change this by explicitly assigning a `nil` value during encoding.
+          But it would cause other problems, either breaking the decoding of double optionals (e.g. Int??),
+          or requiring an additional `nil` indicator for **all** values in keyed containers,
+          which would make the format less efficient.
+         
+         The alternative would be:
+         ```
+         try value(for: key) == nil
+         ```
+         */
+        !contains(key)
     }
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {

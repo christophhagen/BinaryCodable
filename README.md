@@ -105,6 +105,29 @@ Alternatively, the type can be inferred:
 let message: Message = try decoder.decode(from: data)
 ```
 
+### Custom encoding and decoding
+
+`BinaryCodable` supports the use of custom encoding and decoding routines by implementing `encode(to:)` and `init(from:)`.
+
+There is only one aspect that's handled differently than the `Codable` documentation specifies, which is the explicit encoding of `nil` in keyed containers.
+Calling `encodeNil(forKey:)` on a keyed container has no effect, there is no explicit `nil` value encoded for the key.
+This results in the `contains()` function during decoding returning `false` for the key.
+This is different to e.g. JSON, where calling `encodeNil(forKey:)` would cause the following encoding:
+
+```json
+{ 
+    "myProperty" : nil
+}
+```
+
+The implementation of `encodeNil(forKey:)` and `decodeNil(forKey:)` handles this case differently, because the alternatives are not optimal:
+It would be possible to explicitly encode `nil` for a key, but this would cause problems with double optionals in structs (e.g. Int??), which could no longer distinguish between `.some(nil)` and `nil`.
+To fix this issue, an additional `nil` indicator would be needed for **all** values in keyed containers, which would decrease the efficiency of the binary format. 
+That doesn't seem reasonable just to support a rarely used feature, since `encodeNil(forKey:)` is never called for automatically synthesized Codable conformances.
+
+The recommendation therefore is to use `encodeIfPresent(_, forKey:)` and `decodeIfPresent(_, forKey:)`.
+Another option would be to use a double optional, since this is basically the information `encodeNil` provides: `nil`, if the key is not present, `.some(nil)`, if the key is present with `nil`, and `value`, if the key is present with a value.
+
 ### Errors
 
 It's possible for both encoding and decoding to fail. 
