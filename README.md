@@ -192,21 +192,55 @@ Notes:
 #### Fixed size integers
 
 While varints are efficient for small numbers, their encoding introduces a storage and computation penalty when the integers are often large, e.g. for random numbers. 
-`BinaryCodable` provides the `FixedSize` wrapper, which forces integers to be encoded using their little-endian binary representations. 
+`BinaryCodable` provides the `@FixedSizeEncoded` property wrapper, which forces integers to be encoded using their little-endian binary representations. 
 This means that e.g. an `Int32` is always encoded as 4 byte (instead of 1-5 bytes using Varint encoding). 
-This makes 32-bit `FixedSize` types more efficient than `Varint` if values are often larger than `2^28` (`2^56` for 64-bit types).
+This makes 32-bit `FixedSizeEncoded` types more efficient than `Varint` if values are often larger than `2^28` (`2^56` for 64-bit types).
 
- Use the property wrapper within a `Codable` definition to enforce fixed-width encoding for a property:
- ```swift
- struct MyStruct: Codable {
+Use the property wrapper within a `Codable` definition to enforce fixed-width encoding for a property:
+```swift
+struct MyStruct: Codable {
 
-     /// Always encoded as 4 bytes
-     @FixedSize 
-     var largeInteger: Int32
- }
- ```
+    /// Always encoded as 4 bytes
+    @FixedSizeEncoded
+    var largeInteger: Int32
+}
+```
  
- The `FixedSize` wrapper is available to all `Varint` types: `Int`, `UInt`, `Int32`, `UInt32`, `Int64`, and `UInt64`.
+The `FixedSize` wrapper is available for `Int`, `Int32`, `Int64`, `UInt`, `UInt32`, and `UInt64`.
+It has no effect for `Int16` and `UInt16`, which are already encoded with a fixed size by default.
+ 
+#### Variable length integers
+ 
+Some integers can be forced to use variable-length encoding instead of fixed-size or zig-zag encoding using the `@VariableLengthEncoded` property wrapper.
+
+For `Int16` and `UInt16` (normally fixed-size encoded), this encoding can be more efficient if values are often smaller than `128` for `UInt16` and `63` for `Int16`.
+For `Int`, `Int32` and `Int64` (normally zig-zag encoded), the encoding is (marginally) more efficient if values are mostly positive.
+For `UInt`, `UInt32`, and `UInt64` the wrapper has no effect.
+
+```swift
+struct MyStruct: Codable {
+
+    /// Efficient for small, positive numbers
+    @VariableLengthEncoded 
+    var value: Int16
+}
+```
+
+#### Zig-Zag encoded integers
+
+The signed integers `Int`, `Int32` and `Int64` are encoded using zig-zag encoding, which is more efficent than variable-length encoding if numbers are negative.
+The `@ZigZagEncoded` wrapper can force `Int16` types to use zig-zag encoding instead of fixed-size encoding, which is more efficient for small (positive and negative) numbers.
+The encoding is more efficient if values are between `-64` and `63`.
+For `Int`, `Int32` and `Int64` the wrapper has no effect.
+
+```swift
+struct MyStruct: Codable {
+
+    /// More efficient between `-64` and `63`.
+    @ZigZagEncoded 
+    var value: Int16
+}
+```
 
 ### Options
 

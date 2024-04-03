@@ -8,18 +8,18 @@ import Foundation
  struct MyStruct: Codable {
 
      /// Always encoded as 4 bytes
-     @FixedSize
+     @FixedSizeEncoded
      var largeInteger: Int32
  }
  ```
 
-The `FixedSize` property wrapper is supported for `UInt`, `UInt32`, `UInt64`, `Int`, `Int32`, and `Int64` types.
+The `FixedSizeEncoded` property wrapper is supported for `UInt`, `UInt32`, `UInt64`, `Int`, `Int32`, and `Int64` types.
 
  - Warning: Do not conform other types to `FixedSizeCodable`. This will lead to crashes during encoding and decoding.
- - SeeAlso: [Laguage Guide (proto3): Scalar value types](https://developers.google.com/protocol-buffers/docs/proto3#scalar)
+ - SeeAlso: [Language Guide (proto3): Scalar value types](https://developers.google.com/protocol-buffers/docs/proto3#scalar)
  */
 @propertyWrapper
-public struct FixedSize<WrappedValue> where WrappedValue: FixedSizeCodable, WrappedValue: FixedWidthInteger {
+public struct FixedSizeEncoded<WrappedValue> where WrappedValue: FixedSizeCodable, WrappedValue: FixedWidthInteger {
 
     /// The value wrapped in the fixed-size container
     public var wrappedValue: WrappedValue
@@ -33,7 +33,7 @@ public struct FixedSize<WrappedValue> where WrappedValue: FixedSizeCodable, Wrap
     }
 }
 
-extension FixedSize: Numeric {
+extension FixedSizeEncoded: Numeric {
     public init?<T>(exactly source: T) where T : BinaryInteger {
         guard let wrapped = WrappedValue(exactly: source) else {
             return nil
@@ -45,16 +45,16 @@ extension FixedSize: Numeric {
         wrappedValue.magnitude
     }
     
-    public static func * (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> FixedSize<WrappedValue> {
+    public static func * (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue * rhs.wrappedValue)
     }
 
-    public static func *= (lhs: inout FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) {
+    public static func *= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue *= rhs.wrappedValue
     }
 }
 
-extension FixedSize: AdditiveArithmetic {
+extension FixedSizeEncoded: AdditiveArithmetic {
 
     /**
      The zero value.
@@ -65,16 +65,16 @@ extension FixedSize: AdditiveArithmetic {
         .init(wrappedValue: .zero)
     }
 
-    public static func - (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> FixedSize<WrappedValue> {
+    public static func - (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue - rhs.wrappedValue)
     }
 
-    public static func + (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> FixedSize<WrappedValue> {
+    public static func + (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue + rhs.wrappedValue)
     }
 }
 
-extension FixedSize: BinaryInteger {
+extension FixedSizeEncoded: BinaryInteger {
 
     public init<T>(_ source: T) where T : BinaryInteger {
         self.init(wrappedValue: .init(source))
@@ -92,36 +92,36 @@ extension FixedSize: BinaryInteger {
         wrappedValue.trailingZeroBitCount
     }
     
-    public static func / (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> FixedSize<WrappedValue> {
+    public static func / (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue / rhs.wrappedValue)
     }
     
-    public static func % (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> FixedSize<WrappedValue> {
+    public static func % (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue % rhs.wrappedValue)
     }
     
-    public static func /= (lhs: inout FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) {
+    public static func /= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue /= rhs.wrappedValue
     }
 
-    public static func %= (lhs: inout FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) {
+    public static func %= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue %= rhs.wrappedValue
     }
     
-    public static func &= (lhs: inout FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) {
+    public static func &= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue &= rhs.wrappedValue
     }
     
-    public static func |= (lhs: inout FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) {
+    public static func |= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue |= rhs.wrappedValue
     }
     
-    public static func ^= (lhs: inout FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) {
+    public static func ^= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue ^= rhs.wrappedValue
     }
 }
 
-extension FixedSize: FixedWidthInteger {
+extension FixedSizeEncoded: FixedWidthInteger {
 
     public typealias Words = WrappedValue.Words
 
@@ -131,34 +131,34 @@ extension FixedSize: FixedWidthInteger {
         self.init(wrappedValue: .init(source))
     }
 
-    public func dividingFullWidth(_ dividend: (high: FixedSize<WrappedValue>, low: WrappedValue.Magnitude)) -> (quotient: FixedSize<WrappedValue>, remainder: FixedSize<WrappedValue>) {
+    public func dividingFullWidth(_ dividend: (high: FixedSizeEncoded<WrappedValue>, low: WrappedValue.Magnitude)) -> (quotient: FixedSizeEncoded<WrappedValue>, remainder: FixedSizeEncoded<WrappedValue>) {
         let result = wrappedValue.dividingFullWidth((high: dividend.high.wrappedValue, low: dividend.low))
-        return (quotient: FixedSize(wrappedValue: result.quotient), remainder: FixedSize(wrappedValue: result.remainder))
+        return (quotient: FixedSizeEncoded(wrappedValue: result.quotient), remainder: FixedSizeEncoded(wrappedValue: result.remainder))
     }
 
-    public func addingReportingOverflow(_ rhs: FixedSize<WrappedValue>) -> (partialValue: FixedSize<WrappedValue>, overflow: Bool) {
+    public func addingReportingOverflow(_ rhs: FixedSizeEncoded<WrappedValue>) -> (partialValue: FixedSizeEncoded<WrappedValue>, overflow: Bool) {
         let result = wrappedValue.addingReportingOverflow(rhs.wrappedValue)
-        return (FixedSize(wrappedValue: result.partialValue), result.overflow)
+        return (FixedSizeEncoded(wrappedValue: result.partialValue), result.overflow)
     }
 
-    public func subtractingReportingOverflow(_ rhs: FixedSize<WrappedValue>) -> (partialValue: FixedSize<WrappedValue>, overflow: Bool) {
+    public func subtractingReportingOverflow(_ rhs: FixedSizeEncoded<WrappedValue>) -> (partialValue: FixedSizeEncoded<WrappedValue>, overflow: Bool) {
         let result = wrappedValue.subtractingReportingOverflow(rhs.wrappedValue)
-        return (FixedSize(wrappedValue: result.partialValue), result.overflow)
+        return (FixedSizeEncoded(wrappedValue: result.partialValue), result.overflow)
     }
 
-    public func multipliedReportingOverflow(by rhs: FixedSize<WrappedValue>) -> (partialValue: FixedSize<WrappedValue>, overflow: Bool) {
+    public func multipliedReportingOverflow(by rhs: FixedSizeEncoded<WrappedValue>) -> (partialValue: FixedSizeEncoded<WrappedValue>, overflow: Bool) {
         let result = wrappedValue.multipliedReportingOverflow(by: rhs.wrappedValue)
-        return (FixedSize(wrappedValue: result.partialValue), result.overflow)
+        return (FixedSizeEncoded(wrappedValue: result.partialValue), result.overflow)
     }
 
-    public func dividedReportingOverflow(by rhs: FixedSize<WrappedValue>) -> (partialValue: FixedSize<WrappedValue>, overflow: Bool) {
+    public func dividedReportingOverflow(by rhs: FixedSizeEncoded<WrappedValue>) -> (partialValue: FixedSizeEncoded<WrappedValue>, overflow: Bool) {
         let result = wrappedValue.dividedReportingOverflow(by: rhs.wrappedValue)
-        return (FixedSize(wrappedValue: result.partialValue), result.overflow)
+        return (FixedSizeEncoded(wrappedValue: result.partialValue), result.overflow)
     }
 
-    public func remainderReportingOverflow(dividingBy rhs: FixedSize<WrappedValue>) -> (partialValue: FixedSize<WrappedValue>, overflow: Bool) {
+    public func remainderReportingOverflow(dividingBy rhs: FixedSizeEncoded<WrappedValue>) -> (partialValue: FixedSizeEncoded<WrappedValue>, overflow: Bool) {
         let result = wrappedValue.remainderReportingOverflow(dividingBy: rhs.wrappedValue)
-        return (FixedSize(wrappedValue: result.partialValue), result.overflow)
+        return (FixedSizeEncoded(wrappedValue: result.partialValue), result.overflow)
     }
 
     public static var bitWidth: Int {
@@ -173,7 +173,7 @@ extension FixedSize: FixedWidthInteger {
         wrappedValue.leadingZeroBitCount
     }
     
-    public var byteSwapped: FixedSize<WrappedValue> {
+    public var byteSwapped: FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: wrappedValue.byteSwapped)
     }
     
@@ -196,7 +196,7 @@ extension FixedSize: FixedWidthInteger {
     }
 }
 
-extension FixedSize: ExpressibleByIntegerLiteral {
+extension FixedSizeEncoded: ExpressibleByIntegerLiteral {
 
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
 
@@ -205,23 +205,23 @@ extension FixedSize: ExpressibleByIntegerLiteral {
     }
 }
 
-extension FixedSize: Equatable {
+extension FixedSizeEncoded: Equatable {
 
-    public static func == (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> Bool {
+    public static func == (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> Bool {
         lhs.wrappedValue == rhs.wrappedValue
     }
 }
 
-extension FixedSize: Comparable {
+extension FixedSizeEncoded: Comparable {
 
-    public static func < (lhs: FixedSize<WrappedValue>, rhs: FixedSize<WrappedValue>) -> Bool {
+    public static func < (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> Bool {
         lhs.wrappedValue < rhs.wrappedValue
     }
 }
 
-extension FixedSize: Hashable { }
+extension FixedSizeEncoded: Hashable { }
 
-extension FixedSize: EncodablePrimitive where WrappedValue: EncodablePrimitive {
+extension FixedSizeEncoded: EncodablePrimitive where WrappedValue: EncodablePrimitive {
 
     /**
      Encode the wrapped value to binary data compatible with the protobuf encoding.
@@ -232,7 +232,7 @@ extension FixedSize: EncodablePrimitive where WrappedValue: EncodablePrimitive {
     }
 }
 
-extension FixedSize: DecodablePrimitive where WrappedValue: DecodablePrimitive {
+extension FixedSizeEncoded: DecodablePrimitive where WrappedValue: DecodablePrimitive {
 
     init(data: Data) throws {
         let wrappedValue = try WrappedValue(fromFixedSize: data)
@@ -240,7 +240,7 @@ extension FixedSize: DecodablePrimitive where WrappedValue: DecodablePrimitive {
     }
 }
 
-extension FixedSize: Encodable {
+extension FixedSizeEncoded: Encodable {
 
     /**
      Encode the wrapped value transparently to the given encoder.
@@ -253,7 +253,7 @@ extension FixedSize: Encodable {
     }
 }
 
-extension FixedSize: Decodable {
+extension FixedSizeEncoded: Decodable {
     /**
      Decode a wrapped value from a decoder.
      - Parameter decoder: The decoder to use for decoding.
