@@ -58,6 +58,10 @@ Select your `Project`, navigate to the `Package Dependencies` tab, and add `http
 
 ## Usage
 
+Documentation of the library is available [here](https://docs.christophhagen.de/documentation/binarycodable) (generated using [Swift DocC](https://www.swift.org/documentation/docc)).
+
+### First steps
+
 Let's assume a message definition: 
 
 ```swift
