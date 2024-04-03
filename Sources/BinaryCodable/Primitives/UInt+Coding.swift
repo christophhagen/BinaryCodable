@@ -7,8 +7,8 @@ extension UInt: EncodablePrimitive {
 
 extension UInt: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
-        try self.init(fromVarint: data, codingPath: codingPath)
+    init(data: Data) throws {
+        try self.init(fromVarint: data)
 
     }
 }
@@ -19,10 +19,10 @@ extension UInt: VariableLengthCodable {
         UInt64(self).variableLengthEncoding
     }
 
-    init(fromVarint data: Data, codingPath: [any CodingKey]) throws {
-        let raw = try UInt64(fromVarint: data, codingPath: codingPath)
+    init(fromVarint data: Data) throws {
+        let raw = try UInt64(fromVarint: data)
         guard let value = UInt(exactly: raw) else {
-            throw DecodingError.corrupted("Decoded value \(raw) is out of range for type UInt", codingPath: codingPath)
+            throw CorruptedDataError("Decoded value \(raw) is out of range for type UInt")
         }
         self = value
     }

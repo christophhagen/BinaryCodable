@@ -16,5 +16,5 @@ public protocol FixedSizeDecodable: Decodable {
      - Parameter data: The binary data of the correct size for the type.
      - Throws: `DecodingError`
      */
-    init(fromFixedSize data: Data, codingPath: [CodingKey]) throws
+    init(fromFixedSize data: Data) throws
 }

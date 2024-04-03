@@ -8,8 +8,8 @@ extension Int: EncodablePrimitive {
 
 extension Int: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
-        try self.init(fromZigZag: data, codingPath: codingPath)
+    init(data: Data) throws {
+        try self.init(fromZigZag: data)
     }
 }
 
@@ -22,10 +22,10 @@ extension Int: ZigZagEncodable {
 
 extension Int: ZigZagDecodable {
 
-    init(fromZigZag data: Data, codingPath: [any CodingKey]) throws {
-        let raw = try Int64(data: data, codingPath: codingPath)
+    init(fromZigZag data: Data) throws {
+        let raw = try Int64(data: data)
         guard let value = Int(exactly: raw) else {
-            throw DecodingError.corrupted("Decoded value \(raw) is out of range for type Int", codingPath: codingPath)
+            throw CorruptedDataError("Decoded value \(raw) is out of range for type Int")
         }
         self = value
     }
@@ -42,10 +42,10 @@ extension Int: VariableLengthEncodable {
 
 extension Int: VariableLengthDecodable {
 
-    init(fromVarint data: Data, codingPath: [CodingKey]) throws {
-        let intValue = try Int64(fromVarint: data, codingPath: codingPath)
+    init(fromVarint data: Data) throws {
+        let intValue = try Int64(fromVarint: data)
         guard let value = Int(exactly: intValue) else {
-            throw DecodingError.variableLengthEncodedIntegerOutOfRange(codingPath)
+            throw CorruptedDataError.variableLengthEncodedIntegerOutOfRange
         }
         self = value
     }

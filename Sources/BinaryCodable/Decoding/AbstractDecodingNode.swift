@@ -17,7 +17,11 @@ class AbstractDecodingNode: AbstractNode {
             guard let element else {
                 throw DecodingError.valueNotFound(type, codingPath: codingPath, "Found nil instead of expected type \(type)")
             }
-            return try BaseType.init(data: element, codingPath: codingPath) as! T
+            do {
+                return try BaseType.init(data: element) as! T
+            } catch let error as CorruptedDataError {
+                throw error.adding(codingPath: codingPath)
+            }
         }
         let node = try DecodingNode(data: element, parentDecodedNil: parentDecodedNil, codingPath: codingPath, userInfo: userInfo)
         return try type.init(from: node)

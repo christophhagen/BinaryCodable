@@ -9,9 +9,9 @@ extension Bool: EncodablePrimitive {
 
 extension Bool: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
+    init(data: Data) throws {
         guard data.count == 1 else {
-            throw DecodingError.invalidSize(size: data.count, for: "Bool", codingPath: codingPath)
+            throw CorruptedDataError(invalidSize: data.count, for: "Bool")
         }
         let byte = data[data.startIndex]
         switch byte {
@@ -20,7 +20,7 @@ extension Bool: DecodablePrimitive {
         case 1:
             self = true
         default:
-            throw DecodingError.corrupted("Found value \(byte) while decoding boolean", codingPath: codingPath)
+            throw CorruptedDataError("Found value \(byte) while decoding boolean")
         }
         self = data[data.startIndex] > 0
     }

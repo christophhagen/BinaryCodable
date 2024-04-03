@@ -8,8 +8,8 @@ extension Int64: EncodablePrimitive {
 
 extension Int64: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
-        try self.init(fromZigZag: data, codingPath: codingPath)
+    init(data: Data) throws {
+        try self.init(fromZigZag: data)
     }
 }
 
@@ -25,8 +25,8 @@ extension Int64: ZigZagEncodable {
 
 extension Int64: ZigZagDecodable {
 
-    init(fromZigZag data: Data, codingPath: [CodingKey]) throws {
-        let unsigned = try UInt64(data: data, codingPath: codingPath)
+    init(fromZigZag data: Data) throws {
+        let unsigned = try UInt64(fromVarint: data)
 
         // Check the last bit to get sign
         if unsigned & 1 > 0 {
@@ -50,8 +50,8 @@ extension Int64: VariableLengthEncodable {
 
 extension Int64: VariableLengthDecodable {
 
-    init(fromVarint data: Data, codingPath: [CodingKey]) throws {
-        let value = try UInt64(data: data, codingPath: codingPath)
+    init(fromVarint data: Data) throws {
+        let value = try UInt64(fromVarint: data)
         self = Int64(bitPattern: value)
     }
 }

@@ -9,5 +9,5 @@ protocol VariableLengthEncodable: FixedWidthInteger {
 
 protocol VariableLengthDecodable: FixedWidthInteger {
 
-    init(fromVarint data: Data, codingPath: [CodingKey]) throws
+    init(fromVarint data: Data) throws
 }

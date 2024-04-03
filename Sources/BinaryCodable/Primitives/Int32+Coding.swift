@@ -8,8 +8,8 @@ extension Int32: EncodablePrimitive {
 
 extension Int32: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
-        try self.init(fromZigZag: data, codingPath: codingPath)
+    init(data: Data) throws {
+        try self.init(fromZigZag: data)
     }
 }
 
@@ -22,10 +22,10 @@ extension Int32: ZigZagEncodable {
 
 extension Int32: ZigZagDecodable {
 
-    init(fromZigZag data: Data, codingPath: [any CodingKey]) throws {
-        let raw = try Int64(data: data, codingPath: codingPath)
+    init(fromZigZag data: Data) throws {
+        let raw = try Int64(fromZigZag: data)
         guard let value = Int32(exactly: raw) else {
-            throw DecodingError.corrupted("Decoded value \(raw) is out of range for type Int32", codingPath: codingPath)
+            throw CorruptedDataError("Decoded value \(raw) is out of range for type Int32")
         }
         self = value
     }
@@ -41,8 +41,8 @@ extension Int32: VariableLengthEncodable {
 
 extension Int32: VariableLengthDecodable {
 
-    init(fromVarint data: Data, codingPath: [CodingKey]) throws {
-        let value = try UInt32(data: data, codingPath: codingPath)
+    init(fromVarint data: Data) throws {
+        let value = try UInt32(fromVarint: data)
         self = Int32(bitPattern: value)
     }
 }

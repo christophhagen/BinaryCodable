@@ -9,10 +9,10 @@ extension UInt: FixedSizeEncodable {
 
 extension UInt: FixedSizeDecodable {
 
-    public init(fromFixedSize data: Data, codingPath: [CodingKey]) throws {
-        let intValue = try UInt64(fromFixedSize: data, codingPath: codingPath)
+    public init(fromFixedSize data: Data) throws {
+        let intValue = try UInt64(fromFixedSize: data)
         guard let value = UInt(exactly: intValue) else {
-            throw DecodingError.variableLengthEncodedIntegerOutOfRange(codingPath)
+            throw CorruptedDataError.variableLengthEncodedIntegerOutOfRange
         }
         self = value
     }

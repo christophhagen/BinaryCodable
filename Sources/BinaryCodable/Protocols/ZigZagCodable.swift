@@ -10,6 +10,6 @@ protocol ZigZagEncodable {
 
 protocol ZigZagDecodable {
 
-    init(fromZigZag data: Data, codingPath: [CodingKey]) throws
+    init(fromZigZag data: Data) throws
 }
 

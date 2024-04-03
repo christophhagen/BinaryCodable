@@ -47,7 +47,11 @@ public struct BinaryDecoder {
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         // Directly decode primitives, otherwise it would be decoded with a nil indicator
         if let BaseType = T.self as? DecodablePrimitive.Type {
-            return try BaseType.init(data: data, codingPath: []) as! T
+            do {
+                return try BaseType.init(data: data) as! T
+            } catch let error as CorruptedDataError {
+                throw error.adding(codingPath: [])
+            }
         }
         let node = try DecodingNode(data: data, parentDecodedNil: false, codingPath: [], userInfo: userInfo)
         return try T.init(from: node)

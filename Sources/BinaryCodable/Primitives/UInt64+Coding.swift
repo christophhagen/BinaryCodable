@@ -8,8 +8,8 @@ extension UInt64: EncodablePrimitive {
 
 extension UInt64: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
-        try self.init(fromVarint: data, codingPath: codingPath)
+    init(data: Data) throws {
+        try self.init(fromVarint: data)
     }
 }
 
@@ -41,12 +41,48 @@ extension UInt64: VariableLengthEncodable {
 
 extension UInt64: VariableLengthDecodable {
 
-    init(fromVarint data: Data, codingPath: [any CodingKey]) throws {
-        let storage = DecodingStorage(data: data, codingPath: codingPath)
-        let value = try storage.decodeUInt64()
-        guard storage.isAtEnd else {
-            throw DecodingError.corrupted("\(storage.numberOfRemainingBytes) unused bytes left after decoding variable length integer", codingPath: codingPath)
+    init(fromVarint data: Data) throws {
+        var currentIndex = data.startIndex
+        
+        func nextByte() throws -> UInt64 {
+            guard currentIndex < data.endIndex else {
+                throw CorruptedDataError("Unexpected end of data decoding variable length integer")
+            }
+            defer { currentIndex += 1}
+            return UInt64(data[currentIndex])
         }
-        self = value
+        
+        func ensureDataIsAtEnd() throws {
+            guard currentIndex == data.endIndex else {
+                throw CorruptedDataError("\(data.endIndex - currentIndex) unused bytes left after decoding variable length integer")
+            }
+        }
+        
+        let startByte = try nextByte()
+        guard startByte & 0x80 > 0 else {
+            try ensureDataIsAtEnd()
+            self = startByte
+            return
+        }
+
+        var result = startByte & 0x7F
+        // There are always 7 usable bits per byte, for 8 bytes
+        for byteIndex in 1..<8 {
+            let nextByte = try nextByte()
+            // Insert the last 7 bit of the byte at the end
+            result += UInt64(nextByte & 0x7F) << (byteIndex*7)
+            // Check if an additional byte is coming
+            guard nextByte & 0x80 > 0 else {
+                try ensureDataIsAtEnd()
+                self = result
+                return
+            }
+        }
+
+        // The 9th byte has no next-byte bit, so all 8 bits are used
+        let nextByte = try nextByte()
+        result += UInt64(nextByte) << 56
+        try ensureDataIsAtEnd()
+        self = result
     }
 }

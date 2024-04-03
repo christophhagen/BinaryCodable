@@ -9,9 +9,9 @@ extension UInt32: FixedSizeEncodable {
 
 extension UInt32: FixedSizeDecodable {
 
-    public init(fromFixedSize data: Data, codingPath: [CodingKey]) throws {
+    public init(fromFixedSize data: Data) throws {
         guard data.count == MemoryLayout<UInt32>.size else {
-            throw DecodingError.invalidSize(size: data.count, for: "UInt32", codingPath: codingPath)
+            throw CorruptedDataError(invalidSize: data.count, for: "UInt32")
         }
         self.init(littleEndian: data.interpreted())
     }

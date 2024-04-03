@@ -234,8 +234,8 @@ extension FixedSize: EncodablePrimitive where WrappedValue: EncodablePrimitive {
 
 extension FixedSize: DecodablePrimitive where WrappedValue: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
-        let wrappedValue = try WrappedValue(fromFixedSize: data, codingPath: codingPath)
+    init(data: Data) throws {
+        let wrappedValue = try WrappedValue(fromFixedSize: data)
         self.init(wrappedValue: wrappedValue)
     }
 }

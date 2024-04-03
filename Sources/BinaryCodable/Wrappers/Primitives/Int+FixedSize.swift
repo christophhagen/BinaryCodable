@@ -9,10 +9,10 @@ extension Int: FixedSizeEncodable {
 
 extension Int: FixedSizeDecodable {
 
-    public init(fromFixedSize data: Data, codingPath: [CodingKey]) throws {
-        let signed = try Int64(fromFixedSize: data, codingPath: codingPath)
+    public init(fromFixedSize data: Data) throws {
+        let signed = try Int64(fromFixedSize: data)
         guard let value = Int(exactly: signed) else {
-            throw DecodingError.variableLengthEncodedIntegerOutOfRange(codingPath)
+            throw CorruptedDataError.variableLengthEncodedIntegerOutOfRange
         }
         self = value
     }

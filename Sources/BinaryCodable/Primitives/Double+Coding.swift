@@ -9,9 +9,9 @@ extension Double: EncodablePrimitive {
 
 extension Double: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
+    init(data: Data) throws {
         guard data.count == MemoryLayout<UInt64>.size else {
-            throw DecodingError.invalidSize(size: data.count, for: "Double", codingPath: codingPath)
+            throw CorruptedDataError(invalidSize: data.count, for: "Double")
         }
         let value = UInt64(bigEndian: data.interpreted())
         self.init(bitPattern: value)

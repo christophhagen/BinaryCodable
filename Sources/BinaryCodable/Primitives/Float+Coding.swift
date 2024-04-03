@@ -9,9 +9,9 @@ extension Float: EncodablePrimitive {
 
 extension Float: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
+    init(data: Data) throws {
         guard data.count == MemoryLayout<UInt32>.size else {
-            throw DecodingError.invalidSize(size: data.count, for: "Float", codingPath: codingPath)
+            throw CorruptedDataError(invalidSize: data.count, for: "Float")
         }
         let value = UInt32(bigEndian: data.interpreted())
         self.init(bitPattern: value)

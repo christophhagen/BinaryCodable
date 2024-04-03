@@ -11,7 +11,9 @@ final class UnkeyedDecoder: AbstractDecodingNode, UnkeyedDecodingContainer {
     private let data: [Data?]
 
     init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
-        self.data = try DecodingStorage(data: data, codingPath: codingPath).decodeUnkeyedElements()
+        self.data = try wrapCorruptDataError(at: codingPath) {
+            try data.decodeUnkeyedElements()
+        }
         super.init(parentDecodedNil: true, codingPath: codingPath, userInfo: userInfo)
     }
 

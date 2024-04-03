@@ -38,8 +38,29 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
         guard let data else {
             return nil
         }
-        return try DecodingStorage(data: data, codingPath: codingPath)
-            .decodeSingleElementWithNilIndicator()
+        return try decodeSingleElementWithNilIndicator(from: data)
+    }
+    
+    /**
+     Decode just the nil indicator byte, but don't extract a length. Uses all remaining bytes for the value.
+     - Note: This function is only used for the root node
+     */
+    private func decodeSingleElementWithNilIndicator(from data: Data) throws -> Data? {
+        guard let first = data.first else {
+            throw DecodingError.corrupted("Premature end of data while decoding element with nil indicator", codingPath: codingPath)
+        }
+        // Check the nil indicator bit
+        switch first {
+        case 0:
+            return data.dropFirst()
+        case 1:
+            guard data.count == 1 else {
+                throw DecodingError.corrupted("\(data.count - 1) additional bytes found after nil indicator", codingPath: codingPath)
+            }
+            return nil
+        default:
+            throw DecodingError.corrupted("Found unexpected nil indicator \(first)", codingPath: codingPath)
+        }
     }
 
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
