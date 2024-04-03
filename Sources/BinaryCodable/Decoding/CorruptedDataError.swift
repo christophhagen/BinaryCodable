@@ -1,8 +1,15 @@
 import Foundation
 
-struct CorruptedDataError: Error {
+/**
+ An error which occurs when the data to decode is in an incorrect format.
+ 
+ This error is used internally during decoding, and should not occur when using ``BinaryDecoder``, ``BinaryStreamDecoder`` or ``BinaryFileDecoder``.
+ It is only relevant when directly using the decoding initializers for ``FixedSizeDecodable``, ``VariableLengthDecodable``,  or ``ZigZagDecodable``.
+ */
+public struct CorruptedDataError: Error {
     
-    let description: String
+    /// A textual description of the error
+    public let description: String
     
     init(invalidSize size: Int, for type: String) {
         self.description = "Invalid size \(size) for type \(type)"

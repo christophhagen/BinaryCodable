@@ -12,6 +12,9 @@ public protocol FixedSizeEncodable: Encodable {
     var fixedSizeEncoded: Data { get }
 }
 
+/**
+ A type that can be encoded with a fixed number of bytes.
+ */
 public protocol FixedSizeDecodable: Decodable {
 
     /**

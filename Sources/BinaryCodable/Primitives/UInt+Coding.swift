@@ -7,6 +7,11 @@ extension UInt: EncodablePrimitive {
 
 extension UInt: DecodablePrimitive {
 
+    /**
+     Create an integer from variable-length encoded data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     init(data: Data) throws {
         try self.init(fromVarint: data)
     }
@@ -23,6 +28,11 @@ extension UInt: VariableLengthEncodable {
 
 extension UInt: VariableLengthDecodable {
 
+    /**
+     Create an integer from variable-length encoded data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     public init(fromVarint data: Data) throws {
         let raw = try UInt64(fromVarint: data)
         guard let value = UInt(exactly: raw) else {
@@ -34,6 +44,11 @@ extension UInt: VariableLengthDecodable {
 
 extension VariableLengthEncoded where WrappedValue == UInt {
     
+    /**
+     Wrap an integer to enforce variable-length encoding.
+     - Parameter wrappedValue: The value to wrap
+     - Note: `UInt` is already encoded using fixed-size encoding, so wrapping it in `VariableLengthEncoded` does nothing.
+     */
     @available(*, deprecated, message: "Property wrapper @VariableLengthEncoded has no effect on type UInt")
     public init(wrappedValue: UInt) {
         self.wrappedValue = wrappedValue
@@ -44,6 +59,7 @@ extension VariableLengthEncoded where WrappedValue == UInt {
 
 extension UInt: FixedSizeEncodable {
 
+    /// The value encoded as fixed-size data
     public var fixedSizeEncoded: Data {
         UInt64(self).fixedSizeEncoded
     }
@@ -51,6 +67,11 @@ extension UInt: FixedSizeEncodable {
 
 extension UInt: FixedSizeDecodable {
 
+    /**
+     Decode a value from fixed-size data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     public init(fromFixedSize data: Data) throws {
         let intValue = try UInt64(fromFixedSize: data)
         guard let value = UInt(exactly: intValue) else {

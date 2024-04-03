@@ -8,6 +8,11 @@ extension Int: EncodablePrimitive {
 
 extension Int: DecodablePrimitive {
 
+    /**
+     Decode an integer from zig-zag encoded data.
+     - Parameter data: The data of the zig-zag encoded value.
+     - Throws: ``CorruptedDataError``
+     */
     init(data: Data) throws {
         try self.init(fromZigZag: data)
     }
@@ -17,6 +22,7 @@ extension Int: DecodablePrimitive {
 
 extension Int: ZigZagEncodable {
 
+    /// The integer encoded using zig-zag encoding
     public var zigZagEncoded: Data {
         Int64(self).zigZagEncoded
     }
@@ -24,6 +30,11 @@ extension Int: ZigZagEncodable {
 
 extension Int: ZigZagDecodable {
 
+    /**
+     Decode an integer from zig-zag encoded data.
+     - Parameter data: The data of the zig-zag encoded value.
+     - Throws: ``CorruptedDataError``
+     */
     public init(fromZigZag data: Data) throws {
         let raw = try Int64(data: data)
         guard let value = Int(exactly: raw) else {
@@ -35,6 +46,11 @@ extension Int: ZigZagDecodable {
 
 extension ZigZagEncoded where WrappedValue == Int {
     
+    /**
+     Wrap an integer to enforce zig-zag encoding.
+     - Parameter wrappedValue: The value to wrap
+     - Note: `Int` is already encoded using zig-zag encoding, so wrapping it in `ZigZagEncoded` does nothing.
+     */
     @available(*, deprecated, message: "Property wrapper @ZigZagEncoded has no effect on type Int")
     public init(wrappedValue: Int) {
         self.wrappedValue = wrappedValue
@@ -53,6 +69,11 @@ extension Int: VariableLengthEncodable {
 
 extension Int: VariableLengthDecodable {
 
+    /**
+     Create an integer from variable-length encoded data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     public init(fromVarint data: Data) throws {
         let intValue = try Int64(fromVarint: data)
         guard let value = Int(exactly: intValue) else {
@@ -66,6 +87,7 @@ extension Int: VariableLengthDecodable {
 
 extension Int: FixedSizeEncodable {
 
+    /// The value encoded as fixed-size data
     public var fixedSizeEncoded: Data {
         Int64(self).fixedSizeEncoded
     }
@@ -73,6 +95,11 @@ extension Int: FixedSizeEncodable {
 
 extension Int: FixedSizeDecodable {
 
+    /**
+     Decode a value from fixed-size data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     public init(fromFixedSize data: Data) throws {
         let signed = try Int64(fromFixedSize: data)
         guard let value = Int(exactly: signed) else {

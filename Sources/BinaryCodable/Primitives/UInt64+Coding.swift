@@ -8,6 +8,11 @@ extension UInt64: EncodablePrimitive {
 
 extension UInt64: DecodablePrimitive {
 
+    /**
+     Create an integer from variable-length encoded data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     init(data: Data) throws {
         try self.init(fromVarint: data)
     }
@@ -43,6 +48,11 @@ extension UInt64: VariableLengthEncodable {
 
 extension UInt64: VariableLengthDecodable {
 
+    /**
+     Create an integer from variable-length encoded data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     public init(fromVarint data: Data) throws {
         var currentIndex = data.startIndex
         
@@ -91,6 +101,11 @@ extension UInt64: VariableLengthDecodable {
 
 extension VariableLengthEncoded where WrappedValue == UInt64 {
     
+    /**
+     Wrap an integer to enforce variable-length encoding.
+     - Parameter wrappedValue: The value to wrap
+     - Note: `UInt64` is already encoded using fixed-size encoding, so wrapping it in `VariableLengthEncoded` does nothing.
+     */
     @available(*, deprecated, message: "Property wrapper @VariableLengthEncoded has no effect on type UInt64")
     public init(wrappedValue: UInt64) {
         self.wrappedValue = wrappedValue
@@ -101,6 +116,7 @@ extension VariableLengthEncoded where WrappedValue == UInt64 {
 
 extension UInt64: FixedSizeEncodable {
 
+    /// The value encoded as fixed-size data
     public var fixedSizeEncoded: Data {
         Data(underlying: littleEndian)
     }
@@ -108,6 +124,11 @@ extension UInt64: FixedSizeEncodable {
 
 extension UInt64: FixedSizeDecodable {
 
+    /**
+     Decode a value from fixed-size data.
+     - Parameter data: The data to decode.
+     - Throws: ``CorruptedDataError``
+     */
     public init(fromFixedSize data: Data) throws {
         guard data.count == MemoryLayout<UInt64>.size else {
             throw CorruptedDataError(invalidSize: data.count, for: "UInt64")
