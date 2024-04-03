@@ -27,7 +27,7 @@ extension UInt32: VariableLengthDecodable {
     init(fromVarint data: Data) throws {
         let raw = try UInt64(fromVarint: data)
         guard let value = UInt32(exactly: raw) else {
-            throw CorruptedDataError("Decoded value \(raw) is out of range for type UInt32")
+            throw CorruptedDataError(outOfRange: raw, forType: "UInt32")
         }
         self = value
     }

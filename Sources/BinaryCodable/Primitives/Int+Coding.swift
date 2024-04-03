@@ -25,7 +25,7 @@ extension Int: ZigZagDecodable {
     init(fromZigZag data: Data) throws {
         let raw = try Int64(data: data)
         guard let value = Int(exactly: raw) else {
-            throw CorruptedDataError("Decoded value \(raw) is out of range for type Int")
+            throw CorruptedDataError(outOfRange: raw, forType: "Int")
         }
         self = value
     }
@@ -45,7 +45,7 @@ extension Int: VariableLengthDecodable {
     init(fromVarint data: Data) throws {
         let intValue = try Int64(fromVarint: data)
         guard let value = Int(exactly: intValue) else {
-            throw CorruptedDataError.variableLengthEncodedIntegerOutOfRange
+            throw CorruptedDataError(outOfRange: intValue, forType: "Int")
         }
         self = value
     }

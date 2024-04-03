@@ -11,7 +11,7 @@ extension String: DecodablePrimitive {
 
     init(data: Data) throws {
         guard let value = String(data: data, encoding: .utf8) else {
-            throw CorruptedDataError("Invalid string")
+            throw CorruptedDataError(invalidString: data.count)
         }
         self = value
     }

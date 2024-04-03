@@ -46,7 +46,7 @@ extension UInt64: VariableLengthDecodable {
         
         func nextByte() throws -> UInt64 {
             guard currentIndex < data.endIndex else {
-                throw CorruptedDataError("Unexpected end of data decoding variable length integer")
+                throw CorruptedDataError(prematureEndofDataDecoding: "variable length integer")
             }
             defer { currentIndex += 1}
             return UInt64(data[currentIndex])
@@ -54,7 +54,7 @@ extension UInt64: VariableLengthDecodable {
         
         func ensureDataIsAtEnd() throws {
             guard currentIndex == data.endIndex else {
-                throw CorruptedDataError("\(data.endIndex - currentIndex) unused bytes left after decoding variable length integer")
+                throw CorruptedDataError(unusedBytes: data.endIndex - currentIndex, during: "variable length integer decoding")
             }
         }
         

@@ -53,7 +53,7 @@ extension DecodingDataProvider {
     
     func decodeNextDataOrNilElement(at index: inout Index) throws -> Data? {
         guard let first = nextByte(at: &index) else {
-            throw CorruptedDataError.prematureEndofData
+            throw CorruptedDataError(prematureEndofDataDecoding: "length or nil indicator")
         }
 
         // Check the nil indicator bit
@@ -62,13 +62,13 @@ extension DecodingDataProvider {
         }
         // The rest is the length, encoded as a varint
         guard let rawLengthValue = decodeUInt64(startByte: first, at: &index) else {
-            throw CorruptedDataError.prematureEndofData
+            throw CorruptedDataError(prematureEndofDataDecoding: "element length")
         }
 
         // Remove the nil indicator bit
         let length = Int(rawLengthValue >> 1)
         guard let element = nextBytes(length, at: &index) else {
-            throw CorruptedDataError.prematureEndofData
+            throw CorruptedDataError(prematureEndofDataDecoding: "element length")
         }
         return element
     }
@@ -86,7 +86,7 @@ extension DecodingDataProvider {
     private func decodeNextKey(at index: inout Index) throws -> DecodingKey {
         // First, decode the next key
         guard let rawKeyOrLength = decodeUInt64(at: &index) else {
-            throw CorruptedDataError.prematureEndofData
+            throw CorruptedDataError(prematureEndofDataDecoding: "key")
         }
         let lengthOrKey = Int(rawKeyOrLength >> 1)
 
@@ -97,7 +97,7 @@ extension DecodingDataProvider {
 
         // String key, decode length bytes
         guard let stringData = nextBytes(lengthOrKey, at: &index) else {
-            throw CorruptedDataError.prematureEndofData
+            throw CorruptedDataError(prematureEndofDataDecoding: "string key bytes")
         }
         let stringKey = try String(data: stringData)
         return .string(stringKey)
@@ -109,11 +109,11 @@ extension DecodingDataProvider {
         while !isAtEnd(at: index) {
             let key = try decodeNextKey(at: &index)
             guard !isAtEnd(at: index) else {
-                throw CorruptedDataError.prematureEndofData
+                throw CorruptedDataError(prematureEndofDataDecoding: "element after key")
             }
             let element = try decodeNextDataOrNilElement(at: &index)
             guard elements[key] == nil else {
-                throw CorruptedDataError("Found multiple values for key \(key)")
+                throw CorruptedDataError(multipleValuesForKey: key)
             }
             elements[key] = element
         }

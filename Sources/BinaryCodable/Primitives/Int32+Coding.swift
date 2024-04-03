@@ -25,7 +25,7 @@ extension Int32: ZigZagDecodable {
     init(fromZigZag data: Data) throws {
         let raw = try Int64(fromZigZag: data)
         guard let value = Int32(exactly: raw) else {
-            throw CorruptedDataError("Decoded value \(raw) is out of range for type Int32")
+            throw CorruptedDataError(outOfRange: raw, forType: "Int32")
         }
         self = value
     }

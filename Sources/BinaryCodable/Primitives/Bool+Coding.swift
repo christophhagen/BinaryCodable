@@ -20,7 +20,7 @@ extension Bool: DecodablePrimitive {
         case 1:
             self = true
         default:
-            throw CorruptedDataError("Found value \(byte) while decoding boolean")
+            throw CorruptedDataError(invalidBoolByte: byte)
         }
         self = data[data.startIndex] > 0
     }

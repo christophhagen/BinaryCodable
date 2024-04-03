@@ -12,7 +12,7 @@ extension UInt: FixedSizeDecodable {
     public init(fromFixedSize data: Data) throws {
         let intValue = try UInt64(fromFixedSize: data)
         guard let value = UInt(exactly: intValue) else {
-            throw CorruptedDataError.variableLengthEncodedIntegerOutOfRange
+            throw CorruptedDataError(outOfRange: intValue, forType: "UInt")
         }
         self = value
     }

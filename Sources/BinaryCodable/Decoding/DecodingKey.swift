@@ -48,3 +48,15 @@ extension DecodingKey: ExpressibleByStringLiteral {
         self = .string(value)
     }
 }
+
+extension DecodingKey: CustomStringConvertible {
+    
+    var description: String {
+        switch self {
+        case .integer(let int):
+            return "\(int)"
+        case .string(let string):
+            return string
+        }
+    }
+}
