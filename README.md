@@ -116,7 +116,7 @@ This is different to e.g. JSON, where calling `encodeNil(forKey:)` would cause t
 
 ```json
 { 
-    "myProperty" : nil
+    "myProperty" : null
 }
 ```
 
@@ -182,9 +182,9 @@ Additionally, integer keys can be useful when intending to store the binary data
 Changes to property names can be performed in the code without breaking the decoding of older data (although this can also be achieved with custom `String` keys).
 
 Notes: 
-- Small, positive integer keys produce the smallest binary sizes.
+- Negative values for integer keys are **not** supported.
+- Small integer keys produce the smallest binary sizes.
 - The `0` integer key shouldn't be used, since it is also used internally when encoding `super`.
-- Negative values for integer keys are **not** rsupported.
 - The allowed range for integer keys is from `0` (inclusive) to `Int64.max` (inclusive).
 
 ### Property wrappers
