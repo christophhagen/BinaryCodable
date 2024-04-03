@@ -1,8 +1,14 @@
+⚠️ **Important note** ⚠️
+
+This document describes the binary format of `BinaryCodable` up to version `2.0.3`.
+For information about the format from version `3.0`, see [BinaryFormat.md](BinaryFormat.md). 
+
 # Binary data structure
 
 **Note:** The `BinaryCodable` format is optimized for size, but does not go all-out to create the smallest binary sizes possible. 
 The binary format, while being efficient, needs to serve as a general-purpose encoding, which will never be as efficient than a custom format optimized for a very specific use case.
-If this is your goal, then simply using `Codable` with it's key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. But if you're really looking into this kind of efficiency, then you probably know this already.
+If this is your goal, then simply using `Codable` with it's key-value approach will not be the best solution. An unkeyed format optimized for the actually encoded data will be more suitable. 
+But if you're really looking into this kind of efficiency, then you probably know this already.
 
 The encoding format used by `BinaryCodable` is similar to Google's [Protocol Buffers](https://developers.google.com/protocol-buffers) in some aspects, but provides much more flexibility regarding the different types which can be encoded, including the ability to encode `Optional`, `Set`, single values, multidimensional `Array`s, and more.
 
