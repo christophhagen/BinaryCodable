@@ -18,14 +18,14 @@ The basic types known to `Codable` are listed in the following table:
 | --- | --- | --- |
 | Bool | 1 | false: `0x00`, true: `0x01` |
 | Data | ? | As itself
-| Double | 8 | IEEE Double representation, little endian |
-| Float | 4 |IEEE Double representation, little endian |
+| Double | 8 | [IEEE Double representation, little endian](#floating-point-types) |
+| Float | 4 | [IEEE Double representation, little endian](#floating-point-types) |
 | Int8 | 1 | [Little endian](#little-endian) |
 | Int16 | 2 | [Little endian](#little-endian) |
-| Int32 | 1-5 | Zig-zag variable-length encoding |
-| Int64 | 1-9 | Zig-zag variable-length encoding |
-| Int | 1-9 | Zig-zag variable-length encoding |
-| String | ? | UTF-8 data |
+| Int32 | 1-5 | [Zig-zag variable-length encoding](#zig-zag-encoding) |
+| Int64 | 1-9 | [Zig-zag variable-length encoding](#zig-zag-encoding) |
+| Int | 1-9 | [Zig-zag variable-length encoding](#zig-zag-encoding) |
+| String | ? | [UTF-8 data](#strings) |
 | UInt8 | 1 | [Little endian](#little-endian) |
 | UInt16 | 2 | [Little endian](#little-endian) |
 | UInt32 | 1-5 | [Variable-length encoding](#variable-length-encoding) |
@@ -56,6 +56,7 @@ struct MyType: Codable {
 ### Boolean
 
 `Bool` values are encoded as a single byte, using `1` for `true`, and `0` for `false`.
+All other bytes will result in a decoding error.
 
 ### Little endian
 

@@ -13,10 +13,12 @@ extension UInt64: DecodablePrimitive {
     }
 }
 
+// - MARK: Variable-length encoding
+
 extension UInt64: VariableLengthEncodable {
 
     /// The value encoded using variable-length encoding
-    var variableLengthEncoding: Data {
+    public var variableLengthEncoding: Data {
         var result = Data()
         var value = self
         // Iterate over the first 56 bit
@@ -41,7 +43,7 @@ extension UInt64: VariableLengthEncodable {
 
 extension UInt64: VariableLengthDecodable {
 
-    init(fromVarint data: Data) throws {
+    public init(fromVarint data: Data) throws {
         var currentIndex = data.startIndex
         
         func nextByte() throws -> UInt64 {
@@ -84,5 +86,32 @@ extension UInt64: VariableLengthDecodable {
         result += UInt64(nextByte) << 56
         try ensureDataIsAtEnd()
         self = result
+    }
+}
+
+extension VariableLengthEncoded where WrappedValue == UInt64 {
+    
+    @available(*, deprecated, message: "Property wrapper @VariableLengthEncoded has no effect on type UInt64")
+    public init(wrappedValue: UInt64) {
+        self.wrappedValue = wrappedValue
+    }
+}
+
+// - MARK: Fixed-size encoding
+
+extension UInt64: FixedSizeEncodable {
+
+    public var fixedSizeEncoded: Data {
+        Data(underlying: littleEndian)
+    }
+}
+
+extension UInt64: FixedSizeDecodable {
+
+    public init(fromFixedSize data: Data) throws {
+        guard data.count == MemoryLayout<UInt64>.size else {
+            throw CorruptedDataError(invalidSize: data.count, for: "UInt64")
+        }
+        self.init(littleEndian: data.interpreted())
     }
 }
