@@ -4,10 +4,10 @@
 <p align="center">
     <img src="assets/swift.svg" />
     <img src="assets/platforms.svg" />
-    <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml">
+    <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml" style="text-decoration: none;">
         <img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" />
     </a>
-    <a href="https://docs.christophhagen.de/documentation/binarycodable">
+    <a href="https://docs.christophhagen.de/documentation/binarycodable" style="text-decoration: none;">
         <img src="assets/docs.svg" />
     </a>
 </p>
