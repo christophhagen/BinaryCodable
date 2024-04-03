@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Setup Swift
-        uses: swift-actions/setup-swift@v1.26.0
+        uses: swift-actions/setup-swift@v2.0.0
         with:
           swift-version: ${{ matrix.swift }}
       - name: Checkout
