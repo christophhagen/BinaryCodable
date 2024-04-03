@@ -9,7 +9,9 @@ final class KeyedDecoder<Key>: AbstractDecodingNode, KeyedDecodingContainerProto
     private let elements: [DecodingKey: Data?]
 
     init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
-        self.elements = try DecodingStorage(data: data, codingPath: codingPath).decodeKeyDataPairs()
+        self.elements = try wrapCorruptDataError(at: codingPath) {
+            try data.decodeKeyDataPairs()
+        }
         self.allKeys = elements.keys.compactMap { $0.asKey() }
         super.init(parentDecodedNil: true, codingPath: codingPath, userInfo: userInfo)
     }

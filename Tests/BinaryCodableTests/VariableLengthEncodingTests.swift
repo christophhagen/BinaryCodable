@@ -6,7 +6,7 @@ final class VariableLengthEncodingTests: XCTestCase {
     func compare<T>(varInt value: T, of: T.Type, to result: [UInt8]) throws where T: VariableLengthCodable {
         let data = value.variableLengthEncoding
         XCTAssertEqual(Array(data), result)
-        let decoded = try T(fromVarint: data, codingPath: [])
+        let decoded = try T(fromVarint: data)
         XCTAssertEqual(decoded, value)
     }
 

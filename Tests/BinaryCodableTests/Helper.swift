@@ -69,7 +69,7 @@ extension XCTestCase {
     func compareEncoding<T>(of value: T, withType type: T.Type = T.self, isEqualTo expected: [UInt8]) throws where T: EncodablePrimitive, T: DecodablePrimitive, T: Equatable {
         let encoded = value.encodedData
         XCTAssertEqual(Array(encoded), expected)
-        let decoded = try T.init(data: encoded, codingPath: [])
+        let decoded = try T.init(data: encoded)
         XCTAssertEqual(decoded, value)
     }
 }

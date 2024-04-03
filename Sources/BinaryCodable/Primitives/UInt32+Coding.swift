@@ -8,8 +8,8 @@ extension UInt32: EncodablePrimitive {
 
 extension UInt32: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
-        try self.init(fromVarint: data, codingPath: codingPath)
+    init(data: Data) throws {
+        try self.init(fromVarint: data)
     }
 }
 
@@ -24,10 +24,10 @@ extension UInt32: VariableLengthEncodable {
 
 extension UInt32: VariableLengthDecodable {
 
-    init(fromVarint data: Data, codingPath: [any CodingKey]) throws {
-        let raw = try UInt64(fromVarint: data, codingPath: codingPath)
+    init(fromVarint data: Data) throws {
+        let raw = try UInt64(fromVarint: data)
         guard let value = UInt32(exactly: raw) else {
-            throw DecodingError.corrupted("Decoded value \(raw) is out of range for type UInt32", codingPath: codingPath)
+            throw CorruptedDataError(outOfRange: raw, forType: "UInt32")
         }
         self = value
     }

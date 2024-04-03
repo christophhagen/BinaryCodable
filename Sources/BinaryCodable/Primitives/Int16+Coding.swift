@@ -9,9 +9,9 @@ extension Int16: EncodablePrimitive {
 
 extension Int16: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
+    init(data: Data) throws {
         guard data.count == MemoryLayout<UInt16>.size else {
-            throw DecodingError.invalidSize(size: data.count, for: "Int16", codingPath: codingPath)
+            throw CorruptedDataError(invalidSize: data.count, for: "Int16")
         }
         let value = UInt16(littleEndian: data.interpreted())
         self.init(bitPattern: value)

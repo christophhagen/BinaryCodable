@@ -45,12 +45,7 @@ public struct BinaryDecoder {
      - Throws: Errors of type `DecodingError`
      */
     public func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
-        // Directly decode primitives, otherwise it would be decoded with a nil indicator
-        if let BaseType = T.self as? DecodablePrimitive.Type {
-            return try BaseType.init(data: data, codingPath: []) as! T
-        }
-        let node = try DecodingNode(data: data, parentDecodedNil: false, codingPath: [], userInfo: userInfo)
-        return try T.init(from: node)
+        try decode(element: data, type: type, codingPath: [])
     }
 
     /**
@@ -63,4 +58,9 @@ public struct BinaryDecoder {
     public static func decode<T>(_ type: T.Type = T.self, from data: Data) throws -> T where T: Decodable {
         try BinaryDecoder().decode(type, from: data)
     }
+}
+
+extension BinaryDecoder: AbstractDecoder {
+    
+    var parentDecodedNil: Bool { false }
 }

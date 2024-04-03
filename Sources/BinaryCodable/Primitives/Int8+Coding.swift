@@ -9,9 +9,9 @@ extension Int8: EncodablePrimitive {
 
 extension Int8: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
+    init(data: Data) throws {
         guard data.count == 1 else {
-            throw DecodingError.invalidSize(size: data.count, for: "Int8", codingPath: codingPath)
+            throw CorruptedDataError(invalidSize: data.count, for: "Int8")
         }
         self.init(bitPattern: data[data.startIndex])
     }

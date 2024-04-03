@@ -9,9 +9,9 @@ extension String: EncodablePrimitive {
 
 extension String: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) throws {
+    init(data: Data) throws {
         guard let value = String(data: data, encoding: .utf8) else {
-            throw DecodingError.corrupted("Invalid string", codingPath: codingPath)
+            throw CorruptedDataError(invalidString: data.count)
         }
         self = value
     }

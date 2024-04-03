@@ -37,6 +37,8 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
 
     private let endIndex: UInt64
 
+    private var currentIndex: UInt64 = 0
+    
     /**
      Create a file decoder.
 
@@ -126,51 +128,50 @@ public final class BinaryFileDecoder<Element> where Element: Decodable {
      - Throws: Errors of type `DecodingError`
      */
     public func readElement() throws -> Element? {
-        guard !isAtEnd else {
+        guard !isAtEnd(at: currentIndex) else {
             return nil
         }
         // Read length/nil indicator
-        let data = try decodeNextDataOrNilElement()
+        let data = try wrapCorruptDataError {
+            try decodeNextDataOrNilElement(at: &currentIndex)
+        }
         let node = try DecodingNode(data: data, parentDecodedNil: true, codingPath: [], userInfo: decoder.userInfo)
         return try Element.init(from: node)
     }
-}
-
-extension BinaryFileDecoder: DecodingDataProvider {
-
-    var codingPath: [any CodingKey] { [] }
-
-    private var currentOffset: UInt64 {
+    
+    private func getCurrentIndex() -> UInt64 {
         if #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) {
             return (try? file.offset()) ?? endIndex
         }
         return file.offsetInFile
     }
+}
 
-    var isAtEnd: Bool {
-        currentOffset >= endIndex
+extension BinaryFileDecoder: DecodingDataProvider {
+    
+    var startIndex: UInt64 { 0 }
+    
+    func isAtEnd(at index: UInt64) -> Bool {
+        index >= endIndex
     }
-
-    func nextByte() throws -> UInt64 {
-        let byte = try getBytes(1).first!
-        return UInt64(byte)
+    
+    func nextByte(at index: inout UInt64) -> UInt8? {
+        nextBytes(1, at: &index)?.first
     }
-
-    var numberOfRemainingBytes: Int {
-        Int(endIndex - currentOffset)
-    }
-
-    func getBytes(_ count: Int) throws -> Data {
+    
+    func nextBytes(_ count: Int, at index: inout UInt64) -> Data? {
         guard #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) else {
             let data = file.readData(ofLength: count)
             guard data.count == count else {
-                throw DecodingError.prematureEndOfData([])
+                return nil
             }
+            defer { index += UInt64(count) }
             return data
         }
-        guard let data = try file.read(upToCount: count) else {
-            throw DecodingError.prematureEndOfData([])
+        guard let data = try? file.read(upToCount: count) else {
+            return nil
         }
+        defer { index += UInt64(count) }
         return data
     }
 }

@@ -8,6 +8,7 @@ protocol DecodablePrimitive {
     /**
      Decode a value from the data.
      - Note: All provided data can be used
+     - Throws: Errors of type ``CorruptDataError``
      */
-    init(data: Data, codingPath: [CodingKey]) throws
+    init(data: Data) throws
 }

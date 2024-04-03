@@ -9,7 +9,7 @@ extension Data: EncodablePrimitive {
 
 extension Data: DecodablePrimitive {
 
-    init(data: Data, codingPath: [CodingKey]) {
+    init(data: Data) {
         self = data
     }
 }
