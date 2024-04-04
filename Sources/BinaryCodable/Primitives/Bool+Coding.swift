@@ -28,6 +28,5 @@ extension Bool: DecodablePrimitive {
         default:
             throw CorruptedDataError(invalidBoolByte: byte)
         }
-        self = data[data.startIndex] > 0
     }
 }
