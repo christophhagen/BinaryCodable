@@ -12,7 +12,7 @@ public typealias ZigZagCodable = ZigZagEncodable & ZigZagDecodable
 /**
  A type that can be encoded as a zig-zag variable-length integer
  */
-public protocol ZigZagEncodable {
+public protocol ZigZagEncodable: Encodable {
 
     /// The value encoded as binary data using zig-zag variable-length integer encoding
     var zigZagEncoded: Data { get }
@@ -22,7 +22,7 @@ public protocol ZigZagEncodable {
 /**
  A type that can be decoded as a zig-zag variable-length integer
  */
-public protocol ZigZagDecodable {
+public protocol ZigZagDecodable: Decodable {
 
     /**
      Decode a value as a zig-zag variable-length integer.

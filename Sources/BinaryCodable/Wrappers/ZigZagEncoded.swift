@@ -257,7 +257,7 @@ extension ZigZagEncoded: Encodable {
      */
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(self)
+        try container.encode(wrappedValue)
     }
 }
 
@@ -269,6 +269,6 @@ extension ZigZagEncoded: Decodable {
      */
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self = try container.decode(Self.self)
+        wrappedValue = try container.decode(WrappedValue.self)
     }
 }

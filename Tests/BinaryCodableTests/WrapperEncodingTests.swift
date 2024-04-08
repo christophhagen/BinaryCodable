@@ -244,4 +244,76 @@ final class WrapperEncodingTests: XCTestCase {
             123 // Int 123, variable-length encoded
         ])
     }
+
+    /**
+     This test ensures that the fixed wrapper is transparent for other encoders
+     */
+    func testEncodeFixedWrapperWithJSON() throws {
+        struct Test: Codable, Equatable {
+            @FixedSizeEncoded
+            var val: Int
+        }
+
+        struct Test2: Codable, Equatable {
+            var val: Int
+        }
+
+        let value = Test(val: 123)
+        let value2 = Test2(val: 123)
+        let encoded = try JSONEncoder().encode(value)
+        let encoded2 = try JSONEncoder().encode(value2)
+        XCTAssertEqual(encoded, encoded2)
+        let decoded = try JSONDecoder().decode(Test.self, from: encoded)
+        let decoded2 = try JSONDecoder().decode(Test2.self, from: encoded2)
+        XCTAssertEqual(decoded, value)
+        XCTAssertEqual(decoded2, value2)
+    }
+
+    /**
+     This test ensures that the zig-zag wrapper is transparent for other encoders
+     */
+    func testEncodeZigZagWrapperWithJSON() throws {
+        struct Test: Codable, Equatable {
+            @ZigZagEncoded
+            var val: Int16
+        }
+
+        struct Test2: Codable, Equatable {
+            var val: Int16
+        }
+
+        let value = Test(val: 123)
+        let value2 = Test2(val: 123)
+        let encoded = try JSONEncoder().encode(value)
+        let encoded2 = try JSONEncoder().encode(value2)
+        XCTAssertEqual(encoded, encoded2)
+        let decoded = try JSONDecoder().decode(Test.self, from: encoded)
+        let decoded2 = try JSONDecoder().decode(Test2.self, from: encoded2)
+        XCTAssertEqual(decoded, value)
+        XCTAssertEqual(decoded2, value2)
+    }
+
+    /**
+     This test ensures that the variable length wrapper is transparent for other encoders
+     */
+    func testEncodeVariableLengthWrapperWithJSON() throws {
+        struct Test: Codable, Equatable {
+            @VariableLengthEncoded
+            var val: Int
+        }
+
+        struct Test2: Codable, Equatable {
+            var val: Int
+        }
+
+        let value = Test(val: 123)
+        let value2 = Test2(val: 123)
+        let encoded = try JSONEncoder().encode(value)
+        let encoded2 = try JSONEncoder().encode(value2)
+        XCTAssertEqual(encoded, encoded2)
+        let decoded = try JSONDecoder().decode(Test.self, from: encoded)
+        let decoded2 = try JSONDecoder().decode(Test2.self, from: encoded2)
+        XCTAssertEqual(decoded, value)
+        XCTAssertEqual(decoded2, value2)
+    }
 }
