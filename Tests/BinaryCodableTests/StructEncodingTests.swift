@@ -10,10 +10,10 @@ final class StructEncodingTests: XCTestCase {
         let expected: [UInt8] = [
             7, // String key, length 3
             118, 97, 108,
-            12, // Length 6
-            2, 1, // true
-            2, 0, // false
-            2, 1] // true
+            6, // Length 3
+            1, // true
+            0, // false
+            1] // true
         try compare(Test(val: [true, false, true]), to: expected)
     }
 
@@ -33,6 +33,24 @@ final class StructEncodingTests: XCTestCase {
             118, 97, 108, // 'val'
             4, // Length 2
             248, 1, // Value '124'
+        ]
+        try compare(value, to: expected)
+    }
+
+    func testStructWithArrayOfOptionals() throws {
+        struct Test: Codable, Equatable {
+            let val: [Bool?]
+        }
+        let value = Test(val: [nil, true, nil, nil, false])
+        let expected: [UInt8] = [
+            7, // String key, length 3
+            118, 97, 108, // 'val'
+            14, // Length 7
+            1, // Nil
+            2, 1, // True
+            1, // Nil
+            1, // Nil
+            2, 0 // False
         ]
         try compare(value, to: expected)
     }

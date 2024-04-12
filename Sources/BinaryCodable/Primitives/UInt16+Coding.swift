@@ -34,8 +34,8 @@ extension UInt16: VariableLengthDecodable {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromVarint data: Data) throws {
-        let raw = try UInt64(fromVarint: data)
+    public init(fromVarint raw: UInt64) throws {
+        let raw = UInt64(fromVarint: raw)
         guard let value = UInt16(exactly: raw) else {
             throw CorruptedDataError(outOfRange: raw, forType: "UInt16")
         }
@@ -81,3 +81,18 @@ extension FixedSizeEncoded where WrappedValue == UInt16 {
     }
 }
 
+// - MARK: Packed
+
+extension UInt16: PackedEncodable {
+
+}
+
+extension UInt16: PackedDecodable {
+
+    init(data: Data, index: inout Int) throws {
+        guard let bytes = data.nextBytes(Self.fixedEncodedByteCount, at: &index) else {
+            throw CorruptedDataError.init(prematureEndofDataDecoding: "UInt16")
+        }
+        try self.init(fromFixedSize: bytes)
+    }
+}

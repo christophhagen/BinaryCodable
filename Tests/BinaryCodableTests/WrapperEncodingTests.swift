@@ -3,7 +3,7 @@ import XCTest
 
 final class WrapperEncodingTests: XCTestCase {
 
-    private func compareFixed<T>(_ value: FixedSizeEncoded<T>, of type: T.Type, to expected: [UInt8]) throws where T: FixedSizeCodable, T: CodablePrimitive {
+    private func compareFixed<T>(_ value: FixedSizeEncoded<T>, of type: T.Type, to expected: [UInt8]) throws where T: FixedSizeCodable, T: CodablePrimitive, T: Equatable {
         try compareEncoding(of: value, withType: FixedSizeEncoded<T>.self, isEqualTo: expected)
     }
 

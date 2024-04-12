@@ -15,10 +15,10 @@ final class BoolTests: XCTestCase {
     }
 
     func testArrayBool() throws {
-        try compare([false], to: [2, 0])
-        try compare([true],  to: [2, 1])
-        try compare([true, false],  to: [2, 1, 2, 0])
-        try compare([false, true],  to: [2, 0, 2, 1])
+        try compare([false], to: [0])
+        try compare([true],  to: [1])
+        try compare([true, false],  to: [1, 0])
+        try compare([false, true],  to: [0, 1])
     }
 
     func testArrayOptionalBool() throws {
@@ -34,10 +34,10 @@ final class BoolTests: XCTestCase {
 
     func testOptionalArrayBool() throws {
         try compare(nil, of: [Bool]?.self, to: [1])
-        try compare([false], of: [Bool]?.self, to: [0, 2, 0])
-        try compare([true], of: [Bool]?.self,  to: [0, 2, 1])
-        try compare([true, false], of: [Bool]?.self,  to: [0, 2, 1, 2, 0])
-        try compare([false, true], of: [Bool]?.self,  to: [0, 2, 0, 2, 1])
+        try compare([false], of: [Bool]?.self, to: [0, 0])
+        try compare([true], of: [Bool]?.self,  to: [0, 1])
+        try compare([true, false], of: [Bool]?.self,  to: [0, 1, 0])
+        try compare([false, true], of: [Bool]?.self,  to: [0, 0, 1])
     }
 
     func testDoubleOptionalBool() throws {

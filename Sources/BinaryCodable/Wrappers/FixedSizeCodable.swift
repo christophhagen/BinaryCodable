@@ -24,3 +24,9 @@ public protocol FixedSizeDecodable: Decodable {
      */
     init(fromFixedSize data: Data) throws
 }
+
+extension FixedSizeDecodable {
+
+    /// The number of bytes needed for a fixed-size encoding
+    static var fixedEncodedByteCount: Int { MemoryLayout<Self>.size }
+}

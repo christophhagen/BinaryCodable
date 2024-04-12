@@ -20,7 +20,7 @@ extension DecodingDataProvider {
      Decode an unsigned integer using variable-length encoding starting at a position.
      - Returns: `Nil`, if insufficient data is available
      */
-    private func decodeUInt64(at index: inout Index) -> UInt64? {
+    func decodeUInt64(at index: inout Index) -> UInt64? {
         guard let start = nextByte(at: &index) else { return nil }
         return decodeUInt64(startByte: start, at: &index)
     }

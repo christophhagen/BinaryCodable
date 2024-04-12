@@ -24,5 +24,5 @@ public protocol VariableLengthDecodable: FixedWidthInteger, Decodable {
      - Parameter data: The encoded value
      - Throws: ``CorruptedDataError``
      */
-    init(fromVarint data: Data) throws
+    init(fromVarint raw: UInt64) throws
 }

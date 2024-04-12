@@ -87,7 +87,7 @@ This is useful if the integer values are often large, e.g. for random numbers.
 ### Strings
 
 Swift `String` values are encoded using their `UTF-8` representations. 
-If a string can't be encoded this way, then encoding fails.
+If a string can't be encoded this way, then encoding fails.s
 
 ## Containers
 
@@ -148,6 +148,33 @@ which translates to:
 0x00 // Fourth element is not nil, length 0
 ```
 
+### Packed sequences
+
+Some of these basic types can be decoded from a continuous stream, either because they have a fixed length (like `Double`), or because their encoding can detect when the type ends (like variable-length encoded types).
+Since these types don't require a length, basic sequences (`Array` and `Set`) of these types are encoded in a "packed" format, where no additional length indicator is added for each element.
+
+For example, encoding a series of `Bool` values in an unkeyed container would result in the following encoded data:
+
+```
+// True, false, false
+02 01   02 00   02 00
+```
+
+The `02` bytes indicate the length of each `Bool`, which is unnecessary, since a `Bool` is always exactly one byte.
+
+When encoding a type of `[Bool]`, the encoded data is shortened to: 
+
+```
+// True, false, false
+01 00 00
+```
+
+This encoding is only used for the following types:
+
+- Fixed-width types: `Double`, `Float`, `Bool`, `Int8`, `UInt8`, `Int16`, `UInt16`, `FixedLengthEncoded<T>`
+- Zig-zag types: `Int32`, `Int64`, `Int`
+- Variable-length types: `UInt32`, `UInt64`, `UInt`, `VariableLengthEncoded<T>`
+
 ### Keyed containers
 
 Keyed containers work similar to unkeyed containers, except that each element also has a key inserted before the element data.
@@ -207,16 +234,15 @@ will give the following binary data:
 | 4 | 0x06 | Length 3
 | 5-7 | 0x42 0x6f 0x62 | String "Bob"
 | 8 | 0x06 | CodingKey(stringValue: 'references', intValue: 3)
-| 9 | 0x0A | Length 5
-| 10 | 0x02 | Length 1
-| 11 | 0x06 | Int `3`
-| 12 | 0x04 | Length 2
-| 13-14 | 0xAF 0x04 | Int `-280`
+| 9 | 0x0A | Length 3
+| 10 | 0x06 | Int `3`
+| 11-12 | 0xAF 0x04 | Int `-280`
 
 There are a few things to note:
 - The properties are all marked by their integer keys
 - The elements in the `references` array are also preceded by a length indicator
 - The top level keyed container has no length information, since it can be inferred from the length of the provided data
+- `[Int]` is a packed field, so no length data is inserted before each element
 
 ### Dictionaries
 

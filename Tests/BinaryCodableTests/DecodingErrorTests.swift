@@ -19,7 +19,8 @@ final class DecodingErrorTests: XCTestCase {
         }
         
         do {
-            _ = try Int32(fromZigZag: encoded)
+            let raw = try UInt64(fromVarintData: encoded)
+            _ = try Int32(fromZigZag: raw)
             XCTFail("Should fail to decode Int32")
         } catch is CorruptedDataError {
             
@@ -37,7 +38,8 @@ final class DecodingErrorTests: XCTestCase {
         }
         
         do {
-            _ = try Int32(fromZigZag: encoded2)
+            let raw = try UInt64(fromVarintData: encoded2)
+            _ = try Int32(fromZigZag: raw)
             XCTFail("Should fail to decode Int32")
         } catch is CorruptedDataError {
             
@@ -57,7 +59,7 @@ final class DecodingErrorTests: XCTestCase {
         }
         
         do {
-            _ = try UInt32(fromVarint: encoded)
+            _ = try UInt32(fromVarint: value)
             XCTFail("Should fail to decode UInt32")
         } catch is CorruptedDataError {
             

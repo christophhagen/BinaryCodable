@@ -19,7 +19,7 @@ The `FixedSizeEncoded` property wrapper is supported for `UInt`, `UInt32`, `UInt
  - SeeAlso: [Language Guide (proto3): Scalar value types](https://developers.google.com/protocol-buffers/docs/proto3#scalar)
  */
 @propertyWrapper
-public struct FixedSizeEncoded<WrappedValue> where WrappedValue: FixedSizeCodable, WrappedValue: FixedWidthInteger {
+public struct FixedSizeEncoded<WrappedValue> where WrappedValue: FixedSizeCodable {
 
     /// The value wrapped in the fixed-size container
     public var wrappedValue: WrappedValue
@@ -33,18 +33,89 @@ public struct FixedSizeEncoded<WrappedValue> where WrappedValue: FixedSizeCodabl
     }
 }
 
-extension FixedSizeEncoded: Numeric {
+// MARK: - Fixed size
+
+extension FixedSizeEncoded: EncodablePrimitive where WrappedValue: EncodablePrimitive {
+
+    /**
+     Encode the wrapped value to binary data compatible with the protobuf encoding.
+     - Returns: The binary data in host-independent format.
+     */
+    var encodedData: Data {
+        wrappedValue.fixedSizeEncoded
+    }
+}
+
+extension FixedSizeEncoded: DecodablePrimitive where WrappedValue: DecodablePrimitive {
+
+    init(data: Data) throws {
+        let wrappedValue = try WrappedValue(fromFixedSize: data)
+        self.init(wrappedValue: wrappedValue)
+    }
+}
+
+// MARK: - Codable
+
+extension FixedSizeEncoded: Encodable {
+
+    /**
+     Encode the wrapped value transparently to the given encoder.
+     - Parameter encoder: The encoder to use for encoding.
+     - Throws: Errors from the decoder when attempting to encode a value in a single value container.
+     */
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(wrappedValue)
+    }
+}
+
+extension FixedSizeEncoded: Decodable {
+    /**
+     Decode a wrapped value from a decoder.
+     - Parameter decoder: The decoder to use for decoding.
+     - Throws: Errors from the decoder when reading a single value container or decoding the wrapped value from it.
+     */
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        wrappedValue = try container.decode(WrappedValue.self)
+    }
+}
+
+extension FixedSizeEncoded: Equatable where WrappedValue: Equatable {
+
+}
+
+extension FixedSizeEncoded: Hashable where WrappedValue: Hashable {
+
+}
+
+extension FixedSizeEncoded: Comparable where WrappedValue: Comparable {
+
+    public static func < (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> Bool {
+        lhs.wrappedValue < rhs.wrappedValue
+    }
+}
+
+extension FixedSizeEncoded: CustomStringConvertible where WrappedValue: CustomStringConvertible {
+    
+    public var description: String {
+        wrappedValue.description
+    }
+}
+
+extension FixedSizeEncoded: Numeric where WrappedValue: Numeric {
+
     public init?<T>(exactly source: T) where T : BinaryInteger {
         guard let wrapped = WrappedValue(exactly: source) else {
             return nil
         }
         self.init(wrappedValue: wrapped)
     }
-    
+
     public var magnitude: WrappedValue.Magnitude {
         wrappedValue.magnitude
     }
-    
+
     public static func * (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue * rhs.wrappedValue)
     }
@@ -54,7 +125,7 @@ extension FixedSizeEncoded: Numeric {
     }
 }
 
-extension FixedSizeEncoded: AdditiveArithmetic {
+extension FixedSizeEncoded: AdditiveArithmetic where WrappedValue: AdditiveArithmetic {
 
     /**
      The zero value.
@@ -74,32 +145,81 @@ extension FixedSizeEncoded: AdditiveArithmetic {
     }
 }
 
-extension FixedSizeEncoded: BinaryInteger {
+extension FixedSizeEncoded: Strideable where WrappedValue: Strideable {
+
+
+    public typealias Stride = WrappedValue.Stride
+
+    public func distance(to other: FixedSizeEncoded<WrappedValue>) -> WrappedValue.Stride {
+        wrappedValue.distance(to: other.wrappedValue)
+    }
+
+    public func advanced(by n: WrappedValue.Stride) -> FixedSizeEncoded<WrappedValue> {
+        .init(wrappedValue: wrappedValue.advanced(by: n))
+    }
+}
+
+extension FixedSizeEncoded: BinaryInteger where WrappedValue: BinaryInteger {
+    
+    public static func <<= <RHS>(lhs: inout FixedSizeEncoded<WrappedValue>, rhs: RHS) where RHS : BinaryInteger {
+        lhs.wrappedValue <<= rhs
+    }
+    
+    public static func >>= <RHS>(lhs: inout FixedSizeEncoded<WrappedValue>, rhs: RHS) where RHS : BinaryInteger {
+        lhs.wrappedValue >>= rhs
+    }
+
+    public static prefix func ~ (x: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
+        .init(wrappedValue: ~x.wrappedValue)
+    }
+    
+    public var bitWidth: Int {
+        wrappedValue.bitWidth
+    }
+
+    public init<T>(clamping source: T) where T : BinaryInteger {
+        self.wrappedValue = .init(clamping: source)
+    }
+    
+    public init<T>(truncatingIfNeeded source: T) where T : BinaryInteger {
+        self.wrappedValue = .init(truncatingIfNeeded: source)
+    }
+    
+    public init<T>(_ source: T) where T : BinaryFloatingPoint {
+        self.wrappedValue = .init(source)
+    }
+    
+    public init?<T>(exactly source: T) where T : BinaryFloatingPoint {
+        guard let wrappedValue = WrappedValue(exactly: source) else {
+            return nil
+        }
+        self.wrappedValue = wrappedValue
+    }
 
     public init<T>(_ source: T) where T : BinaryInteger {
         self.init(wrappedValue: .init(source))
     }
-    
+
     public static var isSigned: Bool {
         WrappedValue.isSigned
     }
-    
+
     public var words: WrappedValue.Words {
         wrappedValue.words
     }
-    
+
     public var trailingZeroBitCount: Int {
         wrappedValue.trailingZeroBitCount
     }
-    
+
     public static func / (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue / rhs.wrappedValue)
     }
-    
+
     public static func % (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: lhs.wrappedValue % rhs.wrappedValue)
     }
-    
+
     public static func /= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue /= rhs.wrappedValue
     }
@@ -107,21 +227,31 @@ extension FixedSizeEncoded: BinaryInteger {
     public static func %= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue %= rhs.wrappedValue
     }
-    
+
     public static func &= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue &= rhs.wrappedValue
     }
-    
+
     public static func |= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue |= rhs.wrappedValue
     }
-    
+
     public static func ^= (lhs: inout FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) {
         lhs.wrappedValue ^= rhs.wrappedValue
     }
 }
 
-extension FixedSizeEncoded: FixedWidthInteger {
+extension FixedSizeEncoded: LosslessStringConvertible where WrappedValue: LosslessStringConvertible {
+
+    public init?(_ description: String) {
+        guard let wrappedValue = WrappedValue(description) else {
+            return nil
+        }
+        self.wrappedValue = wrappedValue
+    }
+}
+
+extension FixedSizeEncoded: FixedWidthInteger where WrappedValue: FixedWidthInteger {
 
     public typealias Words = WrappedValue.Words
 
@@ -168,15 +298,15 @@ extension FixedSizeEncoded: FixedWidthInteger {
     public var nonzeroBitCount: Int {
         wrappedValue.nonzeroBitCount
     }
-    
+
     public var leadingZeroBitCount: Int {
         wrappedValue.leadingZeroBitCount
     }
-    
+
     public var byteSwapped: FixedSizeEncoded<WrappedValue> {
         .init(wrappedValue: wrappedValue.byteSwapped)
     }
-    
+
     /// The maximum representable integer in this type.
     ///
     /// For unsigned integer types, this value is `(2 ** bitWidth) - 1`, where
@@ -196,71 +326,11 @@ extension FixedSizeEncoded: FixedWidthInteger {
     }
 }
 
-extension FixedSizeEncoded: ExpressibleByIntegerLiteral {
+extension FixedSizeEncoded: ExpressibleByIntegerLiteral where WrappedValue: ExpressibleByIntegerLiteral {
 
     public typealias IntegerLiteralType = WrappedValue.IntegerLiteralType
 
     public init(integerLiteral value: WrappedValue.IntegerLiteralType) {
         self.wrappedValue = WrappedValue.init(integerLiteral: value)
-    }
-}
-
-extension FixedSizeEncoded: Equatable {
-
-    public static func == (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> Bool {
-        lhs.wrappedValue == rhs.wrappedValue
-    }
-}
-
-extension FixedSizeEncoded: Comparable {
-
-    public static func < (lhs: FixedSizeEncoded<WrappedValue>, rhs: FixedSizeEncoded<WrappedValue>) -> Bool {
-        lhs.wrappedValue < rhs.wrappedValue
-    }
-}
-
-extension FixedSizeEncoded: Hashable { }
-
-extension FixedSizeEncoded: EncodablePrimitive where WrappedValue: EncodablePrimitive {
-
-    /**
-     Encode the wrapped value to binary data compatible with the protobuf encoding.
-     - Returns: The binary data in host-independent format.
-     */
-    var encodedData: Data {
-        wrappedValue.fixedSizeEncoded
-    }
-}
-
-extension FixedSizeEncoded: DecodablePrimitive where WrappedValue: DecodablePrimitive {
-
-    init(data: Data) throws {
-        let wrappedValue = try WrappedValue(fromFixedSize: data)
-        self.init(wrappedValue: wrappedValue)
-    }
-}
-
-extension FixedSizeEncoded: Encodable {
-
-    /**
-     Encode the wrapped value transparently to the given encoder.
-     - Parameter encoder: The encoder to use for encoding.
-     - Throws: Errors from the decoder when attempting to encode a value in a single value container.
-     */
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(wrappedValue)
-    }
-}
-
-extension FixedSizeEncoded: Decodable {
-    /**
-     Decode a wrapped value from a decoder.
-     - Parameter decoder: The decoder to use for decoding.
-     - Throws: Errors from the decoder when reading a single value container or decoding the wrapped value from it.
-     */
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        wrappedValue = try container.decode(WrappedValue.self)
     }
 }

@@ -243,7 +243,8 @@ extension ZigZagEncoded: EncodablePrimitive where WrappedValue: EncodablePrimiti
 extension ZigZagEncoded: DecodablePrimitive where WrappedValue: DecodablePrimitive {
 
     init(data: Data) throws {
-        let wrappedValue = try WrappedValue(fromZigZag: data)
+        let raw = try UInt64(fromVarintData: data)
+        let wrappedValue = try WrappedValue(fromZigZag: raw)
         self.init(wrappedValue: wrappedValue)
     }
 }
