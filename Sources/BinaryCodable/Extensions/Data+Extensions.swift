@@ -18,6 +18,18 @@ extension Data {
     }
 }
 
+extension Sequence {
+
+    func mapAndJoin(_ closure: (Element) throws -> Data) rethrows -> Data {
+        var result = Data()
+        for (value) in self {
+            let data = try closure(value)
+            result.append(data)
+        }
+        return result
+    }
+}
+
 extension Sequence where Element: Sequence, Element.Element == UInt8 {
 
     var joinedData: Data {

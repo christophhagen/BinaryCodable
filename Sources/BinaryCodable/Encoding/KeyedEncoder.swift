@@ -79,8 +79,12 @@ extension KeyedEncoder: EncodableContainer {
     }
 
     private func encode<T>(elements: T) throws -> Data where T: Collection, T.Element == (key: HashableKey, value: EncodableContainer) {
-        try elements.map { key, value in
-            try value.completeData(with: key.key, codingPath: codingPath)
-        }.joinedData
+        try elements.mapAndJoin { key, value in
+            guard let keyData = key.key.keyData() else {
+                throw EncodingError.invalidValue(key.key.intValue!, .init(codingPath: codingPath + [key.key], debugDescription: "Invalid integer value for coding key"))
+            }
+            let data = try value.completeData()
+            return keyData + data
+        }
     }
 }

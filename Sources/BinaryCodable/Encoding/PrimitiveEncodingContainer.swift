@@ -15,7 +15,7 @@ struct PrimitiveEncodingContainer: EncodableContainer {
         self.wrapped = wrapped
     }
 
-    func containedData() throws -> Data {
+    func containedData() -> Data {
         wrapped.encodedData
     }
 }

@@ -26,13 +26,6 @@ protocol EncodableContainer {
 extension EncodableContainer {
 
     /**
-
-     */
-    func completeData(with key: CodingKey, codingPath: [CodingKey]) throws -> Data {
-        try key.keyData(codingPath: codingPath) + completeData()
-    }
-
-    /**
      The full data encoded in the container, including nil indicator and length, if needed
      */
     func completeData() throws -> Data {
@@ -52,38 +45,5 @@ extension EncodableContainer {
             return Data([0x00]) + data
         }
         return data
-    }
-}
-
-private extension Int {
-
-    /// Encodes the integer as the length of a nil/length indicator
-    var lengthData: Data {
-        // The first bit (LSB) is the `nil` bit (0)
-        // The rest is the length, encoded as a varint
-        (UInt64(self) << 1).encodedData
-    }
-}
-
-private extension CodingKey {
-
-    func keyData(codingPath: [CodingKey]) throws -> Data {
-        // String or Int key bit
-        // Length of String key or Int key as varint
-        // String Key Data
-        guard let intValue else {
-            let stringData = stringValue.data(using: .utf8)!
-            // Set String bit to 1
-            let lengthValue = (UInt64(stringData.count) << 1) + 0x01
-            let lengthData = lengthValue.encodedData
-            return lengthData + stringData
-        }
-        guard intValue >= 0 else {
-            throw EncodingError.invalidValue(intValue, .init(codingPath: codingPath + [self], debugDescription: "Invalid integer value for coding key"))
-        }
-        // For integer keys:
-        // The LSB is set to 0
-        // Encode 2 * intValue
-        return intValue.lengthData
     }
 }

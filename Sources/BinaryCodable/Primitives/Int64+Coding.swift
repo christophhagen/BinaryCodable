@@ -71,7 +71,7 @@ extension Int64: VariableLengthEncodable {
 
     /// The value encoded using variable length encoding
     public var variableLengthEncoding: Data {
-        UInt64(bitPattern: self).encodedData
+        UInt64(bitPattern: self).variableLengthEncoding
     }
 
 }

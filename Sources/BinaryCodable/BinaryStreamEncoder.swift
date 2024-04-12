@@ -77,6 +77,8 @@ public final class BinaryStreamEncoder<Element> where Element: Encodable {
      - Throws: Errors of type `EncodingError`
      */
     public func encode<S>(contentsOf sequence: S) throws -> Data where S: Sequence, S.Element == Element {
-        try sequence.map(encode).joinedData
+        try sequence.mapAndJoin { value in
+            try self.encode(value)
+        }
     }
 }
