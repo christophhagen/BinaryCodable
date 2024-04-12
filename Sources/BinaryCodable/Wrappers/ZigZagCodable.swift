@@ -29,6 +29,6 @@ public protocol ZigZagDecodable: Decodable {
      - Parameter data: The encoded value
      - Throws: ``CorruptedDataError``
      */
-    init(fromZigZag data: Data) throws
+    init(fromZigZag raw: UInt64) throws
 }
 

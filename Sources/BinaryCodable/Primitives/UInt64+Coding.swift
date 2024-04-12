@@ -13,8 +13,8 @@ extension UInt64: DecodablePrimitive {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    init(data: Data) throws {
-        try self.init(fromVarint: data)
+    public init(data: Data) throws {
+        try self.init(fromVarintData: data)
     }
 }
 
@@ -53,7 +53,11 @@ extension UInt64: VariableLengthDecodable {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromVarint data: Data) throws {
+    public init(fromVarint raw: UInt64) {
+        self = raw
+    }
+
+    init(fromVarintData data: Data) throws {
         var currentIndex = data.startIndex
         
         func nextByte() throws -> UInt64 {
@@ -134,5 +138,21 @@ extension UInt64: FixedSizeDecodable {
             throw CorruptedDataError(invalidSize: data.count, for: "UInt64")
         }
         self.init(littleEndian: data.interpreted())
+    }
+}
+
+// - MARK: Packed
+
+extension UInt64: PackedEncodable {
+
+}
+
+extension UInt64: PackedDecodable {
+
+    public init(data: Data, index: inout Int) throws {
+        guard let raw = data.decodeUInt64(at: &index) else {
+            throw CorruptedDataError(prematureEndofDataDecoding: "UInt64")
+        }
+        self = raw
     }
 }

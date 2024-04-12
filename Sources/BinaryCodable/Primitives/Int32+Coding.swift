@@ -13,8 +13,9 @@ extension Int32: DecodablePrimitive {
      - Parameter data: The data of the zig-zag encoded value.
      - Throws: ``CorruptedDataError``
      */
-    init(data: Data) throws {
-        try self.init(fromZigZag: data)
+    public init(data: Data) throws {
+        let raw = try UInt64(fromVarintData: data)
+        try self.init(fromZigZag: raw)
     }
 }
 
@@ -35,8 +36,8 @@ extension Int32: ZigZagDecodable {
      - Parameter data: The data of the zig-zag encoded value.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromZigZag data: Data) throws {
-        let raw = try Int64(fromZigZag: data)
+    public init(fromZigZag raw: UInt64) throws {
+        let raw = Int64(fromZigZag: raw)
         guard let value = Int32(exactly: raw) else {
             throw CorruptedDataError(outOfRange: raw, forType: "Int32")
         }
@@ -74,8 +75,8 @@ extension Int32: VariableLengthDecodable {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromVarint data: Data) throws {
-        let value = try UInt32(fromVarint: data)
+    public init(fromVarint raw: UInt64) throws {
+        let value = try UInt32(fromVarint: raw)
         self = Int32(bitPattern: value)
     }
 }
@@ -104,5 +105,21 @@ extension Int32: FixedSizeDecodable {
         }
         let value = UInt32(littleEndian: data.interpreted())
         self.init(bitPattern: value)
+    }
+}
+
+// - MARK: Packed
+
+extension Int32: PackedEncodable {
+
+}
+
+extension Int32: PackedDecodable {
+
+    public init(data: Data, index: inout Int) throws {
+        guard let raw = data.decodeUInt64(at: &index) else {
+            throw CorruptedDataError(prematureEndofDataDecoding: "Int32")
+        }
+        try self.init(fromZigZag: raw)
     }
 }

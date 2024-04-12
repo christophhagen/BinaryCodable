@@ -243,7 +243,8 @@ extension VariableLengthEncoded: EncodablePrimitive where WrappedValue: Encodabl
 extension VariableLengthEncoded: DecodablePrimitive where WrappedValue: DecodablePrimitive {
 
     init(data: Data) throws {
-        let wrappedValue = try WrappedValue(fromVarint: data)
+        let raw = try UInt64(fromVarintData: data)
+        let wrappedValue = try WrappedValue(fromVarint: raw)
         self.init(wrappedValue: wrappedValue)
     }
 }

@@ -12,7 +12,7 @@ extension Int16: DecodablePrimitive {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    init(data: Data) throws {
+    public init(data: Data) throws {
         try self.init(fromFixedSize: data)
     }
 }
@@ -72,8 +72,8 @@ extension Int16: VariableLengthDecodable {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromVarint data: Data) throws {
-        let value = try UInt16(fromVarint: data)
+    public init(fromVarint raw: UInt64) throws {
+        let value = try UInt16(fromVarint: raw)
         self = Int16(bitPattern: value)
     }
 }
@@ -95,11 +95,27 @@ extension Int16: ZigZagDecodable {
      - Parameter data: The data of the zig-zag encoded value.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromZigZag data: Data) throws {
-        let raw = try Int64(fromZigZag: data)
+    public init(fromZigZag raw: UInt64) throws {
+        let raw = Int64(fromZigZag: raw)
         guard let value = Int16(exactly: raw) else {
             throw CorruptedDataError(outOfRange: raw, forType: "Int16")
         }
         self = value
+    }
+}
+
+// - MARK: Packed
+
+extension Int16: PackedEncodable {
+
+}
+
+extension Int16: PackedDecodable {
+
+    public init(data: Data, index: inout Int) throws {
+        guard let bytes = data.nextBytes(Self.fixedEncodedByteCount, at: &index) else {
+            throw CorruptedDataError.init(prematureEndofDataDecoding: "Int16")
+        }
+        try self.init(data: bytes)
     }
 }

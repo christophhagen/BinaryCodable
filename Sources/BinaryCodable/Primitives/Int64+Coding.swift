@@ -13,8 +13,9 @@ extension Int64: DecodablePrimitive {
      - Parameter data: The data of the zig-zag encoded value.
      - Throws: ``CorruptedDataError``
      */
-    init(data: Data) throws {
-        try self.init(fromZigZag: data)
+    public init(data: Data) throws {
+        let raw = try UInt64(fromVarintData: data)
+        self.init(fromZigZag: raw)
     }
 }
 
@@ -38,16 +39,14 @@ extension Int64: ZigZagDecodable {
      - Parameter data: The data of the zig-zag encoded value.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromZigZag data: Data) throws {
-        let unsigned = try UInt64(fromVarint: data)
-
+    public init(fromZigZag raw: UInt64) {
         // Check the last bit to get sign
-        if unsigned & 1 > 0 {
+        if raw & 1 > 0 {
             // Divide by 2 and subtract one to get absolute value of negative values.
-            self = -Int64(unsigned >> 1) - 1
+            self = -Int64(raw >> 1) - 1
         } else {
             // Divide by two to get absolute value of positive values
-            self = Int64(unsigned >> 1)
+            self = Int64(raw >> 1)
         }
     }
 }
@@ -83,9 +82,8 @@ extension Int64: VariableLengthDecodable {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    public init(fromVarint data: Data) throws {
-        let value = try UInt64(fromVarint: data)
-        self = Int64(bitPattern: value)
+    public init(fromVarint raw: UInt64) {
+        self = Int64(bitPattern: raw)
     }
 }
 
@@ -113,5 +111,21 @@ extension Int64: FixedSizeDecodable {
         }
         let value = UInt64(littleEndian: data.interpreted())
         self.init(bitPattern: value)
+    }
+}
+
+// - MARK: Packed
+
+extension Int64: PackedEncodable {
+
+}
+
+extension Int64: PackedDecodable {
+
+    public init(data: Data, index: inout Int) throws {
+        guard let raw = data.decodeUInt64(at: &index) else {
+            throw CorruptedDataError(prematureEndofDataDecoding: "Int64")
+        }
+        self.init(fromZigZag: raw)
     }
 }
