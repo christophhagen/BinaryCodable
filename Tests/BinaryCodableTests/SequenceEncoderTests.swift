@@ -6,7 +6,7 @@ final class SequenceEncoderTests: XCTestCase {
     private func encodeSequence<T>(_ input: Array<T>) throws where T: Codable, T: Equatable {
         let encoder = BinaryStreamEncoder<T>()
 
-        let bytes = try input.map(encoder.encode).joinedData
+        let bytes = try input.mapAndJoin(encoder.encode)
         print(Array(bytes))
         let decoder = BinaryStreamDecoder<T>()
 

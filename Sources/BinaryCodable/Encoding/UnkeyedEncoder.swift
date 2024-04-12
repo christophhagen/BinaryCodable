@@ -53,9 +53,8 @@ extension UnkeyedEncoder: EncodableContainer {
     }
 
     func containedData() throws -> Data {
-        try encodedValues.map {
-            let data = try $0.completeData()
-            return data
-        }.joinedData
+        try encodedValues.mapAndJoin {
+            try $0.completeData()
+        }
     }
 }

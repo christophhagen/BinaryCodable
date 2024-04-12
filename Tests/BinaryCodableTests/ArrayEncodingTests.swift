@@ -184,4 +184,40 @@ final class ArrayEncodingTests: XCTestCase {
         try compare(data, to: expected)
         try compare(Data(), to: [])
     }
+    func testVeryLargePropertyPerformance() throws {
+        struct Test: Codable {
+            let values: [Float]
+
+            enum CodingKeys: Int, CodingKey {
+                case values = 1
+            }
+
+            func encode(to encoder: Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                let data: Data = values.withUnsafeBufferPointer { Data(buffer: $0) }
+                try container.encode(data, forKey: .values)
+            }
+
+            init(values: [Float]) {
+                self.values = values
+            }
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let data = try container.decode(Data.self, forKey: .values)
+                self.values = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+            }
+        }
+
+        let value = Test(values: .init(repeating: 3.14, count: 1000000))
+
+        self.measure {
+            do {
+                let data = try BinaryEncoder.encode(value)
+                print(data.count)
+            } catch {
+                XCTFail(error.localizedDescription)
+            }
+        }
+    }
 }
