@@ -13,7 +13,7 @@ extension Int64: DecodablePrimitive {
      - Parameter data: The data of the zig-zag encoded value.
      - Throws: ``CorruptedDataError``
      */
-    public init(data: Data) throws {
+    init(data: Data) throws {
         let raw = try UInt64(fromVarintData: data)
         self.init(fromZigZag: raw)
     }
@@ -122,7 +122,7 @@ extension Int64: PackedEncodable {
 
 extension Int64: PackedDecodable {
 
-    public init(data: Data, index: inout Int) throws {
+    init(data: Data, index: inout Int) throws {
         guard let raw = data.decodeUInt64(at: &index) else {
             throw CorruptedDataError(prematureEndofDataDecoding: "Int64")
         }

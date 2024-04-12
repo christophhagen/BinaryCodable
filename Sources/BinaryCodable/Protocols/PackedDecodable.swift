@@ -3,7 +3,7 @@ import Foundation
 /**
  A protocol for types which can be decoded from a continous stream of data
  */
-public protocol PackedDecodable {
+protocol PackedDecodable {
 
     /**
      Decode a value from a data stream at a given index.

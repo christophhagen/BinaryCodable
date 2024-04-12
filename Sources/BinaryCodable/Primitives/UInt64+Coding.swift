@@ -13,7 +13,7 @@ extension UInt64: DecodablePrimitive {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    public init(data: Data) throws {
+    init(data: Data) throws {
         try self.init(fromVarintData: data)
     }
 }
@@ -149,7 +149,7 @@ extension UInt64: PackedEncodable {
 
 extension UInt64: PackedDecodable {
 
-    public init(data: Data, index: inout Int) throws {
+    init(data: Data, index: inout Int) throws {
         guard let raw = data.decodeUInt64(at: &index) else {
             throw CorruptedDataError(prematureEndofDataDecoding: "UInt64")
         }

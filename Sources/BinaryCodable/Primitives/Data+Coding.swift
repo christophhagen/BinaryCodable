@@ -9,7 +9,7 @@ extension Data: EncodablePrimitive {
 
 extension Data: DecodablePrimitive {
 
-    public init(data: Data) {
+    init(data: Data) {
         self = data
     }
 }

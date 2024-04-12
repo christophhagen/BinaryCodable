@@ -31,7 +31,7 @@ extension Packed: EncodablePrimitive where WrappedValue.Element: PackedEncodable
 
 extension Packed: DecodablePrimitive where WrappedValue.Element: PackedDecodable {
 
-    public init(data: Data) throws {
+    init(data: Data) throws {
         var index = data.startIndex
         var elements = [WrappedValue.Element]()
         while !data.isAtEnd(at: index) {

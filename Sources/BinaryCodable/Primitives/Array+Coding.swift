@@ -9,7 +9,7 @@ extension Array: EncodablePrimitive where Element: PackedEncodable {
 
 extension Array: DecodablePrimitive where Element: PackedDecodable {
 
-    public init(data: Data) throws {
+    init(data: Data) throws {
         var index = data.startIndex
         var elements = [Element]()
         while !data.isAtEnd(at: index) {

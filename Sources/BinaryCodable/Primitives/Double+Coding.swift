@@ -9,7 +9,7 @@ extension Double: EncodablePrimitive {
 
 extension Double: DecodablePrimitive {
 
-    public init(data: Data) throws {
+    init(data: Data) throws {
         guard data.count == MemoryLayout<UInt64>.size else {
             throw CorruptedDataError(invalidSize: data.count, for: "Double")
         }
@@ -54,8 +54,8 @@ extension Double: PackedEncodable {
 }
 
 extension Double: PackedDecodable {
-    
-    public init(data: Data, index: inout Int) throws {
+
+    init(data: Data, index: inout Int) throws {
         guard let bytes = data.nextBytes(Self.fixedEncodedByteCount, at: &index) else {
             throw CorruptedDataError.init(prematureEndofDataDecoding: "Double")
         }

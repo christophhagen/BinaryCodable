@@ -26,7 +26,7 @@ extension Bool: DecodablePrimitive {
      - Parameter data: The data to decode
      - Throws: ``CorruptedDataError``
      */
-    public init(data: Data) throws {
+    init(data: Data) throws {
         guard data.count == 1 else {
             throw CorruptedDataError(invalidSize: data.count, for: "Bool")
         }
@@ -71,7 +71,7 @@ extension Bool: PackedEncodable {
 
 extension Bool: PackedDecodable {
     
-    public init(data: Data, index: inout Int) throws {
+    init(data: Data, index: inout Int) throws {
         guard let bytes = data.nextBytes(Self.fixedEncodedByteCount, at: &index) else {
             throw CorruptedDataError.init(prematureEndofDataDecoding: "Bool")
         }

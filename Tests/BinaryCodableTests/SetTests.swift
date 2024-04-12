@@ -4,9 +4,9 @@ import BinaryCodable
 final class SetTests: XCTestCase {
 
     func testBoolSetEncoding() throws {
-        try compare([true, false], of: Set<Bool>.self, to: [
-            1, 0
-        ])
+        try compare([true, false], of: Set<Bool>.self)
+        try compare([true], of: Set<Bool>.self, to: [1])
+        try compare([false], of: Set<Bool>.self, to: [0])
     }
 
     func testInt8SetEncoding() throws {

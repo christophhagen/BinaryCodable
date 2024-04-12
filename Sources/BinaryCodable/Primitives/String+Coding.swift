@@ -9,7 +9,7 @@ extension String: EncodablePrimitive {
 
 extension String: DecodablePrimitive {
 
-    public init(data: Data) throws {
+    init(data: Data) throws {
         guard let value = String(data: data, encoding: .utf8) else {
             throw CorruptedDataError(invalidString: data.count)
         }

@@ -13,7 +13,7 @@ extension UInt16: DecodablePrimitive {
      - Parameter data: The data to decode.
      - Throws: ``CorruptedDataError``
      */
-    public init(data: Data) throws {
+    init(data: Data) throws {
         try self.init(fromFixedSize: data)
     }
 }
@@ -89,7 +89,7 @@ extension UInt16: PackedEncodable {
 
 extension UInt16: PackedDecodable {
 
-    public init(data: Data, index: inout Int) throws {
+    init(data: Data, index: inout Int) throws {
         guard let bytes = data.nextBytes(Self.fixedEncodedByteCount, at: &index) else {
             throw CorruptedDataError.init(prematureEndofDataDecoding: "UInt16")
         }
