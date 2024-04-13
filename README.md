@@ -25,16 +25,31 @@ So if you're looking for a decently efficient binary encoder in a pure Swift pro
 ### Alternatives
 
 #### [Protocol Buffers](https://developers.google.com/protocol-buffers)
-Already mentioned above
+Efficient binary format, and broad support across different platforms and programming languages.
+Much more limited than `Codable` in terms of allowed types. 
+Message definitions must be written in separate files and compiled to Swift code.
+The library for swift is [swift-protobuf](https://github.com/apple/swift-protobuf).
+
+#### [ProtobufCodable](https://github.com/christophhagen/ProtobufCodable)
+A `Codable`-compatible implementation of the Protocol Buffer binary format.
+It has the same limitations on the allowed types as [swift-protobuf](https://github.com/apple/swift-protobuf), but message definitions can be written directly in Swift.
+Slower during encoding and decoding than `swift-protobuf`.
+
+#### [LegacyBinaryCodable](https://christophhagen.de/LegacyBinaryCodable)
+
+A mirror of the older V2 version of `BinaryCodable`, which should only be used to migrate encoded data to a different format.
 
 #### [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
-If you're looking for a `Codable`-compatible alternative which is also available on other platforms, with a well-defined [spec](https://cbor.io). It appears to have nearly the same encoding efficiency as `BinaryCodable`. 
+If you're looking for a `Codable`-compatible alternative which is also available on other platforms, with a well-defined [spec](https://cbor.io). 
+It appears to have nearly the same encoding efficiency as `BinaryCodable`. 
 
 #### [PotentCodables](https://github.com/outfoxx/PotentCodables)
 Also offers CBOR encoding, plus a bunch of other things related to `Codable`.
 
 #### [Swift BSON](https://github.com/mongodb/swift-bson)
-Encoding according to the [BSON specification](https://bsonspec.org). Less efficient binary represenation than Protocol Buffers and `BinaryCodable`, but mature. Used for MongoDB.
+Encoding according to the [BSON specification](https://bsonspec.org). 
+Less efficient binary represenation than Protocol Buffers and `BinaryCodable`, but mature. 
+Used for MongoDB.
 
 ## Installation
 
