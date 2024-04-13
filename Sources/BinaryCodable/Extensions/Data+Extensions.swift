@@ -30,13 +30,6 @@ extension Sequence {
     }
 }
 
-extension Sequence where Element: Sequence, Element.Element == UInt8 {
-
-    var joinedData: Data {
-        Data(joined())
-    }
-}
-
 extension Data {
 
     /**
