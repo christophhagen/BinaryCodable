@@ -49,7 +49,7 @@ Also offers CBOR encoding, plus a bunch of other things related to `Codable`.
 #### [Swift BSON](https://github.com/mongodb/swift-bson)
 Encoding according to the [BSON specification](https://bsonspec.org). 
 Less efficient binary represenation than Protocol Buffers and `BinaryCodable`, but mature. 
-Used for MongoDB.
+Used for MongoDB. There is also [another implementation](https://github.com/orlandos-nl/BSON).
 
 ## Installation
 
