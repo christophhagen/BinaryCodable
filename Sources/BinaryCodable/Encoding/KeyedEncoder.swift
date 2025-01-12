@@ -1,44 +1,34 @@
 import Foundation
 
-final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProtocol where Key: CodingKey {
+struct KeyedEncoder<Key>: KeyedEncodingContainerProtocol where Key: CodingKey {
 
-    private var encodedValues: [HashableKey : EncodableContainer] = [:]
+    let storage: KeyedEncoderStorage
 
-    /// Internal indicator to prevent assigning a single key multiple times
-    private var multiplyAssignedKey: HashableKey? = nil
-
-    @discardableResult
-    private func assign<T>(_ value: T, forKey key: CodingKey) -> T where T: EncodableContainer {
-        let hashableKey = HashableKey(key: key)
-        if encodedValues[hashableKey] != nil {
-            multiplyAssignedKey = hashableKey
-        } else {
-            encodedValues[hashableKey] = value
-        }
-        return value
+    init(storage: KeyedEncoderStorage) {
+        self.storage = storage
     }
 
-    private func assignedNode(forKey key: CodingKey) -> EncodingNode {
-        let node = EncodingNode(needsLengthData: true, codingPath: codingPath + [key], userInfo: userInfo)
-        return assign(node, forKey: key)
+    var codingPath: [any CodingKey] {
+        storage.codingPath
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         // By wrapping the nested container in a node, it adds length information to it
-        KeyedEncodingContainer(assignedNode(forKey: key).container(keyedBy: keyType))
+        let node = storage.assignedNode(forKey: key)
+        return KeyedEncodingContainer(node.container(keyedBy: keyType))
     }
 
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         // By wrapping the nested container in a node, it adds length information to it
-        assignedNode(forKey: key).unkeyedContainer()
+        storage.assignedNode(forKey: key).unkeyedContainer()
     }
 
     func superEncoder() -> Encoder {
-        assignedNode(forKey: SuperCodingKey())
+        storage.assignedNode(forKey: SuperCodingKey())
     }
 
     func superEncoder(forKey key: Key) -> Encoder {
-        assignedNode(forKey: key)
+        storage.assignedNode(forKey: key)
     }
 
     func encodeNil(forKey key: Key) throws {
@@ -53,38 +43,6 @@ final class KeyedEncoder<Key>: AbstractEncodingNode, KeyedEncodingContainerProto
     }
 
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
-        let encoded = try encodeValue(value, needsLengthData: true)
-        assign(encoded, forKey: key)
-    }
-}
-
-extension KeyedEncoder: EncodableContainer {
-
-    var needsNilIndicator: Bool {
-        false
-    }
-
-    var isNil: Bool {
-        false
-    }
-
-    func containedData() throws -> Data {
-        if let multiplyAssignedKey {
-            throw EncodingError.invalidValue(0, .init(codingPath: codingPath, debugDescription: "Multiple values assigned to key \(multiplyAssignedKey)"))
-        }
-        guard sortKeysDuringEncoding else {
-            return try encode(elements: encodedValues)
-        }
-        return try encode(elements: encodedValues.sorted { $0.key < $1.key })
-    }
-
-    private func encode<T>(elements: T) throws -> Data where T: Collection, T.Element == (key: HashableKey, value: EncodableContainer) {
-        try elements.mapAndJoin { key, value in
-            guard let keyData = key.key.keyData() else {
-                throw EncodingError.invalidValue(key.key.intValue!, .init(codingPath: codingPath + [key.key], debugDescription: "Invalid integer value for coding key"))
-            }
-            let data = try value.completeData()
-            return keyData + data
-        }
+        try storage.encode(value, forKey: key)
     }
 }

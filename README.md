@@ -330,6 +330,72 @@ try decoder.read { element in
 
 There is also the possibility to read all elements at once using `readAll()`, or to read only one element at a time (`readElement()`).
 
+### Detailed behaviour on custom encoding
+
+There are a few notable details regarding custom implementations of `func encode(to encoder: any Encoder) throws` and `init(from decoder: any Decoder) throws` that are worth mentioning.
+Sometimes the expected behaviour is not clear, so this implementation attempts to mimic the behaviour of `JSONEncoder` and `JSONDecoder`.
+
+#### Multiple calls to containers
+
+It's possible to perform repeated calls to functions on `Encoder`, but only of the same type:
+
+```swift
+func encode(to encoder: any Encoder) throws {
+    var container1 = encoder.unkeyedContainer()
+    var container2 = encoder.unkeyedContainer() // valid
+    
+    var other = encoder.singleValueContainer() // crashes
+}
+```
+
+The values encoded to these multiple instances is the following:
+- Single value containers: the last encoded value is used
+- Unkeyed containers: Values are placed in order of insertion, independent of the container used
+- Keyed containers: The last value assigned for each key is used
+
+Note: For keyed containers, it is possible to use multiple containers with different `Key` types,
+that insert keys to the same underlying storage:
+
+```swift
+func encode(to encoder: any Encoder) throws {
+    var container1 = encoder.container(keyedBy: KeySetA.self)
+    var container2 = encoder.container(keyedBy: KeySetB.self)
+    
+    try container1.encode("ABC", forKey: KeySetA.value)
+    try container1.encode("abc", forKey: KeySetB.value) // Overwrites "ABC"
+}
+```
+
+During decoding, the behaviour is slightly different.
+
+It is allowed to treat a `Decoder` as multiple types at once:
+
+```swift
+init(from decoder: any Decoder) throws {
+    let keyed = try decoder.container(keyedBy: CodingKeys.self)
+    self.a = try keyed.decode(String.self, forKey: .a)
+    let single = try decoder.singleValueContainer()
+    let dict = try single.decode([String : String].self) // Treat keyed container as dictionary
+    self.b = dict["b"]!
+}
+```
+
+Multiple unkeyed containers during decoding do not synchronize their state:
+
+```swift
+init(from decoder: any Decoder) throws {
+    // Assuming values ["123", "ABC"]
+    let container1 = try decoder.unkeyedContainer()
+    let container2 = try decoder.unkeyedContainer()
+    let first = container1.decode(String.self) // Returns "123"
+    let other = container2.decode(String.self) // Returns "123"
+    let second = container1.decode(String.self) // Returns "ABC"
+}
+```
+
+This may be slighly confusing given the different behaviour during encoding,
+but matches the implementation of `JSONDecoder`.
+
 ## Binary format
 
 To learn more about the encoding format, see [BinaryFormat.md](BinaryFormat.md).

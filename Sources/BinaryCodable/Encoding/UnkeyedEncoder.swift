@@ -1,60 +1,46 @@
 import Foundation
 
-final class UnkeyedEncoder: AbstractEncodingNode, UnkeyedEncodingContainer {
+struct UnkeyedEncoder: UnkeyedEncodingContainer {
 
-    private var encodedValues: [EncodableContainer] = []
+    private let storage: UnkeyedEncoderStorage
+
+    init(storage: UnkeyedEncoderStorage) {
+        self.storage = storage
+    }
+
+    var codingPath: [any CodingKey] {
+        storage.codingPath
+    }
+
+    var userInfo: UserInfo {
+        storage.userInfo
+    }
 
     var count: Int {
-        encodedValues.count
+        storage.count
     }
 
     func encodeNil() throws {
-        encodedValues.append(NilContainer())
-    }
-
-    @discardableResult
-    private func add<T>(_ value: T) -> T where T: EncodableContainer {
-        encodedValues.append(value)
-        return value
-    }
-
-    private func addedNode() -> EncodingNode {
-        let node = EncodingNode(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)
-        return add(node)
+        try storage.encodeNil()
     }
 
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        KeyedEncodingContainer(add(KeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)))
+        let storage = KeyedEncoderStorage(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)
+        self.storage.add(storage)
+        return KeyedEncodingContainer(KeyedEncoder(storage: storage))
     }
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        add(UnkeyedEncoder(needsLengthData: true, codingPath: codingPath, userInfo: userInfo))
+        let storage = UnkeyedEncoderStorage(needsLengthData: true, codingPath: codingPath, userInfo: userInfo)
+        self.storage.add(storage)
+        return UnkeyedEncoder(storage: storage)
     }
 
     func superEncoder() -> Encoder {
-        addedNode()
+        storage.addedNode()
     }
 
     func encode<T>(_ value: T) throws where T : Encodable {
-        let encoded = try encodeValue(value, needsLengthData: true)
-        add(encoded)
-    }
-
-}
-
-extension UnkeyedEncoder: EncodableContainer {
-
-    var needsNilIndicator: Bool {
-        false
-    }
-
-    var isNil: Bool {
-        false
-    }
-
-    func containedData() throws -> Data {
-        try encodedValues.mapAndJoin {
-            try $0.completeData()
-        }
+        try storage.encode(value)
     }
 }

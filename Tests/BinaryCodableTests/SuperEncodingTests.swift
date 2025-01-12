@@ -118,4 +118,44 @@ final class SuperEncodingTests: XCTestCase {
         ]
         try compare(value, toOneOf: [part1 + part2, part2 + part1])
     }
+
+    func testInheritance() throws {
+        class ParentClass: Codable {
+            var text: String = ""
+        }
+
+        final class ChildClass: ParentClass, Equatable {
+            static func == (lhs: ChildClass, rhs: ChildClass) -> Bool {
+                lhs.text == rhs.text && lhs.image == rhs.image
+            }
+
+            var image: Data?
+
+            enum CodingKeys: String, CodingKey {
+                case image
+            }
+
+            override init() {
+                self.image = nil
+                super.init()
+            }
+
+            required init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self.image = try container.decodeIfPresent(Data.self, forKey: .image)
+                try super.init(from: decoder)
+            }
+
+            override func encode(to encoder: any Encoder) throws {
+                try super.encode(to: encoder)
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encodeIfPresent(image, forKey: .image)
+            }
+        }
+
+        let child = ChildClass()
+        child.image = Data(repeating: 42, count: 42)
+
+        try compare(child)
+    }
 }
