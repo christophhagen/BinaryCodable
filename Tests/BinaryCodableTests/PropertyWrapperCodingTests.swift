@@ -72,10 +72,10 @@ final class PropertyWrapperCodingTests: XCTestCase {
 
         // If the suffix differs, this error is specific to the individual test case,
         // so report it on the call-side
-        XCTAssertEqual(Array(data.suffix(from: bytePrefix.count)), byteSuffix, file: file, line: line)
+        XCTAssertEqual(Array(data.suffix(from: bytePrefix.count)), byteSuffix, file: (file), line: line)
 
         let decodedWrapper: KeyedWrapper<T> = try BinaryDecoder.decode(from: data)
-        XCTAssertEqual(decodedWrapper, wrapper, file: file, line: line)
+        XCTAssertEqual(decodedWrapper, wrapper, file: (file), line: line)
     }
 
     func testOptionalWrappedStringSome() throws {

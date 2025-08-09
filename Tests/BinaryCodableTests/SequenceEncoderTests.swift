@@ -7,7 +7,7 @@ final class SequenceEncoderTests: XCTestCase {
         let encoder = BinaryStreamEncoder<T>()
 
         let bytes = try input.mapAndJoin(encoder.encode)
-        print(Array(bytes))
+        //print(Array(bytes))
         let decoder = BinaryStreamDecoder<T>()
 
         decoder.add(bytes)
