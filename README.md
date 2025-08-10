@@ -41,15 +41,21 @@ A mirror of the older V2 version of `BinaryCodable`, which should only be used t
 
 #### [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
 If you're looking for a `Codable`-compatible alternative which is also available on other platforms, with a well-defined [spec](https://cbor.io). 
-It appears to have nearly the same encoding efficiency as `BinaryCodable`. 
+It appears to have nearly the same encoding efficiency as `BinaryCodable`.
+Suffers from the [double-optional bug](#double-optional-bug).
 
 #### [PotentCodables](https://github.com/outfoxx/PotentCodables)
-Also offers CBOR encoding, plus a bunch of other things related to `Codable`.
+Also offers CBOR encoding for `Codable` types, plus a bunch of other things related to `Codable`.
+Suffers from the [double-optional bug](#double-optional-bug).
 
 #### [Swift BSON](https://github.com/mongodb/swift-bson)
 Encoding according to the [BSON specification](https://bsonspec.org). 
 Less efficient binary represenation than Protocol Buffers and `BinaryCodable`, but mature. 
 Used for MongoDB. There is also [another implementation](https://github.com/orlandos-nl/BSON).
+
+#### [JSONEncoder](https://developer.apple.com/documentation/foundation/jsonencoder)/[JSONDecoder](https://developer.apple.com/documentation/foundation/jsondecoder)
+The `Foundation` module provides JSON encoding, which is String-based and therefore not efficient.
+Also has the [double-optional bug](#double-optional-bug).
 
 ## Installation
 
@@ -333,6 +339,25 @@ There is also the possibility to read all elements at once using `readAll()`, or
 ## Binary format
 
 To learn more about the encoding format, see [BinaryFormat.md](BinaryFormat.md).
+
+### Double-optional bug
+
+There is an edge case that many decoders handle incorrectly: Double optionals, like `Int??`.
+While `BinaryCodable` handles this case correctly (see [test](https://github.com/christophhagen/BinaryCodable/blob/0cd135eccf2e6e7dd0846883bac1ccb6c48ee0a3/Tests/BinaryCodableTests/OptionalEncodingTests.swift#L21)), there are many encoders that don't.
+Even the standard `JSONEncoder` has this issue:
+
+```swift
+let value: Int?? = .some(.none)
+let encoded = try JSONEncoder().encode(value)
+let decoded = try JSONDecoder().decode(Int??.self, from: encoded)
+print(value == decoded) // Prints "false"
+```
+
+This issue arises from the fact that many encoding formats can't properly handle double optionals, e.g. for JSON, both `.some(.none)` and `.none` will produce the String `none`, so the decoder can't distinguish between the two cases and will decode as `.none`.
+This bug affects at least the following Encoders for `Codable` types:
+- [JSONEncoder](https://developer.apple.com/documentation/foundation/jsonencoder)/[JSONDecoder](https://developer.apple.com/documentation/foundation/jsondecoder) from the Foundation module
+- [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
+- [PotentCodables](https://github.com/outfoxx/PotentCodables)
 
 ## Legacy versions and migration
 
