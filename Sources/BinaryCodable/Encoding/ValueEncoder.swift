@@ -1,41 +1,22 @@
 import Foundation
 
-final class ValueEncoder: AbstractEncodingNode, SingleValueEncodingContainer {
+struct ValueEncoder: SingleValueEncodingContainer {
 
-    private var encodedValue: EncodableContainer?
+    var codingPath: [any CodingKey] {
+        storage.codingPath
+    }
 
-    init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
-        super.init(needsLengthData: false, codingPath: codingPath, userInfo: userInfo)
+    private var storage: ValueEncoderStorage
+
+    init(storage: ValueEncoderStorage) {
+        self.storage = storage
     }
 
     func encodeNil() throws {
-        guard encodedValue == nil else {
-            throw EncodingError.invalidValue(0, .init(codingPath: codingPath, debugDescription: "Single value container: Multiple calls to encodeNil() or encode<T>()"))
-        }
-        encodedValue = NilContainer()
+        try storage.encodeNil()
     }
 
     func encode<T>(_ value: T) throws where T : Encodable {
-        guard encodedValue == nil else {
-            throw EncodingError.invalidValue(value, .init(codingPath: codingPath, debugDescription: "Single value container: Multiple calls to encodeNil() or encode<T>()"))
-        }
-        self.encodedValue = try encodeValue(value, needsLengthData: false)
-    }
-}
-
-extension ValueEncoder: EncodableContainer {
-
-    var needsNilIndicator: Bool { true }
-
-    var isNil: Bool {
-        encodedValue is NilContainer
-    }
-
-    func containedData() throws -> Data {
-        guard let encodedValue else {
-            throw EncodingError.invalidValue(0, .init(codingPath: codingPath, debugDescription: "No value or nil encoded in single value container"))
-        }
-        let data = try encodedValue.completeData()
-        return data
+        try storage.encode(value)
     }
 }

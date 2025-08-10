@@ -215,4 +215,36 @@ final class KeyedEncodingTests: XCTestCase {
         }
         try compare(GenericTestStruct(), to: [])
     }
+
+    /**
+     Check that assigning to the same key twice saves the second value.
+     Also check that it's possible to read the same key multiple times.
+     */
+    func testAssigningAndReadKeyTwice() throws {
+        struct TestStruct: Codable, Equatable {
+            let key: String
+
+            init(key: String) {
+                self.key = key
+            }
+
+            enum CodingKeys: CodingKey {
+                case key
+            }
+
+            func encode(to encoder: any Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encode("ABC", forKey: .key)
+                try container.encode(key, forKey: .key)
+            }
+
+            init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let _ = try container.decode(String.self, forKey: .key)
+                self.key = try container.decode(String.self, forKey: .key)
+            }
+        }
+
+        try compare(TestStruct(key: "abc"))
+    }
 }

@@ -7,31 +7,23 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
 
     private let data: Data?
 
-    private var didCallContainer = false
-
     init(data: Data?, parentDecodedNil: Bool, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
         self.data = data
         super.init(parentDecodedNil: parentDecodedNil, codingPath: codingPath, userInfo: userInfo)
     }
 
-    private func registerContainer() throws {
-        guard !didCallContainer else {
-            throw DecodingError.corrupted("Multiple containers requested from decoder", codingPath: codingPath)
-        }
-        didCallContainer = true
-    }
-
     private func getNonNilElement() throws -> Data {
-        try registerContainer()
         // Non-root containers just use the data, which can't be nil
         guard let data else {
-            throw DecodingError.corrupted("Container requested, but nil found", codingPath: codingPath)
+            throw DecodingError.corrupted("Container requested, but `nil` found", codingPath: codingPath)
         }
         return data
     }
 
+    /**
+     Decode an element that can potentially be `nil` for a single value container.
+     */
     private func getPotentialNilElement() throws -> Data? {
-        try registerContainer()
         guard !parentDecodedNil else {
             return data
         }
