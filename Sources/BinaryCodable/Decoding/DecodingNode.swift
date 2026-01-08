@@ -3,10 +3,12 @@ import Foundation
 /**
  A class acting as a decoder, to provide different containers for decoding.
  */
+@_spi(internals) public
 final class DecodingNode: AbstractDecodingNode, Decoder {
 
     private let data: Data?
 
+    @_spi(internals) public
     init(data: Data?, parentDecodedNil: Bool, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) throws {
         self.data = data
         super.init(parentDecodedNil: parentDecodedNil, codingPath: codingPath, userInfo: userInfo)
@@ -55,16 +57,19 @@ final class DecodingNode: AbstractDecodingNode, Decoder {
         }
     }
 
+    @_spi(internals) public
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
         let data = try getNonNilElement()
         return KeyedDecodingContainer(try KeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo))
     }
 
+    @_spi(internals) public
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
         let data = try getNonNilElement()
         return try UnkeyedDecoder(data: data, codingPath: codingPath, userInfo: userInfo)
     }
 
+    @_spi(internals) public
     func singleValueContainer() throws -> SingleValueDecodingContainer {
         let data = try getPotentialNilElement()
         return ValueDecoder(data: data, codingPath: codingPath, userInfo: userInfo)

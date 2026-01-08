@@ -3,14 +3,17 @@ import Foundation
 /**
  A class that provides encoding functions for all encoding containers.
  */
+@_spi(internals) public
 class AbstractEncodingNode: AbstractNode {
 
+    @_spi(internals) public
     let needsLengthData: Bool
 
     /**
     - Parameter codingPath: The path to get to this point in encoding or decoding
     - Parameter userInfo: Contextual information set by the user
     */
+    @_spi(internals) public
     init(needsLengthData: Bool, codingPath: [CodingKey], userInfo: UserInfo) {
         self.needsLengthData = needsLengthData
         super.init(codingPath: codingPath, userInfo: userInfo)
