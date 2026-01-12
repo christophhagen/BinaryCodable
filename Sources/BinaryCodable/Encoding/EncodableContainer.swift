@@ -3,7 +3,7 @@ import Foundation
 /**
  A protocol adopted by primitive types for encoding.
  */
-@_spi(internals) public
+@_spi(Internals) public
 protocol EncodableContainer {
 
     /// Indicate if the container needs to have a length prepended
@@ -29,7 +29,7 @@ extension EncodableContainer {
     /**
      The full data encoded in the container, including nil indicator and length, if needed
      */
-    @_spi(internals) public
+    @_spi(Internals) public
     func completeData() throws -> Data {
         guard !isNil else {
             // A nil value always means:

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Contextual information set by the user for encoding or decoding
-@_spi(internals) public
+@_spi(Internals) public
 typealias UserInfo = [CodingUserInfoKey: Any]
 
 /**
@@ -12,13 +12,13 @@ typealias UserInfo = [CodingUserInfoKey: Any]
 
  Child classes: `AbstractEncodingNode` and `AbstractDecodingNode`
  */
-@_spi(internals) public
+@_spi(Internals) public
 class AbstractNode {
 
     /**
      The path of coding keys taken to get to this point in encoding or decoding.
      */
-    @_spi(internals) public
+    @_spi(Internals) public
     let codingPath: [CodingKey]
 
     /**
@@ -26,7 +26,7 @@ class AbstractNode {
 
      Contains also keys for any custom options set for the encoder and decoder. See `CodingOption`.
      */
-    @_spi(internals) public
+    @_spi(Internals) public
     let userInfo: UserInfo
 
     /**

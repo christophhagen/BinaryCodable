@@ -3,7 +3,7 @@ import Foundation
 /**
  A class to provide decoding functions to all decoding containers.
  */
-@_spi(internals) public
+@_spi(Internals) public
 class AbstractDecodingNode: AbstractNode {
 
     let parentDecodedNil: Bool
