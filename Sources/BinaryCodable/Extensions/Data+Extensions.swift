@@ -37,9 +37,16 @@ extension Data {
      - Parameter type: The type to interpret
      */
     func interpreted<T>(as type: T.Type = T.self) -> T {
-        Data(self).withUnsafeBytes {
-            $0.baseAddress!.load(as: T.self)
+#if swift(>=6.0)
+        withUnsafeBytes { rawBuffer in
+            rawBuffer.loadUnaligned(as: T.self)
         }
+#else
+        precondition(count >= MemoryLayout<T>.size)
+        return withUnsafeBytes { rawBuffer in
+            rawBuffer.baseAddress!.assumingMemoryBound(to: T.self).pointee
+        }
+#endif
     }
 
     /**
