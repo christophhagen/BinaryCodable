@@ -1,9 +1,18 @@
 import Foundation
 
+/// Exposed via SPI to allow consumer modules to build proxy-style wrapper encoders
+/// without making it part of the public API.
+///
+/// To import `EncodingNode`, add the `@_spi(Internals)` attribute to your import statement:
+/// ```swift
+/// @_spi(Internals) import BinaryCodable
+/// ```
+@_spi(Internals) public
 final class EncodingNode: AbstractEncodingNode, Encoder {
 
     private var encodedValue: EncodableContainer? = nil
 
+    @_spi(Internals) public
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
         guard let encodedValue else {
             let storage = KeyedEncoderStorage(needsLengthData: needsLengthData, codingPath: codingPath, userInfo: userInfo)
@@ -16,6 +25,7 @@ final class EncodingNode: AbstractEncodingNode, Encoder {
         return KeyedEncodingContainer(KeyedEncoder(storage: storage))
     }
 
+    @_spi(Internals) public
     func unkeyedContainer() -> UnkeyedEncodingContainer {
         guard let encodedValue else {
             let storage = UnkeyedEncoderStorage(needsLengthData: needsLengthData, codingPath: codingPath, userInfo: userInfo)
@@ -28,6 +38,7 @@ final class EncodingNode: AbstractEncodingNode, Encoder {
         return UnkeyedEncoder(storage: storage)
     }
 
+    @_spi(Internals) public
     func singleValueContainer() -> SingleValueEncodingContainer {
         guard let encodedValue else {
             // No previous container generated, create the storage
@@ -48,16 +59,19 @@ final class EncodingNode: AbstractEncodingNode, Encoder {
 
 extension EncodingNode: EncodableContainer {
 
+    @_spi(Internals) public
     var needsNilIndicator: Bool {
         // If no value is encoded, then it doesn't matter what is returned, `encodedData()` will throw an error
         encodedValue?.needsNilIndicator ?? false
     }
 
+    @_spi(Internals) public
     var isNil: Bool {
         // Returning false for missing encodedValue forces an error on `encodedData()`
         encodedValue?.isNil ?? false
     }
 
+    @_spi(Internals) public
     func containedData() throws -> Data {
         guard let encodedValue else {
             throw EncodingError.invalidValue(0, .init(codingPath: codingPath, debugDescription: "No calls to container(keyedBy:), unkeyedContainer(), or singleValueContainer()"))
