@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        swift: [5.7, 5.10, 6.0, 6.2]
+        swift: ["6.0", "6.2"]
     steps:
       - uses: actions/checkout@v4
       - name: Install Swift
@@ -33,7 +33,6 @@ jobs:
       fail-fast: false
       matrix:
         xcode:
-          - "15.4"   # Swift 5.10
           - "16.2"   # Swift 6.0
           - "26"     # Swift 6.2
     steps:
