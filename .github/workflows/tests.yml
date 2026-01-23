@@ -47,5 +47,3 @@ jobs:
         run: swift build
       - name: Test
         run: swift test
-      - name: Swift Package Registry
-        uses: twodayslate/swift-package-registry@v0.0.2
