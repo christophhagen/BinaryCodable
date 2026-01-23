@@ -207,8 +207,7 @@ final class ArrayEncodingTests: XCTestCase {
 
         self.measure {
             do {
-                let data = try BinaryEncoder.encode(value)
-                print(data.count)
+                _ = try BinaryEncoder.encode(value)
             } catch {
                 XCTFail(error.localizedDescription)
             }

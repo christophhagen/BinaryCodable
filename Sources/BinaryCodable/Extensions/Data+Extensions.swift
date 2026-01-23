@@ -37,8 +37,8 @@ extension Data {
      - Parameter type: The type to interpret
      */
     func interpreted<T>(as type: T.Type = T.self) -> T {
-        Data(self).withUnsafeBytes {
-            $0.baseAddress!.load(as: T.self)
+        withUnsafeBytes { rawBuffer in
+            rawBuffer.loadUnaligned(as: T.self)
         }
     }
 

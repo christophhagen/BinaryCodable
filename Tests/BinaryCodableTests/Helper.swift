@@ -30,8 +30,6 @@ extension XCTestCase {
         let data = try encoder.encode(value)
         if let expected {
             XCTAssertEqual(Array(data), expected)
-        } else {
-            print("Encoded data: \(Array(data))")
         }
 
         let decoder = BinaryDecoder()

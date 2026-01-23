@@ -187,33 +187,38 @@ final class KeyedEncodingTests: XCTestCase {
             case value = 1
             case opt = 2
         }
-        GenericTestStruct.encode { encoder in
-            var container = encoder.container(keyedBy: Keys.self)
-            let value: String? = nil
-            try container.encodeIfPresent(value, forKey: .value)
-            try container.encodeNil(forKey: .opt)
-        }
-        GenericTestStruct.decode { decoder in
-            let container = try decoder.container(keyedBy: Keys.self)
-            XCTAssertFalse(container.contains(.value))
-            // Nil is not encoded
-            XCTAssertFalse(container.contains(.opt))
 
-            let s = try container.decodeIfPresent(String.self, forKey: .value)
-            XCTAssertEqual(s, nil)
+        struct NilEncoder: SomeCodable {
 
-            let optIsNil = try container.decodeNil(forKey: .opt)
-            XCTAssertTrue(optIsNil)
-            let opt = try container.decodeIfPresent(Bool.self, forKey: .opt)
-            XCTAssertNil(opt)
-            do {
-                _ = try container.decode(Bool.self, forKey: .opt)
-                XCTFail()
-            } catch {
+            static func encode(_ encoder: any Encoder) throws {
+                var container = encoder.container(keyedBy: Keys.self)
+                let value: String? = nil
+                try container.encodeIfPresent(value, forKey: .value)
+                try container.encodeNil(forKey: .opt)
+            }
 
+            static func decode(_ decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: Keys.self)
+                XCTAssertFalse(container.contains(.value))
+                // Nil is not encoded
+                XCTAssertFalse(container.contains(.opt))
+
+                let s = try container.decodeIfPresent(String.self, forKey: .value)
+                XCTAssertEqual(s, nil)
+
+                let optIsNil = try container.decodeNil(forKey: .opt)
+                XCTAssertTrue(optIsNil)
+                let opt = try container.decodeIfPresent(Bool.self, forKey: .opt)
+                XCTAssertNil(opt)
+                do {
+                    _ = try container.decode(Bool.self, forKey: .opt)
+                    XCTFail()
+                } catch {
+
+                }
             }
         }
-        try compare(GenericTestStruct(), to: [])
+        try compare(NilEncoder())
     }
 
     /**

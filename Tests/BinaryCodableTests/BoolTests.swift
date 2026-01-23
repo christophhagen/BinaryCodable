@@ -70,15 +70,21 @@ final class BoolTests: XCTestCase {
     }
 
     func testUnkeyedWithBool() throws {
-        GenericTestStruct.encode { encoder in
-            var container = encoder.unkeyedContainer()
-            try container.encode(true)
+        struct UnkeyedWithBool: SomeCodable {
+
+            static func encode(_ encoder: any Encoder) throws {
+                var container = encoder.unkeyedContainer()
+                try container.encode(true)
+            }
+
+            static func decode(_ decoder: any Decoder) throws {
+                var container = try decoder.unkeyedContainer()
+                let value = try container.decode(Bool.self)
+                XCTAssertEqual(value, true)
+            }
         }
-        GenericTestStruct.decode { decoder in
-            var container = try decoder.unkeyedContainer()
-            let value = try container.decode(Bool.self)
-            XCTAssertEqual(value, true)
-        }
+
+        try compare(UnkeyedWithBool())
     }
 
 
