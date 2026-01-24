@@ -2,11 +2,9 @@
     <img src="assets/logo.png" width="500" max-width="90%" alt="BinaryCodable" />
 </p>
 <p align="center">
-    <img src="assets/swift.svg" /> <!-- https://img.shields.io/badge/Swift-5.6--5.10-orange.svg -->
+    <img src="assets/swift.svg" /> <!-- https://img.shields.io/badge/Swift-6-orange.svg -->
     <img src="assets/platforms.svg" /> <!-- https://img.shields.io/badge/Platforms-iOS_|_macOS_|_Linux_|_tvOS_|_watchOS-green.svg -->
-    <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml" style="text-decoration: none;">
-        <img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" />
-    </a>
+    <a href="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml" style="text-decoration: none;"><img src="https://github.com/christophhagen/BinaryCodable/actions/workflows/tests.yml/badge.svg" /></a>
     <a href="https://docs.christophhagen.de/documentation/binarycodable" style="text-decoration: none;">
         <img src="assets/docs.svg" /> <!-- https://img.shields.io/badge/documentation-100%25-green.svg -->
     </a>
@@ -64,7 +62,7 @@ Also has the [double-optional bug](#double-optional-bug).
 Simply include in your `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/christophhagen/BinaryCodable", from: "3.0.0")
+    .package(url: "https://github.com/christophhagen/BinaryCodable", from: "4.0.0")
 ],
 targets: [
     .target(name: "MyTarget", dependencies: [
@@ -467,6 +465,11 @@ func reencode<T>(data: Data, as type: T.Type) throws -> Data where T: Codable {
     return try encoder.encode(value)
 }
 ```
+
+### Migrating to 4.0
+
+There are no functional changes between the two versions.
+4.0 only drops support for Swift 5, since it uses more strict byte alignment that is only available in Swift 6.
 
 ## Tests
 
