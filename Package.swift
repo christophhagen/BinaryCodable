@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "BinaryCodable",
-    platforms: [.macOS(.v10_13), .iOS(.v12), .tvOS(.v12), .watchOS(.v4)],
+    platforms: [.macOS(.v10_13), .iOS(.v12), .tvOS(.v12), .watchOS(.v9)],
     products: [
         .library(
             name: "BinaryCodable",
